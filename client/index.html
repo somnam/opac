@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Custom font -->
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+
+    <!-- CSS reset -->
+    <link rel="stylesheet" href="https://unpkg.com/css-micro-reset@1.0.0/micro-css-reset.css">
+
+    <!-- 8bit style CSS -->
+    <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+
+    <!-- Site CSS -->
+    <link href="public/stylesheets/app.css" rel="stylesheet" />
+
+    <title>Opac Search</title>
+  </head>
+
+  <body>
+    <form id="profile-form">
+      <div id="progress", class="item text-center">
+        <progress id="search-profile-step" class="nes-progress" value="1" max="1"></progress>
+        <progress id="confirm-profile-step" class="nes-progress" value="0" max="1"></progress>
+        <progress id="shelves-step" class="nes-progress" value="0" max="1"></progress>
+        <progress id="libraries-step" class="nes-progress" value="0" max="1"></progress>
+      </div>
+
+      <fieldset id="search-profile-fields" class="fields-hidden">
+        <div id="search-profile-container" class="nes-container with-title mb-4">
+          <h3 class="title">Profile name</h3>
+          <p class="input-hint">
+          Can be found on your account page by the profile picture.
+          </p>
+          <input class="nes-input" id="profile-name" required="" />
+        </div>
+
+        <button class="nes-btn is-disabled btn-block mb-4" id="search-profile-btn">
+          Next
+        </button>
+      </fieldset>
+
+      <fieldset id="no-profile-fields" class="fields-hidden">
+        <div id="no-profile-container" class="nes-container with-title mb-4">
+          <h3 class="title">Profile not found</h3>
+          <p class="input-hint">
+          Profile with the given name was not found. Try another?
+          </p>
+        </div>
+
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
+
+      <fieldset id="confirm-profile-fields" class="fields-hidden">
+        <div id="profile-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Is this you?</h3>
+          <div class="item" id="profile-list">
+          </div>
+        </div>
+
+        <button class="nes-btn is-primary btn-block mb-4" id="confirm-profile-btn">
+          Next
+        </button>
+
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
+
+      <fieldset id="shelves-fields" class="fields-hidden">
+        <div id="shelf-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Shelf</h3>
+          <div class="item" id="shelf-list">
+          </div>
+        </div>
+
+        <button class="nes-btn is-primary btn-block mb-4" id="select-shelf-btn">
+          Next
+        </button>
+
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
+
+      <fieldset id="libraries-fields" class="fields-hidden">
+        <div id="library-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Library</h3>
+          <div class="item" id="library-list">
+          </div>
+        </div>
+
+        <button class="nes-btn is-primary btn-block mb-4" id="search-library-btn">
+          Search 
+        </button>
+
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
+
+    </form>
+
+    <script type="module" src="public/javascripts/app.js"></script>
+  </body>
+
+</html>

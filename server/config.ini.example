@@ -1,0 +1,4 @@
+[lc]
+url = http://lubimyczytac.pl
+profile_search_url = https://lubimyczytac.pl/account/getMoreSearchedAccounts
+profile_library_url = https://lubimyczytac.pl/{profile_id}/biblioteczka/lista

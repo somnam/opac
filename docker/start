@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+check_dependencies
+create_docker_network
+
+./docker/client/start
+./docker/server/start
+./docker/proxy/start

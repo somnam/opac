@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+check_dependencies
+
+./docker/client/stop
+./docker/server/stop
+./docker/proxy/stop
+
+docker network prune -f 1>/dev/null

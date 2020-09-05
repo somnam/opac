@@ -1,0 +1,30 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+
+run_container ()
+{
+    echo -e "\e[36mStarting container\e[0m"
+
+    local self_path=$(dirname "$0")
+    local root_path=$(realpath "$self_path/../")
+    docker run \
+        --rm \
+        --detach \
+        --interactive \
+        --tty \
+        --network opac-net \
+        --network-alias opac-proxy \
+        --publish 8080:8080 \
+        --publish 8888:8888 \
+        --name opac-proxy \
+        opac-proxy:latest
+}
+
+
+check_dependencies
+build_docker_image "opac-proxy"
+create_docker_network
+run_container
+echo -e "\e[32mContainer started\e[0m"

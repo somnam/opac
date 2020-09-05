@@ -1,0 +1,10 @@
+# Project
+*.json
+*.xlsx
+*.log
+*.db
+*.ini
+*.pid
+
+# Environment
+tags

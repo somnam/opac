@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+run_tests ()
+{
+    echo -e "\e[36mStarting $1 tests\e[0m"
+
+    docker run \
+        --rm \
+        --name "$1-tests" \
+        "$1:latest" \
+        python setup.py pytest
+}
+
+check_dependencies
+build_docker_image "opac-server"
+run_tests "opac-server"
