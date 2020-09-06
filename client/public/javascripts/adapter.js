@@ -21,8 +21,8 @@ class Adapter {
             );
         });
 
-        this.on('libraries-request', (page) => {
-            this.ws.send("libraries", {page: page});
+        this.on('catalogs-request', (page) => {
+            this.ws.send("catalogs", {page: page});
         });
 
         this.ws.on("search_profile", (message) => {
@@ -51,16 +51,23 @@ class Adapter {
             this.emit('shelves-results');
         });
 
-        this.ws.on("libraries", (message) => {
-            const libraries = message.payload.libraries;
+        this.ws.on("catalogs", (message) => {
+            const catalogs = message.payload.catalogs.map(
+                (catalog) => {
+                    return {
+                        name: `${catalog.name} (${catalog.city})`,
+                        value: catalog.value
+                    }
+                }
+            )
 
-            if (libraries.length !== 0) {
-                this.storage.setItem('libraries', JSON.stringify(libraries));
+            if (catalogs.length !== 0) {
+                this.storage.setItem('catalogs', JSON.stringify(catalogs));
             } else {
-                this.storage.removeItem('libraries');
+                this.storage.removeItem('catalogs');
             }
 
-            this.emit('libraries-results');
+            this.emit('catalogs-results');
         });
     }
 }

@@ -26,8 +26,8 @@ class Progress {
             this.setProgress();
         });
 
-        this.on('libraries-show', () => {
-            this.step = 'libraries';
+        this.on('catalogs-show', () => {
+            this.step = 'catalogs';
             this.setProgress();
         });
     }
@@ -52,8 +52,8 @@ class Progress {
         );
 
         switch(this.step) {
-            case 'libraries':
-                document.querySelector('#libraries-step').value = 1;
+            case 'catalogs':
+                document.querySelector('#catalogs-step').value = 1;
             case 'shelves':
                 document.querySelector('#shelves-step').value = 1;
             case 'confirm-profile':
@@ -79,8 +79,8 @@ class Progress {
             case 'shelves':
                 this.emit('shelves-show'); 
                 break;
-            case 'libraries':
-                this.emit('libraries-show');
+            case 'catalogs':
+                this.emit('catalogs-show');
                 break;
         }
     }

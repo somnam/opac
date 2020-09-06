@@ -19,7 +19,7 @@ class Shelves {
 
         this.on('shelves-paginate', (page) => this.onPaginate(page));
 
-        this.on('libraries-results', () => this.emit('shelves-hide'));
+        this.on('catalogs-results', () => this.emit('shelves-hide'));
     }
 
     onDomLoaded() {
@@ -89,7 +89,7 @@ class Shelves {
 
         this.showLoading('#select-shelf-btn');
 
-        this.emit('libraries-request');
+        this.emit('catalogs-request');
     }
 }
 

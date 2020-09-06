@@ -13,7 +13,7 @@ from entry.websocket.exceptions import MessageDecodeError
 from entry.websocket.handlers import (
     HandlerInterface,
     SearchProfileHandler,
-    LibrariesHandler,
+    CatalogsHandler,
     ShelvesHandler,
 )
 
@@ -111,7 +111,7 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
 def run_app(port: int) -> None:
     WebSocketApp.register_handler(SearchProfileHandler)
     WebSocketApp.register_handler(ShelvesHandler)
-    WebSocketApp.register_handler(LibrariesHandler)
+    WebSocketApp.register_handler(CatalogsHandler)
 
     app = tornado.web.Application(
         [

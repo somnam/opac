@@ -1,6 +1,7 @@
+import json
 import logging
 from os import path
-from typing import List
+from typing import List, Any
 from configparser import ConfigParser, ExtendedInterpolation
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,7 @@ class Config(ConfigParser):
 
     def __init__(self) -> None:
         super().__init__(
+            converters={'struct': self.struct_converter},
             interpolation=ExtendedInterpolation(),
         )
 
@@ -22,3 +24,12 @@ class Config(ConfigParser):
     def optionxform(self, optionstr: str) -> str:
         """Don't lowercase keys."""
         return optionstr
+
+    @staticmethod
+    def struct_converter(value: str) -> Any:
+        try:
+            decoded_value: Any = json.loads(value)
+        except json.JSONDecodeError as e:
+            logger.error(f'Could not decode value "{value}": {e}')
+            decoded_value = None
+        return decoded_value

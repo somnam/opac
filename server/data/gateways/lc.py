@@ -1,6 +1,6 @@
 import logging
 import aiohttp
-from typing import List
+from typing import List, Dict
 from urllib.parse import urlparse
 from domain.entities import (
     ProfileSearchParams,
@@ -21,15 +21,17 @@ class LCGateway:
         self,
         params: ProfileSearchParams,
     ) -> ProfileSearchResults:
-        request_params = {
-            "url": config.get('lc', 'profile_search_url'),
-            "data": {"listId": "searchedAccounts", **params.to_dict()},
-            "headers": {"X-Requested-With": "XMLHttpRequest"},
-            "raise_for_status": True,
-        }
+        url: str = config.get('lc', 'profile_search_url')
+        data: Dict[str, str] = {"listId": "searchedAccounts", **params.to_dict()}
+        headers: Dict[str, str] = {"X-Requested-With": "XMLHttpRequest"}
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.post(**request_params) as response:
+                async with session.post(
+                    url,
+                    data=data,
+                    headers=headers,
+                    raise_for_status=True,
+                ) as response:
                     response_json = await response.json()
                     search_results = response_json["data"]["content"]
                     search_count = response_json["data"]["count"]
@@ -57,15 +59,12 @@ class LCGateway:
         params: ShelvesSearchParams,
     ) -> List[Shelf]:
         profile = params.profile
-        request_params = {
-            "url": config.get('lc', 'profile_library_url').format(
-                profile_id=profile.value
-            ),
-            "raise_for_status": True,
-        }
+        url: str = config.get('lc', 'profile_library_url').format(
+            profile_id=profile.value
+        )
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(**request_params) as response:
+                async with session.get(url, raise_for_status=True) as response:
                     search_results = await response.read()
         except aiohttp.ClientError as e:
             logger.error(f"Fetching shelves failed: {e}")

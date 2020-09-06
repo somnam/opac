@@ -4,7 +4,7 @@ import SearchProfile from './stages/search_profile.js';
 import NoProfile from './stages/no_profile.js';
 import ConfirmProfile from './stages/confirm_profile.js';
 import Shelves from './stages/shelves.js';
-import Libraries from './stages/libraries.js';
+import Catalogs from './stages/catalogs.js';
 
 
 class WebSocketApp {
@@ -15,7 +15,7 @@ class WebSocketApp {
         this.noProfile = new NoProfile();
         this.confirmProfile = new ConfirmProfile();
         this.shelves = new Shelves();
-        this.libraries = new Libraries();
+        this.catalogs = new Catalogs();
     }
 
     onDomLoaded() {
@@ -24,7 +24,7 @@ class WebSocketApp {
         this.noProfile.onDomLoaded();
         this.confirmProfile.onDomLoaded();
         this.shelves.onDomLoaded();
-        this.libraries.onDomLoaded();
+        this.catalogs.onDomLoaded();
     }
 }
 
