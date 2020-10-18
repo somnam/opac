@@ -8,7 +8,9 @@ from domain.entities.shelf import (
     ShelvesSearchParams,
     ShelvesSearchResults,
 )
+from domain.entities.search_results import SearchResults
 from domain.entities.catalog import Catalog
+from domain.entities.activity import Activity
 
 
 __all__ = [
@@ -18,5 +20,7 @@ __all__ = [
     "Shelf",
     "ShelvesSearchParams",
     "ShelvesSearchResults",
+    "SearchResults",
     "Catalog",
+    "Activity",
 ]

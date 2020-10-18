@@ -1,15 +1,15 @@
 from domain.entities import SearchResults
-from domain.usecases import GetCatalogsUseCase
+from domain.usecases import GetActivitiesUseCase
 from entry.websocket.handlers.base import HandlerInterface
 
 
-class CatalogsHandler(HandlerInterface):
+class ActivitiesHandler(HandlerInterface):
     @classmethod
     def operation(cls) -> str:
-        return 'catalogs'
+        return 'activities'
 
     async def execute(self, message: dict) -> dict:
-        use_case = GetCatalogsUseCase()
+        use_case = GetActivitiesUseCase()
 
         response: SearchResults = await use_case.execute()
 

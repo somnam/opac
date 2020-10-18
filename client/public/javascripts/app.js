@@ -1,34 +1,22 @@
-import Adapter from './adapter.js';
-import Progress from './stages/progress.js';
-import SearchProfile from './stages/search_profile.js';
-import NoProfile from './stages/no_profile.js';
-import ConfirmProfile from './stages/confirm_profile.js';
-import Shelves from './stages/shelves.js';
-import Catalogs from './stages/catalogs.js';
+import Transport from './transport.js';
+import Broker from './broker.js';
+import State from './state.js';
+import Stages from './stages.js';
 
 
 class WebSocketApp {
     constructor() {
-        this.adapter = new Adapter();
-        this.progress = new Progress();
-        this.searchProfile = new SearchProfile();
-        this.noProfile = new NoProfile();
-        this.confirmProfile = new ConfirmProfile();
-        this.shelves = new Shelves();
-        this.catalogs = new Catalogs();
-    }
+        (new Transport())
+            .then(transport => {
+                this.broker = new Broker(transport);
+                this.stages = new Stages();
+                this.state = new State();
 
-    onDomLoaded() {
-        this.progress.onDomLoaded();
-        this.searchProfile.onDomLoaded();
-        this.noProfile.onDomLoaded();
-        this.confirmProfile.onDomLoaded();
-        this.shelves.onDomLoaded();
-        this.catalogs.onDomLoaded();
+                this.state.restore();
+            })
+            .catch(error => console.error(error));
     }
 }
 
 
-document.addEventListener("DOMContentLoaded", function() {
-    (new WebSocketApp()).onDomLoaded();
-})
+document.addEventListener("DOMContentLoaded", () => new WebSocketApp());

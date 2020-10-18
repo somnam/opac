@@ -15,6 +15,7 @@ from entry.websocket.handlers import (
     SearchProfileHandler,
     CatalogsHandler,
     ShelvesHandler,
+    ActivitiesHandler,
 )
 
 
@@ -42,7 +43,7 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
                     "type": "string",
                     "enum": list(self.handlers.keys()),
                 },
-                "payload": {"type": "object"},
+                "payload": {"type": ["object", "null"]},
             },
             "required": ["operation", "payload"],
         }
@@ -112,6 +113,7 @@ def run_app(port: int) -> None:
     WebSocketApp.register_handler(SearchProfileHandler)
     WebSocketApp.register_handler(ShelvesHandler)
     WebSocketApp.register_handler(CatalogsHandler)
+    WebSocketApp.register_handler(ActivitiesHandler)
 
     app = tornado.web.Application(
         [

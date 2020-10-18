@@ -1,17 +1,9 @@
 import {EventEmitter} from '../mixin/event_emitter.js';
 
 
-export class PagerParams {
-    constructor(prevPage, nextPage) {
-        this.prevPage = prevPage;
-        this.nextPage = nextPage;
-    }
-}
-
-
-export class Pager {
+export default class Pager {
     constructor(parentId, onClickEvent) {
-        this.parent = document.querySelector(`#${parentId}`);
+        this.parentId = parentId;
         this.onClickEvent = onClickEvent;
         this.prevBtn = null;
         this.nextBtn = null;
@@ -33,7 +25,7 @@ export class Pager {
             }
         });
 
-        this.parent.appendChild(btn);
+        document.querySelector(`#${this.parentId}`).appendChild(btn);
 
         return btn;
     }
@@ -44,16 +36,19 @@ export class Pager {
         }
     }
 
-    update(pagerParams) {
+    update(prevPage, nextPage) {
+        if (!document.querySelector(`#${this.parentId}`))
+            throw new Error(`Parent element #${this.parentId} not found.`);
+
         this.hidePageBtn(this.prevBtn);
         this.hidePageBtn(this.nextBtn);
 
-        if (pagerParams.prevPage) {
-            this.prevBtn = this.makePageBtn('prevPage', pagerParams.prevPage);
+        if (prevPage) {
+            this.prevBtn = this.makePageBtn('prevPage', prevPage);
         }
 
-        if (pagerParams.nextPage) {
-            this.nextBtn = this.makePageBtn('nextPage', pagerParams.nextPage);
+        if (nextPage) {
+            this.nextBtn = this.makePageBtn('nextPage', nextPage);
         }
     }
 }

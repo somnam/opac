@@ -21,7 +21,7 @@ body {
     width: 12px;
 }
 
-#profile-form {
+#app-form {
     width: 100%;
     max-width: 540px;
     padding: 15px;
@@ -100,13 +100,13 @@ body {
     content: "<";
 }
 
-.fields {
+.visible {
     visibility: visible;
     opacity: 1;
     height: auto;
 }
 
-.fields-hidden {
+.hidden {
     visibility: hidden;
     opacity: 0;
     height: 0;

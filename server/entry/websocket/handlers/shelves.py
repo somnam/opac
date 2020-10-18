@@ -1,5 +1,9 @@
 import logging
-from domain.entities import ShelvesSearchParams, Profile
+from domain.entities import (
+    ShelvesSearchParams,
+    ShelvesSearchResults,
+    Profile,
+)
 from domain.usecases import SearchShelvesUseCase
 from entry.websocket.handlers.base import HandlerInterface
 from data.gateways import LCGateway
@@ -20,15 +24,11 @@ class ShelvesHandler(HandlerInterface):
             value=payload.pop('value'),
         )
 
-        search_results = await use_case.execute(ShelvesSearchParams(
-            profile=profile,
-            **payload,
-        ))
+        search_results: ShelvesSearchResults = await use_case.execute(
+            ShelvesSearchParams(
+                profile=profile,
+                **payload,
+            )
+        )
 
-        response = {
-            "items": [shelf.to_dict() for shelf in search_results.items],
-            "prevPage": search_results.prev_page,
-            "nextPage": search_results.next_page,
-        }
-
-        return response
+        return search_results.to_dict()

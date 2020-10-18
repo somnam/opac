@@ -1,17 +1,62 @@
-import {FieldMixin} from '../mixin/field.js';
-import {EventEmitter} from '../mixin/event_emitter.js';
+import Field from '../widgets/field.js';
+import Storage from '../storage.js';
 
 
-class SearchProfile {
+class SearchProfile extends Field {
+    template = `
+        <template>
+          <fieldset id="search-profile-fields">
+            <div id="search-profile-container" class="nes-container with-title mb-4">
+              <h3 class="title">Profile name</h3>
+              <p class="input-hint">
+              Can be found on your account page by the profile picture.
+              </p>
+              <input class="nes-input" id="profile-name" required="" />
+            </div>
+
+            <button class="nes-btn is-disabled btn-block mb-4" id="search-profile-btn">
+              Next
+            </button>
+
+            <button class="nes-btn btn-block mb-4" id="go-back-btn">
+              Back
+            </button>
+          </fieldset>
+        </template>
+    `;
+
     constructor() {
-        this.on('search-profile-show', () => this.onSearchShow());
+        super();
 
-        this.on('search-profile-hide', () => this.onSearchHide());
+        this.on('search-profile-show', () => this.onShow());
+
+        this.on('search-profile-hide', () => this.remove());
 
         this.on('search-profile-results', () => this.emit('search-profile-hide'));
     }
 
-    onDomLoaded() {
+    get caller() {
+        const activity = Storage.getDecoded('activity');
+        if (activity)
+            return activity.caller;
+
+        const activities = Storage.getDecoded('activities');
+        if (activities.items.length !== 0)
+            return activities.items[0].caller;
+
+        return 'activities';
+    }
+
+    onShow() {
+        this.render()
+            .then(() => {
+                this.addEvents();
+                this.update();
+            })
+            .catch(error => console.error(error));
+    }
+
+    addEvents() {
         const profileName = document.querySelector('#profile-name');
         ['input', 'change', 'paste'].forEach((eventType) => {
             profileName.addEventListener(eventType, (event) => {
@@ -23,10 +68,13 @@ class SearchProfile {
         searchProfileBtn.addEventListener('click', (event) => {
             this.searchProfileBtnListener(event);
         });
+
+        const backBtn = document.querySelector('#search-profile-fields > #go-back-btn');
+        backBtn.addEventListener('click', (event) => this.backBtnListener(event));
     }
 
-    onSearchShow() {
-        const storedProfileName = this.storage.getItem('searchProfile');
+    update() {
+        const storedProfileName = Storage.get('searchProfile');
         if (storedProfileName !== null) {
             const profileName = document.querySelector('#profile-name');
             profileName.value = storedProfileName;
@@ -35,13 +83,6 @@ class SearchProfile {
             searchProfileBtn.classList.remove('is-disabled');
             searchProfileBtn.classList.add('is-primary');
         }
-
-        this.show('#search-profile-fields');
-    }
-
-    onSearchHide() {
-        this.hide('#search-profile-fields');
-        this.hideLoading('#search-profile-btn');
     }
 
     profileNameListener(event) {
@@ -49,11 +90,11 @@ class SearchProfile {
         const searchProfileBtn = document.querySelector('#search-profile-btn');
 
         if (profileName.length === 0) {
-            this.storage.removeItem('searchProfile');
+            Storage.remove('searchProfile');
             searchProfileBtn.classList.remove('is-primary');
             searchProfileBtn.classList.add('is-disabled');
         } else {
-            this.storage.setItem('searchProfile', profileName);
+            Storage.set('searchProfile', profileName);
             searchProfileBtn.classList.remove('is-disabled');
             searchProfileBtn.classList.add('is-primary');
         }
@@ -66,17 +107,22 @@ class SearchProfile {
         if (profileName.length === 0)
             return;
 
-        this.storage.setItem('searchProfile', profileName);
+        Storage.set('searchProfile', profileName);
 
         this.showLoading('#search-profile-btn');
 
-        this.emit('search-profile-send', profileName);
+        this.emit('search-profile-request', {phrase: profileName});
+    }
+
+    backBtnListener(event) {
+        event.preventDefault();
+
+        Storage.remove('searchProfile');
+
+        this.emit('search-profile-hide');
+        this.emit(`${this.caller}-show`);
     }
 }
-
-
-Object.assign(SearchProfile.prototype, EventEmitter);
-Object.assign(SearchProfile.prototype, FieldMixin);
 
 
 export default SearchProfile;

@@ -1,74 +1,83 @@
-export class RadioListParams {
-    constructor(items, checked) {
-        this.items = items;
-        this.checked = checked;
+import Storage from '../storage.js';
+
+
+class RadioListState {
+    constructor(collectionName, optionName) {
+        this.collectionName = collectionName;
+        this.optionName = optionName;
     }
 
-    checkedIdx() {
-        if (this.checked == null)
-            return 0;
+    get options() {
+        const options = Storage.getDecoded(this.collectionName);
+        return options ? options.items : [];
+    }
 
-        const checkedIdx = this.items.findIndex(
-            (elem) => elem.value === this.checked.value
-        );
-        return (checkedIdx !== -1) ? checkedIdx: 0;
+    get checked() {
+        const checked = Storage.getDecoded(this.optionName);
+        return checked ? checked : this.options.length ? this.options[0] : null;
     }
 }
 
-export class RadioList {
-    constructor(parentId, name) {
-        this.parent = document.querySelector(`#${parentId}`);
-        this.id = `${name}-list`;
-        this.name = name;
+export default class RadioList {
+    constructor(collectionName, optionName) {
+        this.id = `${optionName}-list`;
+        this.name = optionName;
+        this.state = new RadioListState(collectionName, optionName);
     }
 
-    makeItemsList(radioListParams) {
-        let itemsList = new DocumentFragment();
+    makeOptions() {
+        let options = new DocumentFragment();
 
-        const items = radioListParams.items,
-              checkedIdx = radioListParams.checkedIdx();
+        const checked = this.state.checked;
 
-        items.forEach((item, idx) => {
+        this.state.options.forEach(option => {
             let input = document.createElement('input');
             input.setAttribute('class', 'nes-radio');
             input.setAttribute('type', 'radio');
             input.setAttribute('name', this.name);
-            input.setAttribute('value', item.value)
+            input.setAttribute('value', option.value)
 
-            if (idx === checkedIdx) {
+            if (checked && option.value === checked.value) {
                 input.setAttribute('checked', '');
             }
 
             let span = document.createElement('span');
-            span.innerHTML = item.name;
+            span.innerHTML = option.name;
 
             let label = document.createElement('label');
             label.appendChild(input);
             label.appendChild(span);
 
-            itemsList.append(label);
+            options.append(label);
         });
 
-        return itemsList;
+        return options;
     }
 
-    makeListContainer(radioListParams) {
-        const itemsList = this.makeItemsList(radioListParams);
-
-        let newShelvesContainer = document.createElement('div');
-
-        newShelvesContainer.setAttribute('class', 'item');
-        newShelvesContainer.setAttribute('id', this.id);
-
-        newShelvesContainer.appendChild(itemsList);
-
-        return newShelvesContainer;
+    makeContainer() {
+        let container = document.createElement('div');
+        container.setAttribute('class', 'item');
+        container.setAttribute('id', this.id);
+        return container;
     }
 
-    update(radioListParams) {
-        const listContainer = this.makeListContainer(radioListParams);
+    update() {
+        const container = this.makeContainer();
+        container.appendChild(this.makeOptions());
 
-        const currentListContainer = document.querySelector(`#${this.id}`);
-        currentListContainer.replaceWith(listContainer);
+        const currentContainer = document.querySelector(`#${this.id}`);
+        currentContainer.replaceWith(container);
+    }
+
+    get checked() {
+        const checked = document.querySelector(`input[name="${this.name}"]:checked`);
+        if (!checked)
+            return null;
+
+        const checkedIdx = this.state.options.findIndex(opt => {
+            return opt.value === checked.value;
+        });
+
+        return checkedIdx !== -1 ? this.state.options[checkedIdx] : null;
     }
 }

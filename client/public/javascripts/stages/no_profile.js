@@ -1,20 +1,45 @@
-import {FieldMixin} from '../mixin/field.js';
-import {EventEmitter} from '../mixin/event_emitter.js';
+import Field from '../widgets/field.js';
+import Storage from '../storage.js';
 
 
-class NoProfile {
+class NoProfile extends Field {
+    template = `
+        <template>
+          <fieldset id="no-profile-fields">
+            <div id="no-profile-container" class="nes-container with-title mb-4">
+              <h3 class="title">Profile not found</h3>
+              <p class="input-hint">
+              Profile with the given name was not found. Try another?
+              </p>
+            </div>
+
+            <button class="nes-btn btn-block mb-4" id="go-back-btn">
+              Back
+            </button>
+          </fieldset>
+        </template>
+    `;
+
     constructor() {
-        this.on('no-profile-show', () => this.show('#no-profile-fields'));
+        super();
 
-        this.on('no-profile-hide', () => this.hide('#no-profile-fields'));
+        this.on('no-profile-show', () => this.onShow());
+
+        this.on('no-profile-hide', () => this.remove());
 
         this.on('search-profile-results', () => {
-            if (this.storage.getItem('profileResults') === null)
+            if (Storage.get('profiles') === null)
                 this.emit('no-profile-show');
         });
     }
 
-    onDomLoaded() {
+    onShow(caller) {
+        this.render()
+            .then(() => this.addEvents())
+            .catch(error => console.error(error));
+    }
+
+    addEvents() {
         const backBtn = document.querySelector('#no-profile-fields > #go-back-btn');
         backBtn.addEventListener('click', (event) => this.backBtnListener(event));
     }
@@ -26,10 +51,6 @@ class NoProfile {
         this.emit('search-profile-show');
     }
 }
-
-
-Object.assign(NoProfile.prototype, EventEmitter);
-Object.assign(NoProfile.prototype, FieldMixin);
 
 
 export default NoProfile;

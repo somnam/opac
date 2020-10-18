@@ -1,5 +1,6 @@
 from typing import List
 from domain.entities.base import BaseEntity
+from domain.entities.search_results import SearchResults
 from dataclasses import dataclass, field
 
 
@@ -16,19 +17,5 @@ class ProfileSearchParams(BaseEntity):
 
 
 @dataclass
-class ProfileSearchResults(BaseEntity):
+class ProfileSearchResults(SearchResults):
     items: List[Profile] = field(default_factory=list)
-    page: int = 1
-    prev_page: int = 0
-    next_page: int = 0
-    total: int = 0
-
-    def __post_init__(self) -> None:
-        if self.items and not self.total:
-            self.total = len(self.items)
-
-        if self.page > 1:
-            self.prev_page = self.page - 1
-
-        if self.total > (self.page * 10):
-            self.next_page = self.page + 1

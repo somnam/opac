@@ -1,68 +1,67 @@
-import {FieldMixin} from '../mixin/field.js';
-import {EventEmitter} from '../mixin/event_emitter.js';
-import {RadioList, RadioListParams} from '../widgets/radio_list.js';
+import Field from '../widgets/field.js';
+import Storage from '../storage.js';
+import RadioList from '../widgets/radio_list.js';
 
 
-class Catalogs {
+class Catalogs extends Field {
+    template = `
+        <template>
+          <fieldset id="catalogs-fields">
+            <div id="catalog-list-container" class="nes-container with-title mb-4">
+              <h3 class="title">Catalog</h3>
+              <div class="item" id="catalog-list">
+              </div>
+            </div>
+
+            <button class="nes-btn is-primary btn-block mb-4" id="select-catalog-btn">
+              Next
+            </button>
+          </fieldset>
+        </template>
+    `;
+
     constructor() {
-        this.radio_list = new RadioList('catalog-list-container', 'catalog');
+        super();
 
-        this.on('catalogs-show', () => this.onCatalogsShow());
+        this.radioList = new RadioList('catalogs', 'catalog');
 
-        this.on('catalogs-hide', () => this.hide('#catalogs-fields'));
+        this.on('catalogs-show', () => this.onShow());
+
+        this.on('catalogs-hide', () => this.remove());
 
         this.on('catalogs-results', () => this.emit('catalogs-show'));
+
+        this.on('activities-results', () => this.emit('catalogs-hide'));
     }
 
-    onDomLoaded() {
-        const backBtn = document.querySelector('#catalogs-fields > #go-back-btn');
-        backBtn.addEventListener('click', (event) => this.backBtnListener(event));
+    onShow() {
+        this.render()
+            .then(() => {
+                this.addEvents();
+                this.radioList.update();
+            })
+            .catch(error => console.error(error));
+    }
 
-        const searchCatalogBtn = document.querySelector('#search-catalog-btn');
+    addEvents() {
+        const searchCatalogBtn = document.querySelector('#select-catalog-btn');
         searchCatalogBtn.addEventListener('click', (event) => {
             this.selectCatalogBtnListener(event);
         });
     }
 
-    onCatalogsShow() {
-        let catalogsJson = this.storage.getItem('catalogs');
-        if (catalogsJson !== null) {
-            this.radio_list.update(new RadioListParams(
-                JSON.parse(catalogsJson),
-                this.storage.getItem('catalog'),
-            ));
-        }
-
-        this.show('#catalogs-fields');
-    }
-
-    backBtnListener(event) {
-        event.preventDefault();
-
-        this.storage.removeItem('catalog');
-        this.storage.removeItem('catalogs');
-
-        this.emit('catalogs-hide');
-        this.emit('shelves-show');
-    }
-
     selectCatalogBtnListener(event) {
         event.preventDefault();
 
-        const value = document.querySelector('input[name="catalog"]:checked').value;
+        const catalog = this.radioList.checked;
 
-        const catalogs = JSON.parse(this.storage.getItem('catalogs'));
+        Storage.setEncoded('catalog', catalog);
 
-        const catalogIndex = catalogs.findIndex((elem) => elem.value === value);
+        this.showLoading('#select-catalog-btn');
 
-        const catalog = catalogs[catalogIndex];
-
-        this.storage.setItem('catalog', JSON.stringify(catalog));
+        this.emit('activities-request');
     }
 }
 
-
-Object.assign(Catalogs.prototype, EventEmitter);
-Object.assign(Catalogs.prototype, FieldMixin);
 
 export default Catalogs;

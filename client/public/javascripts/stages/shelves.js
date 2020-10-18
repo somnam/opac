@@ -1,28 +1,64 @@
-import {FieldMixin} from '../mixin/field.js';
-import {EventEmitter} from '../mixin/event_emitter.js';
-import {RadioList, RadioListParams} from '../widgets/radio_list.js';
-import {Pager, PagerParams} from '../widgets/pager.js';
+import Field from '../widgets/field.js';
+import Storage from '../storage.js';
+import RadioList from '../widgets/radio_list.js';
+import Pager from '../widgets/pager.js';
 
 
-class Shelves {
+class Shelves extends Field {
+    template = `
+        <template>
+          <fieldset id="shelves-fields">
+            <div id="shelf-list-container" class="nes-container with-title mb-4">
+              <h3 class="title">Shelf</h3>
+              <div class="item" id="shelf-list">
+              </div>
+            </div>
+
+            <button class="nes-btn is-primary btn-block mb-4" id="select-shelf-btn">
+              Search
+            </button>
+
+            <button class="nes-btn btn-block mb-4" id="go-back-btn">
+              Back
+            </button>
+          </fieldset>
+        </template>
+    `;
+
     constructor() {
-        this.radio_list = new RadioList('shelf-list-container', 'shelf');
+        super();
+
+        this.radioList = new RadioList('shelves', 'shelf');
 
         this.pager = new Pager('shelf-list-container', 'shelves-paginate');
 
-        this.on('shelves-show', () => this.onShelvesShow());
+        this.on('shelves-show', () => this.onShow());
 
-        // this.on('shelves-hide', () => );
-        this.on('shelves-hide', () => this.onShelvesHide());
+        this.on('shelves-hide', () => this.remove());
 
         this.on('shelves-results', () => this.emit('shelves-show'));
 
         this.on('shelves-paginate', (page) => this.onPaginate(page));
-
-        this.on('catalogs-results', () => this.emit('shelves-hide'));
     }
 
-    onDomLoaded() {
+    onShow() {
+        this.render()
+            .then(() => {
+                this.addEvents();
+                this.update();
+            })
+            .catch(error => console.error(error));
+    }
+
+    update() {
+        this.radioList.update();
+
+        const shelves = Storage.getDecoded('shelves');
+        if (shelves !== null)
+            this.pager.update(shelves.prev_page, shelves.next_page);
+    }
+
+    addEvents() {
         const backBtn = document.querySelector('#shelves-fields > #go-back-btn');
         backBtn.addEventListener('click', (event) => this.backBtnListener(event));
 
@@ -32,43 +68,18 @@ class Shelves {
         });
     }
 
-    onShelvesShow() {
-        const shelvesResultsJson = this.storage.getItem('shelvesResults');
-        if (shelvesResultsJson !== null) {
-            const shelvesResults = JSON.parse(shelvesResultsJson);
-
-            const shelfJson = this.storage.getItem('shelf');
-            const shelf = shelfJson !== null ? JSON.parse(shelfJson) : null;
-
-            this.radio_list.update(new RadioListParams(
-                shelvesResults.items,
-                shelf,
-            ));
-
-            this.pager.update(new PagerParams(
-                shelvesResults.prevPage,
-                shelvesResults.nextPage,
-            ));
-        }
-
-        this.show('#shelves-fields');
-    }
-
-    onShelvesHide() {
-        this.hide('#shelves-fields');
-        this.hideLoading('#select-shelf-btn');
-    }
-
     onPaginate(page) {
-        const profile = JSON.parse(this.storage.getItem('profile'));
-        this.emit('confirm-profile-send', profile, page);
+        const profile = Storage.getDecoded('profile');
+        this.emit(
+            'shelves-request',
+            {name: profile.name, value: profile.value, page: page},
+        )
     }
 
     backBtnListener(event) {
         event.preventDefault();
 
-        this.storage.removeItem('shelf');
-        this.storage.removeItem('shelvesResults');
+        Storage.remove('shelf', 'shelves');
 
         this.emit('shelves-hide');
         this.emit('confirm-profile-show');
@@ -77,25 +88,16 @@ class Shelves {
     selectShelfBtnListener(event) {
         event.preventDefault();
 
-        const value = document.querySelector('input[name="shelf"]:checked').value;
+        const shelf = this.radioList.checked;
 
-        const shelvesResults = JSON.parse(this.storage.getItem('shelvesResults'));
-
-        const shelfIndex = shelvesResults.items.findIndex((elem) => elem.value === value);
-
-        const shelf = shelvesResults.items[shelfIndex];
-
-        this.storage.setItem('shelf', JSON.stringify(shelf));
+        Storage.setEncoded('shelf', shelf);
 
         this.showLoading('#select-shelf-btn');
 
-        this.emit('catalogs-request');
+        this.emit('shelves-hide');
+        this.emit('search-catalog-request');
     }
 }
-
-
-Object.assign(Shelves.prototype, EventEmitter);
-Object.assign(Shelves.prototype, FieldMixin);
 
 
 export default Shelves;
