@@ -1,5 +1,5 @@
 import Field from '../widgets/field.js';
-import Storage from '../storage.js';
+import Storage from '../app/storage.js';
 
 
 class SearchProfile extends Field {

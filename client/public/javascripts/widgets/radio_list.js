@@ -1,4 +1,4 @@
-import Storage from '../storage.js';
+import Storage from '../app/storage.js';
 
 
 class RadioListState {

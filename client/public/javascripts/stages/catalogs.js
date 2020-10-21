@@ -1,5 +1,5 @@
 import Field from '../widgets/field.js';
-import Storage from '../storage.js';
+import Storage from '../app/storage.js';
 import RadioList from '../widgets/radio_list.js';
 
 

@@ -1,12 +1,12 @@
 import Storage from './storage.js';
-import {EventEmitter} from './mixin/event_emitter.js';
-import Catalogs from './stages/catalogs.js';
-import Activities from './stages/activities.js';
-import SearchProfile from './stages/search_profile.js';
-import NoProfile from './stages/no_profile.js';
-import ConfirmProfile from './stages/confirm_profile.js';
-import Shelves from './stages/shelves.js';
-import InProgress from './stages/in_progress.js';
+import {EventEmitter} from '../mixin/event_emitter.js';
+import Catalogs from '../stages/catalogs.js';
+import Activities from '../stages/activities.js';
+import SearchProfile from '../stages/search_profile.js';
+import NoProfile from '../stages/no_profile.js';
+import ConfirmProfile from '../stages/confirm_profile.js';
+import Shelves from '../stages/shelves.js';
+import InProgress from '../stages/in_progress.js';
 
 
 class Stages {

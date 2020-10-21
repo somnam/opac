@@ -1,7 +1,7 @@
-import Transport from './transport.js';
-import Broker from './broker.js';
-import State from './state.js';
-import Stages from './stages.js';
+import Transport from './app/transport.js';
+import Broker from './app/broker.js';
+import State from './app/state.js';
+import Stages from './app/stages.js';
 
 
 class WebSocketApp {
