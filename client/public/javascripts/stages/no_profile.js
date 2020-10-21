@@ -26,11 +26,6 @@ class NoProfile extends Field {
         this.on('no-profile-show', () => this.onShow());
 
         this.on('no-profile-hide', () => this.remove());
-
-        this.on('search-profile-results', () => {
-            if (Storage.get('profiles') === null)
-                this.emit('no-profile-show');
-        });
     }
 
     onShow(caller) {
@@ -47,8 +42,7 @@ class NoProfile extends Field {
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('no-profile-hide');
-        this.emit('search-profile-show');
+        this.emit('no-profile-step-back');
     }
 }
 

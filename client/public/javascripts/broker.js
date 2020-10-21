@@ -19,11 +19,6 @@ class Broker {
                 this.transport.send(resource, message);
             });
         });
-
-        this.on('search-books-request', () => this.emit('search-profile-show'));
-
-        this.on('latest-books-request', () => this.emit('in-progress-show', 'activities'));
-        this.on('search-catalog-request', () => this.emit('in-progress-show', 'shelves'));
     }
 
     setResponseRoutes() {

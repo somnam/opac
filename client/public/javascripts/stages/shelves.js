@@ -36,8 +36,6 @@ class Shelves extends Field {
 
         this.on('shelves-hide', () => this.remove());
 
-        this.on('shelves-results', () => this.emit('shelves-show'));
-
         this.on('shelves-paginate', (page) => this.onPaginate(page));
     }
 
@@ -76,15 +74,6 @@ class Shelves extends Field {
         )
     }
 
-    backBtnListener(event) {
-        event.preventDefault();
-
-        Storage.remove('shelf', 'shelves');
-
-        this.emit('shelves-hide');
-        this.emit('confirm-profile-show');
-    }
-
     selectShelfBtnListener(event) {
         event.preventDefault();
 
@@ -94,8 +83,15 @@ class Shelves extends Field {
 
         this.showLoading('#select-shelf-btn');
 
-        this.emit('shelves-hide');
         this.emit('search-catalog-request');
+    }
+
+    backBtnListener(event) {
+        event.preventDefault();
+
+        Storage.remove('shelf', 'shelves');
+
+        this.emit('shelves-step-back');
     }
 }
 

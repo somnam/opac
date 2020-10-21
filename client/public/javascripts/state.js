@@ -1,9 +1,9 @@
+import Storage from './storage.js';
 import {EventEmitter} from './mixin/event_emitter.js';
 
 
 class State {
-    storage = localStorage;
-    steps = [
+    available_steps = [
         'catalogs',
         'activities',
         'search-profile',
@@ -14,11 +14,12 @@ class State {
     ];
 
     constructor() {
-        this.step = this.storage.getItem('step') || 'init';
+        this.step = Storage.get('step') || 'init';
 
-        this.steps.forEach((step) => {
+        this.available_steps.forEach((step) => {
             this.on(`${step}-show`, () => this.step = step);
         });
+
     }
 
     get step() {
@@ -27,7 +28,7 @@ class State {
 
     set step(value) {
         this._step = value;
-        this.storage.setItem('step', value);
+        Storage.set('step', value);
     }
 
     restore() {

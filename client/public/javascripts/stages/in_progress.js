@@ -45,8 +45,7 @@ class InProgress extends Field {
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('in-progress-hide');
-        this.emit(`${this.caller}-show`);
+        this.emit('in-progress-step-back', this.caller);
     }
 }
 

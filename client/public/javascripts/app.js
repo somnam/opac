@@ -9,8 +9,8 @@ class WebSocketApp {
         (new Transport())
             .then(transport => {
                 this.broker = new Broker(transport);
-                this.stages = new Stages();
                 this.state = new State();
+                this.stages = new Stages();
 
                 this.state.restore();
             })

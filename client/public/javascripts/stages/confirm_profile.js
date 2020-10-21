@@ -36,14 +36,7 @@ class ConfirmProfile extends Field {
 
         this.on('confirm-profile-hide', () => this.remove());
 
-        this.on('search-profile-results', () => {
-            if (Storage.getDecoded('profiles') !== null)
-                this.emit('confirm-profile-show');
-        });
-
         this.on('confirm-profile-paginate', (page) => this.onPaginate(page));
-
-        this.on('shelves-results', () => this.emit('confirm-profile-hide'));
     }
 
     onShow() {
@@ -76,15 +69,6 @@ class ConfirmProfile extends Field {
         this.emit('search-profile-request', {phrase: profile, page: page});
     }
 
-    backBtnListener(event) {
-        event.preventDefault();
-
-        Storage.remove('profile', 'profiles');
-
-        this.emit('confirm-profile-hide');
-        this.emit('search-profile-show');
-    }
-
     confirmBtnListener(event) {
         event.preventDefault();
 
@@ -95,6 +79,14 @@ class ConfirmProfile extends Field {
         this.showLoading('#confirm-profile-btn');
 
         this.emit('shelves-request', {name: profile.name, value: profile.value})
+    }
+
+    backBtnListener(event) {
+        event.preventDefault();
+
+        Storage.remove('profile', 'profiles');
+
+        this.emit('confirm-profile-step-back');
     }
 }
 

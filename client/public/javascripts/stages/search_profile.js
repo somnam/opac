@@ -119,8 +119,7 @@ class SearchProfile extends Field {
 
         Storage.remove('searchProfile');
 
-        this.emit('search-profile-hide');
-        this.emit(`${this.caller}-show`);
+        this.emit('search-profile-step-back', this.caller);
     }
 }
 

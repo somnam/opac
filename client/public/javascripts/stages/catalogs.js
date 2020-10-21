@@ -28,10 +28,6 @@ class Catalogs extends Field {
         this.on('catalogs-show', () => this.onShow());
 
         this.on('catalogs-hide', () => this.remove());
-
-        this.on('catalogs-results', () => this.emit('catalogs-show'));
-
-        this.on('activities-results', () => this.emit('catalogs-hide'));
     }
 
     onShow() {

@@ -32,12 +32,6 @@ class Activities extends Field {
         this.on('activities-show', () => this.onShow());
 
         this.on('activities-hide', () => this.remove());
-
-        this.on('activities-results', () => this.emit('activities-show'));
-
-        this.on('search-profile-show', () => this.emit('activities-hide'));
-
-        this.on('in-progress-show', () => this.emit('activities-hide'));
     }
 
     onShow() {
@@ -76,8 +70,7 @@ class Activities extends Field {
 
         Storage.remove('activity', 'activities');
 
-        this.emit('activities-hide');
-        this.emit('catalogs-show');
+        this.emit('activities-step-back');
     }
 }
 
