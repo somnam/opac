@@ -19,14 +19,9 @@ class ShelvesHandler(HandlerInterface):
     async def execute(self, payload: dict) -> dict:
         use_case = SearchShelvesUseCase(LCGateway())
 
-        profile = Profile(
-            name=payload.pop('name'),
-            value=payload.pop('value'),
-        )
-
         search_results: ShelvesSearchResults = await use_case.execute(
             ShelvesSearchParams(
-                profile=profile,
+                profile=Profile(name=payload.pop('name'), value=payload.pop('value')),
                 **payload,
             )
         )

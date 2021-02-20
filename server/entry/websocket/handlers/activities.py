@@ -1,16 +1,22 @@
-from domain.entities import SearchResults
-from domain.usecases import GetActivitiesUseCase
+import asyncio
+from domain.entities import Activity, SearchResults
 from entry.websocket.handlers.base import HandlerInterface
+from config import Config
+
+config = Config()
 
 
 class ActivitiesHandler(HandlerInterface):
+
     @classmethod
     def operation(cls) -> str:
         return 'activities'
 
     async def execute(self, message: dict) -> dict:
-        use_case = GetActivitiesUseCase()
+        await asyncio.sleep(0)
 
-        response: SearchResults = await use_case.execute()
+        response = SearchResults(
+            items=[Activity(**entry) for entry in config.getstruct('activities', 'list')]
+        )
 
         return response.to_dict()

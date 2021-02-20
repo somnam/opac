@@ -2,7 +2,7 @@ import json
 import jsonschema
 import logging
 import argparse
-from typing import Dict, Tuple, Union, Optional, Any, Type
+from typing import Dict, Tuple, Union, Optional, Any, Type, Sequence
 
 import tornado.web
 import tornado.httpserver
@@ -26,8 +26,9 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
     handlers: Dict[str, Type[HandlerInterface]] = {}
 
     @classmethod
-    def register_handler(cls, handler: Type[HandlerInterface]) -> None:
-        cls.handlers[handler.operation()] = handler
+    def register_handlers(cls, handlers: Sequence[Type[HandlerInterface]]) -> None:
+        for handler in handlers:
+            cls.handlers[handler.operation()] = handler
 
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
@@ -110,10 +111,12 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
 
 
 def run_app(port: int) -> None:
-    WebSocketApp.register_handler(SearchProfileHandler)
-    WebSocketApp.register_handler(ShelvesHandler)
-    WebSocketApp.register_handler(CatalogsHandler)
-    WebSocketApp.register_handler(ActivitiesHandler)
+    WebSocketApp.register_handlers((
+        SearchProfileHandler,
+        ShelvesHandler,
+        CatalogsHandler,
+        ActivitiesHandler,
+    ))
 
     app = tornado.web.Application(
         [
