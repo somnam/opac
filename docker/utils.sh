@@ -12,7 +12,7 @@ create_docker_network ()
 {
     if [[ ! "$(docker network ls -q -f name=opac-net)" ]]; then
         if docker network create --driver bridge opac-net 2>/dev/null; then
-            echo -e "\e[32mDocker opac-net network created\e[0m"
+            echo -e "\e[32mDocker 'opac-net' network created\e[0m"
         fi
     fi
 }
@@ -30,6 +30,22 @@ build_docker_image ()
 
     docker build --quiet --tag $1 --file $dockerfile_path . 1>/dev/null
     docker image prune -f 1>/dev/null
+}
+
+
+check_running_container ()
+{
+    sleep 2
+
+    if [[ "$(docker ps -q -f name=$1)" ]];
+    then
+        echo -e "\e[32mContainer '$1' started\e[0m"
+    else
+        local code=$?
+        echo -e "\e[31mContainer '$1' not started\e[0m"
+        docker logs "$1"
+        exit $code
+    fi
 }
 
 

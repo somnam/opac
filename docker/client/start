@@ -10,7 +10,6 @@ run_container ()
     local self_path=$(dirname "$0")
     local root_path=$(realpath "$self_path/../")
     docker run \
-        --rm \
         --detach \
         --interactive \
         --tty \
@@ -24,5 +23,6 @@ run_container ()
 check_dependencies
 build_docker_image "opac-client"
 create_docker_network
+stop_container "opac-client"
 run_container
-echo -e "\e[32mContainer started\e[0m"
+check_running_container "opac-client"
