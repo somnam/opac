@@ -1,7 +1,8 @@
 import asyncio
-from domain.entities import Activity, SearchResults
-from entry.websocket.handlers.base import HandlerInterface
+
 from config import Config
+from src.core.entities import Activity, SearchResults
+from src.entrypoints.websocket.handlers.base import HandlerInterface
 
 config = Config()
 
@@ -19,4 +20,6 @@ class ActivitiesHandler(HandlerInterface):
             items=[Activity(**entry) for entry in config.getstruct('activities', 'list')]
         )
 
-        return response.to_dict()
+        result: dict = response.to_dict()
+
+        return result

@@ -1,6 +1,6 @@
 from typing import List
-from domain.entities.base import BaseEntity
-from domain.entities.search_results import SearchResults
+from src.core.entities.base import BaseEntity
+from src.core.entities.search_results import SearchResults
 from dataclasses import dataclass, field
 
 

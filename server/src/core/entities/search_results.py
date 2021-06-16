@@ -1,6 +1,6 @@
 from typing import List, Any
 from dataclasses import dataclass, field
-from domain.entities.base import BaseEntity
+from src.core.entities.base import BaseEntity
 
 
 @dataclass

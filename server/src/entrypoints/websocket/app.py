@@ -1,23 +1,19 @@
-import json
-import jsonschema
-import logging
 import argparse
-from typing import Dict, Tuple, Union, Optional, Any, Type, Sequence
+import json
+import logging
+from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union
 
-import tornado.web
+import jsonschema
 import tornado.httpserver
 import tornado.ioloop
+import tornado.web
 import tornado.websocket
-
-from entry.websocket.exceptions import MessageDecodeError
-from entry.websocket.handlers import (
-    HandlerInterface,
-    SearchProfileHandler,
-    CatalogsHandler,
-    ShelvesHandler,
-    ActivitiesHandler,
-)
-
+from src.entrypoints.websocket.exceptions import MessageDecodeError
+from src.entrypoints.websocket.handlers import (ActivitiesHandler,
+                                                CatalogsHandler,
+                                                HandlerInterface,
+                                                SearchProfileHandler,
+                                                ShelvesHandler)
 
 logger = logging.getLogger("server")
 
@@ -85,9 +81,9 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
 
     async def _handle_message(self, decoded_message: Dict) -> None:
         operation = decoded_message["operation"]
-        handler_class: Optional[Type[HandlerInterface]] = self.handlers.get(
-            operation
-        )
+
+        handler_class: Optional[Type[HandlerInterface]] = self.handlers.get(operation)
+
         if not handler_class:
             logger.error(f"Handler for operation {operation} not defined")
             return
@@ -97,10 +93,8 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
         response = await handler.execute(decoded_message["payload"])
 
         logger.info(f"Return message: {response}")
-        self.write_message(json.dumps({
-            "operation": operation,
-            "payload": response,
-        }))
+
+        self.write_message(json.dumps({"operation": operation, "payload": response}))
 
     def on_close(self) -> None:
         logger.info("Closing connection")
@@ -125,8 +119,7 @@ def run_app(port: int) -> None:
     )
 
     # Setup server.
-    server = tornado.httpserver.HTTPServer(app)
-    server.listen(port)
+    tornado.httpserver.HTTPServer(app).listen(port)
 
     # Start event loop.
     logger.info(f"Starting server on port={port}")
@@ -155,7 +148,7 @@ def run() -> None:
     try:
         run_app(args.port)
     except KeyboardInterrupt:
-        logger.info("Closing server.")
+        logger.info("Closing src.")
 
 
 if __name__ == "__main__":

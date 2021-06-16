@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from domain.entities.base import BaseEntity
+from src.core.entities.base import BaseEntity
 
 
 @dataclass

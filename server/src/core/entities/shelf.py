@@ -1,8 +1,8 @@
 from typing import List
 from dataclasses import dataclass, field
-from domain.entities.base import BaseEntity
-from domain.entities.search_results import SearchResults
-from domain.entities.profile import Profile
+from src.core.entities.base import BaseEntity
+from src.core.entities.search_results import SearchResults
+from src.core.entities.profile import Profile
 
 
 @dataclass

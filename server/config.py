@@ -1,7 +1,7 @@
 import json
 import logging
 from os import path
-from typing import List, Any
+from typing import List, Dict, Optional, Any
 from configparser import ConfigParser, ExtendedInterpolation
 
 logger = logging.getLogger(__name__)
@@ -12,10 +12,7 @@ class Config(ConfigParser):
     config_files: List = ['config.ini']
 
     def __init__(self) -> None:
-        super().__init__(
-            converters={'struct': self.struct_converter},
-            interpolation=ExtendedInterpolation(),
-        )
+        super().__init__(interpolation=ExtendedInterpolation())
 
         # Read config file
         logger.debug(f"Reading configuration files: {self.config_files}")
@@ -24,6 +21,12 @@ class Config(ConfigParser):
     def optionxform(self, optionstr: str) -> str:
         """Don't lowercase keys."""
         return optionstr
+
+    def getstruct(self, section: str, option: str, *, raw: bool = False,
+                  vars: Optional[Dict] = None, fallback: List[str] = []) -> List[str]:
+        # MYPY complains about missing dynamic converter methods.
+        return self._get_conv(section, option, self.struct_converter,
+                              raw=raw, vars=vars, fallback=fallback)
 
     @staticmethod
     def struct_converter(value: str) -> Any:

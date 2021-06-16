@@ -1,14 +1,14 @@
 import logging
-from domain.entities import (
+from src.core.entities import (
     ShelvesSearchParams,
     ShelvesSearchResults,
     Profile,
 )
-from domain.usecases import SearchShelvesUseCase
-from entry.websocket.handlers.base import HandlerInterface
-from data.gateways import LCGateway
+from src.core.usecases import SearchShelvesUseCase
+from src.entrypoints.websocket.handlers.base import HandlerInterface
+from src.dataproviders.gateways import ShelvesGateway
 
-logger = logging.getLogger('server.entry')
+logger = logging.getLogger('src.entry')
 
 
 class ShelvesHandler(HandlerInterface):
@@ -17,7 +17,7 @@ class ShelvesHandler(HandlerInterface):
         return 'shelves'
 
     async def execute(self, payload: dict) -> dict:
-        use_case = SearchShelvesUseCase(LCGateway())
+        use_case = SearchShelvesUseCase(ShelvesGateway())
 
         search_results: ShelvesSearchResults = await use_case.execute(
             ShelvesSearchParams(
@@ -26,4 +26,6 @@ class ShelvesHandler(HandlerInterface):
             )
         )
 
-        return search_results.to_dict()
+        result: dict = search_results.to_dict()
+
+        return result

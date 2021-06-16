@@ -27,7 +27,7 @@ extras_require = {
 
 entry_points = {
     "console_scripts": [
-        "run_app=entry.websocket.app:run",
+        "run_app=src.entrypoints.websocket.app:run",
     ],
 }
 

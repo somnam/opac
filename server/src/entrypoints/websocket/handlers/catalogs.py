@@ -1,6 +1,6 @@
 import asyncio
-from domain.entities import Catalog, SearchResults
-from entry.websocket.handlers.base import HandlerInterface
+from src.core.entities import Catalog, SearchResults
+from src.entrypoints.websocket.handlers.base import HandlerInterface
 from config import Config
 
 config = Config()
@@ -19,4 +19,6 @@ class CatalogsHandler(HandlerInterface):
             items=[Catalog(**entry) for entry in config.getstruct('catalogs', 'list')]
         )
 
-        return response.to_dict()
+        result: dict = response.to_dict()
+
+        return result
