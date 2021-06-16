@@ -6,7 +6,7 @@ from src.core.entities import (
 )
 from src.core.usecases import SearchShelvesUseCase
 from src.entrypoints.websocket.handlers.base import HandlerInterface
-from src.dataproviders.gateways import ShelvesGateway
+from src.dataproviders.gateways import DataGateway
 
 logger = logging.getLogger('src.entry')
 
@@ -17,7 +17,7 @@ class ShelvesHandler(HandlerInterface):
         return 'shelves'
 
     async def execute(self, payload: dict) -> dict:
-        use_case = SearchShelvesUseCase(ShelvesGateway())
+        use_case = SearchShelvesUseCase(DataGateway())
 
         search_results: ShelvesSearchResults = await use_case.execute(
             ShelvesSearchParams(

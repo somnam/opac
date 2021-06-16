@@ -1,8 +1,4 @@
-from src.dataproviders.gateways.profiles import ProfilesGateway
-from src.dataproviders.gateways.shelves import ShelvesGateway
+from src.dataproviders.gateways.data import DataGateway
 
 
-__all__ = [
-    "ProfilesGateway",
-    "ShelvesGateway",
-]
+__all__ = ["DataGateway"]
