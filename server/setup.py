@@ -9,12 +9,12 @@ install_requires = [
 ]
 
 setup_requires = [
-    'pytest-runner',
+    "pytest-runner",
 ]
 
 tests_require = [
-    'pytest-flake8',
-    'pytest-mypy',
+    "pytest-flake8",
+    "pytest-mypy",
 ]
 
 extras_require = {

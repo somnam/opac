@@ -39,6 +39,8 @@ class Shelves extends Field {
         this.on('shelves-paginate', (page) => this.onPaginate(page));
     }
 
+    toString() { return 'shelves' }
+
     onShow() {
         this.render()
             .then(() => {

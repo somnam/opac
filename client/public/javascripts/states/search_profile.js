@@ -35,17 +35,7 @@ class SearchProfile extends Field {
         this.on('search-profile-results', () => this.emit('search-profile-hide'));
     }
 
-    get caller() {
-        const activity = Storage.getDecoded('activity');
-        if (activity)
-            return activity.caller;
-
-        const activities = Storage.getDecoded('activities');
-        if (activities.items.length !== 0)
-            return activities.items[0].caller;
-
-        return 'activities';
-    }
+    toString() { return 'search-profile' }
 
     onShow() {
         this.render()
@@ -119,7 +109,7 @@ class SearchProfile extends Field {
 
         Storage.remove('searchProfile');
 
-        this.emit('search-profile-step-back', this.caller);
+        this.emit('search-profile-step-back');
     }
 }
 

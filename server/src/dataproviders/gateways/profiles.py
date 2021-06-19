@@ -17,8 +17,7 @@ class ProfilesGateway(ProfilesGatewayInterface):
     async def search(self, params: ProfileSearchParams) -> ProfileSearchResults:
         url: str = config.get('lc', 'profile_search_url')
 
-        data: Dict[str, str] = {
-            "listId": "searchedAccounts", **params.to_dict()}
+        data: Dict[str, str] = {"listId": "searchedAccounts", **params.to_dict()}
 
         headers: Dict[str, str] = {"X-Requested-With": "XMLHttpRequest"}
 

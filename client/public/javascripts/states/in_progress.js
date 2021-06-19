@@ -31,6 +31,8 @@ class InProgress extends Field {
         this.on('in-progress-hide', () => this.remove());
     }
 
+    toString() { return 'in-progress' }
+
     onShow() {
         this.render()
             .then(() => this.addEvents())

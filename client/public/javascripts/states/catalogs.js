@@ -20,8 +20,15 @@ class Catalogs extends Field {
         </template>
     `;
 
+    items = [
+        {"name": "Opac (Bielsko-Biała)", "value": "4949"},
+        {"name": "Wojewódzka Biblioteka Publiczna (Kraków)", "value": "5004"},
+    ];
+
     constructor() {
         super();
+
+        Storage.setEncoded('catalogs', {"items": this.items});
 
         this.radioList = new RadioList('catalogs', 'catalog');
 
@@ -29,6 +36,8 @@ class Catalogs extends Field {
 
         this.on('catalogs-hide', () => this.remove());
     }
+
+    toString() { return 'catalogs' }
 
     onShow() {
         this.render()
@@ -55,7 +64,7 @@ class Catalogs extends Field {
 
         this.showLoading('#select-catalog-btn');
 
-        this.emit('activities-request');
+        this.emit('catalogs-next');
     }
 }
 

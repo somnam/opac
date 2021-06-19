@@ -39,6 +39,8 @@ class ConfirmProfile extends Field {
         this.on('confirm-profile-paginate', (page) => this.onPaginate(page));
     }
 
+    toString() { return 'confirm-profile' }
+
     onShow() {
         this.render()
             .then(() => {
@@ -78,7 +80,7 @@ class ConfirmProfile extends Field {
 
         this.showLoading('#confirm-profile-btn');
 
-        this.emit('shelves-request', {name: profile.name, value: profile.value})
+        this.emit('confirm-profile-next', profile)
     }
 
     backBtnListener(event) {

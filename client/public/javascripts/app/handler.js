@@ -2,15 +2,34 @@ import Storage from './storage.js';
 import {EventEmitter} from '../mixin/event_emitter.js';
 
 
-class Broker {
-    requests = ['catalogs', 'activities', 'search-profile', 'shelves']
-    responses = ['activities', 'shelves']
+class Handler {
+    requests = ['search-profile', 'shelves']
+    responses = ['shelves']
 
     constructor(transport) {
         this.transport = transport;
+        this.transport.onmessage((event) => this.handle(event));
+
+        this.handlers = {};
 
         this.setRequestRoutes();
         this.setResponseRoutes();
+    }
+
+    register(operation, handler) {
+        this.handlers[operation] = this.handlers[operation] || [];
+        this.handlers[operation].push(handler);
+    }
+
+    handle(event) {
+        const message = JSON.parse(event.data),
+              operation = message.operation;
+
+        if (this.handlers.hasOwnProperty(operation)) {
+            this.handlers[operation].forEach(handler => handler(message))
+        } else {
+            console.error(`Handler for operation ${operation} not defined.`)
+        }
     }
 
     setRequestRoutes() {
@@ -23,7 +42,7 @@ class Broker {
 
     setResponseRoutes() {
         this.responses.forEach((resource) => {
-            this.transport.on(resource, (message) => {
+            this.register(resource, (message) => {
                 if (message.payload.items.length !== 0) {
                     Storage.setEncoded(resource, message.payload);
                 } else {
@@ -34,26 +53,7 @@ class Broker {
             });
         });
 
-        this.transport.on("catalogs", (message) => {
-            message.payload.items = message.payload.items.map(
-                (catalog) => {
-                    return {
-                        name: `${catalog.name} (${catalog.city})`,
-                        value: catalog.value
-                    }
-                }
-            )
-
-            if (message.payload.items.length !== 0) {
-                Storage.setEncoded('catalogs', message.payload);
-            } else {
-                Storage.remove('catalogs');
-            }
-
-            this.emit('catalogs-results');
-        });
-
-        this.transport.on("search-profile", (message) => {
+        this.register("search-profile", (message) => {
             if (message.payload.items.length !== 0) {
                 Storage.setEncoded('profiles', message.payload);
             } else {
@@ -66,6 +66,6 @@ class Broker {
 }
 
 
-Object.assign(Broker.prototype, EventEmitter);
+Object.assign(Handler.prototype, EventEmitter);
 
-export default Broker;
+export default Handler;

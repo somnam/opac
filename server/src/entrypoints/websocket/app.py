@@ -9,9 +9,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 from src.entrypoints.websocket.exceptions import MessageDecodeError
-from src.entrypoints.websocket.handlers import (ActivitiesHandler,
-                                                CatalogsHandler,
-                                                HandlerInterface,
+from src.entrypoints.websocket.handlers import (HandlerInterface,
                                                 SearchProfileHandler,
                                                 ShelvesHandler)
 
@@ -108,8 +106,6 @@ def run_app(port: int) -> None:
     WebSocketApp.register_handlers((
         SearchProfileHandler,
         ShelvesHandler,
-        CatalogsHandler,
-        ActivitiesHandler,
     ))
 
     app = tornado.web.Application(

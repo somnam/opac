@@ -24,8 +24,15 @@ class Activities extends Field {
         </template>
     `;
 
+    items = [
+        {"name": "Latest books", "value": "latest-books"},
+        {"name": "Search books", "value": "search-books"},
+    ];
+
     constructor() {
         super();
+
+        Storage.setEncoded('activities', {"items": this.items});
 
         this.radioList = new RadioList('activities', 'activity');
 
@@ -33,6 +40,8 @@ class Activities extends Field {
 
         this.on('activities-hide', () => this.remove());
     }
+
+    toString() { return 'activities' }
 
     onShow() {
         this.render()
@@ -62,13 +71,13 @@ class Activities extends Field {
 
         this.showLoading('#select-activity-btn');
 
-        this.emit(`${activity.value}-request`);
+        this.emit('activities-next');
     }
 
     backBtnListener(event) {
         event.preventDefault();
 
-        Storage.remove('activity', 'activities');
+        Storage.remove('activity');
 
         this.emit('activities-step-back');
     }

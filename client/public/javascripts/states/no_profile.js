@@ -28,6 +28,8 @@ class NoProfile extends Field {
         this.on('no-profile-hide', () => this.remove());
     }
 
+    toString() { return 'no-profile' }
+
     onShow(caller) {
         this.render()
             .then(() => this.addEvents())
