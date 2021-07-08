@@ -5,4 +5,8 @@ source ./docker/utils.sh
 check_dependencies
 create_docker_network
 
-./docker/server/start && ./docker/client/start && ./docker/proxy/start
+./docker/server/start &&\
+./docker/client/start &&\
+./docker/broker/start &&\
+./docker/worker/start &&\
+./docker/proxy/start

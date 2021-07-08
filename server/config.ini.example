@@ -1,4 +1,22 @@
+[client]
+url = http://opac-server:8888
+
+
+[redis]
+host = opac-broker
+
+
+[rq]
+queues = ["high", "default", "low"]
+
+
 [lc]
 url = http://lubimyczytac.pl
 profile_search_url = https://lubimyczytac.pl/account/getMoreSearchedAccounts
 profile_library_url = https://lubimyczytac.pl/{profile_id}/biblioteczka/lista
+
+
+[latest_books_scraper]
+included_shelves = [{"name": "", "value": ""}]
+excluded_shelves = [{"name": "", "value": ""}] 
+invalidate_days = 30

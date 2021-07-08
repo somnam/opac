@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class Config(ConfigParser):
-    app_dir: str = path.abspath(path.join(path.dirname(__file__)))
+    app_dir: str = path.abspath(path.join(path.dirname(__file__), '..'))
     config_files: List = ['config.ini']
 
     def __init__(self) -> None:

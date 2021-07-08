@@ -1,7 +1,7 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from '../widgets/radio_list.js';
-import Pager from '../widgets/pager.js';
+import RadioList from './widgets/radio_list.js';
+import Pager from './widgets/pager.js';
 
 
 class ConfirmProfile extends Field {
@@ -25,8 +25,10 @@ class ConfirmProfile extends Field {
         </template>
     `;
 
-    constructor() {
+    constructor(transport) {
         super();
+
+        this.transport = transport;
 
         this.radioList = new RadioList('profiles', 'profile');
 
@@ -37,9 +39,16 @@ class ConfirmProfile extends Field {
         this.on('confirm-profile-hide', () => this.remove());
 
         this.on('confirm-profile-paginate', (page) => this.onPaginate(page));
+
+        this.on('confirm-profile-next', (profile) => this.onNext(profile));
+
+        this.on('confirm-profile-step-back', () => {
+            this.emit('confirm-profile-hide');
+            this.emit('search-profile-show');
+        });
     }
 
-    toString() { return 'confirm-profile' }
+    static toString() { return 'confirm-profile' }
 
     onShow() {
         this.render()
@@ -48,6 +57,27 @@ class ConfirmProfile extends Field {
                 this.update();
             })
             .catch(error => console.error(error));
+    }
+
+    onNext(profile) {
+
+        const activity = Storage.getDecoded('activity');
+
+        switch(activity ? activity.value : null) {
+            case 'search-books':
+                this.emit('shelves-request', profile)
+                break;
+            case 'search-latest-books':
+                this.emit('confirm-profile-hide');
+                this.emit('search-latest-books-request', {
+                    "catalog": Storage.getDecoded('catalog'),
+                    "profile": Storage.getDecoded('profile'),
+                });
+                break;
+            default:
+                console.error("No activity defined.");
+                break;
+        }
     }
 
     update() {

@@ -1,6 +1,6 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from '../widgets/radio_list.js';
+import RadioList from './widgets/radio_list.js';
 
 
 class Activities extends Field {
@@ -25,12 +25,14 @@ class Activities extends Field {
     `;
 
     items = [
-        {"name": "Latest books", "value": "latest-books"},
+        {"name": "Latest books", "value": "search-latest-books"},
         {"name": "Search books", "value": "search-books"},
     ];
 
-    constructor() {
+    constructor(transport) {
         super();
+
+        this.transport = transport;
 
         Storage.setEncoded('activities', {"items": this.items});
 
@@ -39,9 +41,16 @@ class Activities extends Field {
         this.on('activities-show', () => this.onShow());
 
         this.on('activities-hide', () => this.remove());
+
+        this.on('activities-next', () => this.onNext());
+
+        this.on('activities-step-back', () => {
+            this.emit('activities-hide');
+            this.emit('catalogs-show');
+        });
     }
 
-    toString() { return 'activities' }
+    static toString() { return 'activities' }
 
     onShow() {
         this.render()
@@ -50,6 +59,23 @@ class Activities extends Field {
                 this.radioList.update();
             })
             .catch(error => console.error(error));
+    }
+
+    onNext() {
+        const activity = Storage.getDecoded('activity');
+
+        switch(activity ? activity.value : null) {
+            case 'search-books':
+                this.emit('activities-hide');
+                this.emit('search-profile-show');
+                break;
+            case 'search-latest-books':
+                this.emit('search-latest-books-start');
+                break;
+            default:
+                console.error("Activity not defined.");
+                break;
+        }
     }
 
     addEvents() {

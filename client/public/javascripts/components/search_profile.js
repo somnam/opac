@@ -1,4 +1,4 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 
 
@@ -25,17 +25,35 @@ class SearchProfile extends Field {
         </template>
     `;
 
-    constructor() {
+    constructor(transport) {
         super();
+
+        this.transport = transport;
 
         this.on('search-profile-show', () => this.onShow());
 
         this.on('search-profile-hide', () => this.remove());
 
-        this.on('search-profile-results', () => this.emit('search-profile-hide'));
+        this.on(`search-profile-request`, (message) => {
+            this.transport.send('search-profile', message);
+        });
+
+        this.on('search-profile-results', () => {
+            this.emit('search-profile-hide');
+            if (Storage.getDecoded('profiles') !== null) {
+                this.emit('confirm-profile-show');
+            } else {
+                this.emit('no-profile-show');
+            }
+        });
+
+        this.on('search-profile-step-back', () => {
+            this.emit('search-profile-hide');
+            this.emit(`activities-show`);
+        });
     }
 
-    toString() { return 'search-profile' }
+    static toString() { return 'search-profile' }
 
     onShow() {
         this.render()

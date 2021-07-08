@@ -1,0 +1,29 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+
+run_container ()
+{
+    echo -e "\e[36mStarting container\e[0m"
+
+    local self_path=$(dirname "$0")
+    local root_path=$(realpath "$self_path/../")
+    docker run \
+        --detach \
+        --interactive \
+        --tty \
+        --network opac-net \
+        --network-alias opac-worker \
+        --name opac-worker \
+        opac-worker:latest
+}
+
+
+check_dependencies
+create_config_file "server"
+build_docker_image "opac-worker"
+create_docker_network
+stop_container "opac-worker"
+run_container
+check_running_container "opac-worker"

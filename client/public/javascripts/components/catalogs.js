@@ -1,6 +1,6 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from '../widgets/radio_list.js';
+import RadioList from './widgets/radio_list.js';
 
 
 class Catalogs extends Field {
@@ -25,8 +25,10 @@ class Catalogs extends Field {
         {"name": "Wojewódzka Biblioteka Publiczna (Kraków)", "value": "5004"},
     ];
 
-    constructor() {
+    constructor(transport) {
         super();
+
+        this.transport = transport;
 
         Storage.setEncoded('catalogs', {"items": this.items});
 
@@ -35,9 +37,14 @@ class Catalogs extends Field {
         this.on('catalogs-show', () => this.onShow());
 
         this.on('catalogs-hide', () => this.remove());
+
+        this.on('catalogs-next', () => {
+            this.emit('catalogs-hide');
+            this.emit('activities-show');
+        });
     }
 
-    toString() { return 'catalogs' }
+    static toString() { return 'catalogs' }
 
     onShow() {
         this.render()

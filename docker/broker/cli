@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source ./docker/utils.sh
+
+check_dependencies
+docker run -it --rm --network opac-net redis:6.0-alpine redis-cli -h opac-broker

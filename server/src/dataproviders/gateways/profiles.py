@@ -3,7 +3,7 @@ from typing import Dict, List
 from urllib.parse import urlparse
 
 import aiohttp
-from config import Config
+from src.config import Config
 from src.dataproviders.gateways.base import bs4_scope
 from src.core.gateways import ProfilesGatewayInterface
 from src.core.entities import Profile, ProfileSearchParams, ProfileSearchResults

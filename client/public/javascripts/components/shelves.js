@@ -1,7 +1,7 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from '../widgets/radio_list.js';
-import Pager from '../widgets/pager.js';
+import RadioList from './widgets/radio_list.js';
+import Pager from './widgets/pager.js';
 
 
 class Shelves extends Field {
@@ -25,8 +25,10 @@ class Shelves extends Field {
         </template>
     `;
 
-    constructor() {
+    constructor(transport) {
         super();
+
+        this.transport = transport;
 
         this.radioList = new RadioList('shelves', 'shelf');
 
@@ -37,9 +39,23 @@ class Shelves extends Field {
         this.on('shelves-hide', () => this.remove());
 
         this.on('shelves-paginate', (page) => this.onPaginate(page));
+
+        this.on(`shelves-request`, (message) => {
+            this.transport.send('shelves', message);
+        });
+
+        this.on('shelves-results', () => {
+            this.emit('confirm-profile-hide');
+            this.emit('shelves-show');
+        });
+
+        this.on('shelves-step-back', () => {
+            this.emit('shelves-hide');
+            this.emit('confirm-profile-show');
+        });
     }
 
-    toString() { return 'shelves' }
+    static toString() { return 'shelves' }
 
     onShow() {
         this.render()

@@ -1,4 +1,4 @@
-import {EventEmitter} from '../mixin/event_emitter.js';
+import {EventEmitter} from '../../mixin/event_emitter.js';
 
 
 class Field {

@@ -3,17 +3,14 @@ import {EventEmitter} from '../mixin/event_emitter.js';
 
 
 class Handler {
-    requests = ['search-profile', 'shelves']
-    responses = ['shelves']
-
     constructor(transport) {
         this.transport = transport;
+
         this.transport.onmessage((event) => this.handle(event));
 
         this.handlers = {};
 
-        this.setRequestRoutes();
-        this.setResponseRoutes();
+        this.registerHandlers();
     }
 
     register(operation, handler) {
@@ -32,25 +29,21 @@ class Handler {
         }
     }
 
-    setRequestRoutes() {
-        this.requests.forEach((resource) => {
-            this.on(`${resource}-request`, (message) => {
-                this.transport.send(resource, message);
-            });
+    registerHandlers() {
+        this.register('shelves', (message) => {
+            if (message.payload.items.length !== 0) {
+                Storage.setEncoded('shelves', message.payload);
+            } else {
+                Storage.remove('shelves');
+            }
+
+            this.emit(`shelves-results`);
         });
-    }
 
-    setResponseRoutes() {
-        this.responses.forEach((resource) => {
-            this.register(resource, (message) => {
-                if (message.payload.items.length !== 0) {
-                    Storage.setEncoded(resource, message.payload);
-                } else {
-                    Storage.remove(resource);
-                }
-
-                this.emit(`${resource}-results`);
-            });
+        this.register("open-connection", (message) => {
+            if (message.payload.client_id) {
+                Storage.set("clientId", message.payload.client_id);
+            }
         });
 
         this.register("search-profile", (message) => {
@@ -61,6 +54,10 @@ class Handler {
             }
 
             this.emit('search-profile-results');
+        });
+
+        this.register("search-latest-books", (message) => {
+            console.log(message);
         });
     }
 }

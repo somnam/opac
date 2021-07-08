@@ -1,11 +1,12 @@
+import asyncio
 import logging
 from typing import List
 
 import aiohttp
-from config import Config
-from src.dataproviders.gateways.base import bs4_scope
+from src.config import Config
+from src.core.entities import Shelf, ShelvesSearchParams, Book
 from src.core.gateways import ShelvesGatewayInterface
-from src.core.entities import Shelf, ShelvesSearchParams
+from src.dataproviders.gateways.base import bs4_scope
 
 config = Config()
 logger = logging.getLogger("src.gateways")
@@ -39,3 +40,9 @@ class ShelvesGateway(ShelvesGatewayInterface):
             ]
 
         return shelves
+
+    async def books(self, shelf: Shelf) -> List[Book]:
+        # TODO
+        await asyncio.sleep(1)
+
+        return []

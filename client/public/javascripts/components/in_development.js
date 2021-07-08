@@ -1,12 +1,12 @@
-import Field from '../widgets/field.js';
+import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 
 
-class InProgress extends Field {
+class InDevelopment extends Field {
     template = `
         <template>
-          <fieldset id="in-progress-fields">
-            <div id="in-progress-container" class="nes-container with-title mb-4">
+          <fieldset id="in-development-fields">
+            <div id="in-development-container" class="nes-container with-title mb-4">
               <h3 class="title">Work in progress</h3>
               <p class="input-hint">
               Feature will be ready soon.
@@ -20,18 +20,25 @@ class InProgress extends Field {
         </template>
     `;
 
-    constructor() {
+    constructor(transport) {
         super();
 
-        this.on('in-progress-show', (caller) => {
+        this.transport = transport;
+
+        this.on('in-development-show', (caller) => {
             this.caller = caller;
             this.onShow();
         });
 
-        this.on('in-progress-hide', () => this.remove());
+        this.on('in-development-hide', () => this.remove());
+
+        this.on('in-development-step-back', (caller) => {
+            this.emit('in-development-hide');
+            this.emit(`${caller}-show`);
+        });
     }
 
-    toString() { return 'in-progress' }
+    static toString() { return 'in-development' }
 
     onShow() {
         this.render()
@@ -40,16 +47,16 @@ class InProgress extends Field {
     }
 
     addEvents() {
-        const backBtn = document.querySelector('#in-progress-fields > #go-back-btn');
+        const backBtn = document.querySelector('#in-development-fields > #go-back-btn');
         backBtn.addEventListener('click', (event) => this.backBtnListener(event));
     }
 
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('in-progress-step-back', this.caller);
+        this.emit('in-development-step-back', this.caller);
     }
 }
 
 
-export default InProgress;
+export default InDevelopment;

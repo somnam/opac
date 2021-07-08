@@ -1,7 +1,7 @@
 import argparse
 import json
 import logging
-from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import jsonschema
 import tornado.httpserver
@@ -10,19 +10,32 @@ import tornado.web
 import tornado.websocket
 from src.entrypoints.websocket.exceptions import MessageDecodeError
 from src.entrypoints.websocket.handlers import (HandlerInterface,
+                                                JobSuccessHandler,
+                                                SearchLatestBooksHandler,
                                                 SearchProfileHandler,
                                                 ShelvesHandler)
 
-logger = logging.getLogger("server")
+logger = logging.getLogger('src.entrypoints.websocket')
 
 
 class WebSocketApp(tornado.websocket.WebSocketHandler):
-    handlers: Dict[str, Type[HandlerInterface]] = {}
+    handlers: List[Type[HandlerInterface]] = [
+        SearchProfileHandler,
+        ShelvesHandler,
+        SearchLatestBooksHandler,
+    ]
 
-    @classmethod
-    def register_handlers(cls, handlers: Sequence[Type[HandlerInterface]]) -> None:
-        for handler in handlers:
-            cls.handlers[handler.operation()] = handler
+    clients: Dict[str, Any] = dict()
+
+    @property
+    def handlers_map(self) -> Dict:
+        if not hasattr(self, "_handlers_map"):
+            self._handlers_map = {}
+
+            for handler in self.handlers:
+                self._handlers_map[handler.operation()] = handler()
+
+        return self._handlers_map
 
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
@@ -30,13 +43,15 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
         return (r"/", cls, kwargs)
 
     def initialize(self) -> None:
+        operations: List[str] = list(self.handlers_map.keys())
+
         # Set message schema.
         self.message_schema = {
             "type": "object",
             "properties": {
                 "operation": {
                     "type": "string",
-                    "enum": list(self.handlers.keys()),
+                    "enum": operations,
                 },
                 "payload": {"type": ["object", "null"]},
             },
@@ -46,9 +61,19 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
         # Don't close WS connections after 60s.
         self.settings["websocket_ping_interval"] = 30
 
+        self.client_id = str(hash(self))
+
     def open(self, *args: str, **kwargs: str) -> None:
         """Client opens a websocket connection."""
         logger.info("Open connection")
+
+        if self.client_id not in WebSocketApp.clients:
+            WebSocketApp.clients[self.client_id] = self
+
+        self.write_message(json.dumps({
+            "operation": 'open-connection',
+            "payload": {"client_id": self.client_id},
+        }))
 
     async def on_message(self, message: Union[str, bytes]) -> None:
         logger.info(f"Got message: {message!r}")
@@ -80,37 +105,85 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
     async def _handle_message(self, decoded_message: Dict) -> None:
         operation = decoded_message["operation"]
 
-        handler_class: Optional[Type[HandlerInterface]] = self.handlers.get(operation)
+        handler: Optional[HandlerInterface] = self.handlers_map.get(operation)
 
-        if not handler_class:
-            logger.error(f"Handler for operation {operation} not defined")
+        if not handler:
+            logger.error(f"Handler for operation {operation} not defined.")
             return
 
-        handler = handler_class()
+        handler.client_id = self.client_id
 
         response = await handler.execute(decoded_message["payload"])
 
-        logger.info(f"Return message: {response}")
+        if response is not None:
+            logger.info(f"Return message: {response}")
 
-        self.write_message(json.dumps({"operation": operation, "payload": response}))
+            self.write_message(json.dumps({"operation": operation, "payload": response}))
 
     def on_close(self) -> None:
         logger.info("Closing connection")
+        if self.client_id in WebSocketApp.clients:
+            del WebSocketApp.clients[self.client_id]
 
     def check_origin(self, origin: str) -> bool:
         logger.info(f"Origin: {origin}")
         return True
 
 
+class WebHookApp(tornado.web.RequestHandler):
+    handlers: List[Type[HandlerInterface]] = [
+        JobSuccessHandler,
+    ]
+
+    @property
+    def handlers_map(self) -> Dict:
+        if not hasattr(self, "_handlers_map"):
+            self._handlers_map = {}
+
+            for handler in self.handlers:
+                self._handlers_map[handler.operation()] = handler()
+
+        return self._handlers_map
+
+    @classmethod
+    def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
+        # route / handler / kwargs
+        return (r"/client/(?P<client_id>\w+)/(?P<operation>\S+)", cls, kwargs)
+
+    def post(self, *args: Any, **kwargs: Any) -> None:
+        client_id = kwargs["client_id"]
+        operation = kwargs["operation"]
+
+        logger.info(f"Hook called with client_id {client_id} and operation {operation}.")
+
+        client = WebSocketApp.clients.get(client_id)
+
+        if not client:
+            logger.error(f"Client with id {client_id} not found.")
+            return
+
+        handler: Optional[HandlerInterface] = self.handlers_map.get(operation)
+
+        if not handler:
+            logger.error(f"Handler for operation {operation} not defined.")
+            return
+
+        try:
+            payload = json.loads(self.request.body)
+        except json.JSONDecodeError as e:
+            raise MessageDecodeError(str(e))
+
+        response: Dict = handler.execute(payload)
+
+        client.write_message(json.dumps(response))
+
+
 def run_app(port: int) -> None:
-    WebSocketApp.register_handlers((
-        SearchProfileHandler,
-        ShelvesHandler,
-    ))
 
     app = tornado.web.Application(
         [
             WebSocketApp.route(),
+            WebHookApp.route(),
         ],
     )
 
@@ -144,7 +217,7 @@ def run() -> None:
     try:
         run_app(args.port)
     except KeyboardInterrupt:
-        logger.info("Closing src.")
+        logger.info("Closing server.")
 
 
 if __name__ == "__main__":

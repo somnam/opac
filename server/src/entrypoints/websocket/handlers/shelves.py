@@ -8,7 +8,7 @@ from src.core.usecases import SearchShelvesUseCase
 from src.entrypoints.websocket.handlers.base import HandlerInterface
 from src.dataproviders.gateways import DataGateway
 
-logger = logging.getLogger('src.entry')
+logger = logging.getLogger('src.entrypoints.websocket')
 
 
 class ShelvesHandler(HandlerInterface):
