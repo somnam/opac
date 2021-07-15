@@ -29,4 +29,8 @@ def search_latest_books(catalog: dict, profile: dict) -> Optional[List[dict]]:
 
     logger.warn(f'Search found {len(result)} latest books for {profile["name"]} in {catalog["name"]}')
 
-    return [book.to_dict() for book in result]
+    return {
+        "catalog": catalog,
+        "profile": profile,
+        "items": [book.to_dict() for book in result],
+    }

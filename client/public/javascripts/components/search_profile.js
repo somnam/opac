@@ -1,34 +1,35 @@
 import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
+import LoadingBtn from './widgets/loading_btn.js';
 
 
 class SearchProfile extends Field {
     template = `
-        <template>
-          <fieldset id="search-profile-fields">
-            <div id="search-profile-container" class="nes-container with-title mb-4">
-              <h3 class="title">Profile name</h3>
-              <p class="input-hint">
-              Can be found on your account page by the profile picture.
-              </p>
-              <input class="nes-input" id="profile-name" required="" />
-            </div>
+      <fieldset id="search-profile-fields">
+        <div id="search-profile-container" class="nes-container with-title mb-4">
+          <h3 class="title">Profile name</h3>
+          <p class="input-hint">
+          Can be found on your account page by the profile picture.
+          </p>
+          <input class="nes-input" id="profile-name" required="" />
+        </div>
 
-            <button class="nes-btn is-disabled btn-block mb-4" id="search-profile-btn">
-              Next
-            </button>
+        <button class="nes-btn is-disabled btn-block mb-4" id="search-profile-btn">
+          Next
+        </button>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     constructor(transport) {
         super();
 
         this.transport = transport;
+
+        this.loadingBtn = new LoadingBtn('#search-profile-btn');
 
         this.on('search-profile-show', () => this.onShow());
 
@@ -47,7 +48,7 @@ class SearchProfile extends Field {
             }
         });
 
-        this.on('search-profile-step-back', () => {
+        this.on('search-profile-back', () => {
             this.emit('search-profile-hide');
             this.emit(`activities-show`);
         });
@@ -117,7 +118,7 @@ class SearchProfile extends Field {
 
         Storage.set('searchProfile', profileName);
 
-        this.showLoading('#search-profile-btn');
+        this.loadingBtn.show();
 
         this.emit('search-profile-request', {phrase: profileName});
     }
@@ -127,7 +128,7 @@ class SearchProfile extends Field {
 
         Storage.remove('searchProfile');
 
-        this.emit('search-profile-step-back');
+        this.emit('search-profile-back');
     }
 }
 

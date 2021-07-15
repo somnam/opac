@@ -1,27 +1,26 @@
 import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 import RadioList from './widgets/radio_list.js';
+import LoadingBtn from './widgets/loading_btn.js';
 
 
 class Activities extends Field {
     template = `
-        <template>
-          <fieldset id="activities-fields">
-            <div id="activity-list-container" class="nes-container with-title mb-4">
-              <h3 class="title">Activity</h3>
-              <div class="item" id="activity-list">
-              </div>
-            </div>
+      <fieldset id="activities-fields">
+        <div id="activity-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Activity</h3>
+          <div class="item" id="activity-list">
+          </div>
+        </div>
 
-            <button class="nes-btn is-primary btn-block mb-4" id="select-activity-btn">
-              Next
-            </button>
+        <button class="nes-btn is-primary btn-block mb-4" id="select-activity-btn">
+          Next
+        </button>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     items = [
@@ -38,13 +37,15 @@ class Activities extends Field {
 
         this.radioList = new RadioList('activities', 'activity');
 
+        this.loadingBtn = new LoadingBtn('#select-activity-btn');
+
         this.on('activities-show', () => this.onShow());
 
         this.on('activities-hide', () => this.remove());
 
         this.on('activities-next', () => this.onNext());
 
-        this.on('activities-step-back', () => {
+        this.on('activities-back', () => {
             this.emit('activities-hide');
             this.emit('catalogs-show');
         });
@@ -95,7 +96,7 @@ class Activities extends Field {
 
         Storage.setEncoded('activity', activity);
 
-        this.showLoading('#select-activity-btn');
+        this.loadingBtn.show();
 
         this.emit('activities-next');
     }
@@ -105,7 +106,7 @@ class Activities extends Field {
 
         Storage.remove('activity');
 
-        this.emit('activities-step-back');
+        this.emit('activities-back');
     }
 }
 

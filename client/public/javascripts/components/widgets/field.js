@@ -7,9 +7,7 @@ class Field {
     template = null;
 
     constructor(parentSelector) {
-        this.parentSelector = parentSelector || '#app-form';
-        this.dom = null;
-        this.node = null;
+        this.parent = document.querySelector(parentSelector || '#app-form');
     }
 
     render() {
@@ -19,46 +17,14 @@ class Field {
 
             this.remove();
 
-            if (!this.dom) {
-                const parsed = this.parser.parseFromString(this.template, 'text/html');
-                this.dom = parsed.querySelector('template');
-            }
+            this.parent.insertAdjacentHTML('afterbegin', this.template.trim());
 
-            this.node = document.createElement('div');
-            this.node.append(this.dom.content.cloneNode(true));
-
-            document.querySelector(this.parentSelector).append(this.node);
-
-            resolve(this.node);
+            resolve();
         });
     }
 
     remove() {
-        if (!this.node)
-            return
-        this.node.remove();
-    }
-
-    showLoading(btnSelector) {
-        let btn = document.querySelector(btnSelector);
-        btn.setAttribute('hidden', 'hidden');
-
-        let loading = document.createElement('button');
-        loading.setAttribute('id', 'loading-btn');
-        loading.setAttribute('class', 'nes-btn is-disabled btn-block mb-4');
-        loading.addEventListener('click', (event) => event.preventDefault());
-
-        btn.after(loading);
-    }
-
-    hideLoading(btnSelector) {
-        let btn = document.querySelector(btnSelector);
-        btn.removeAttribute('hidden');
-
-        let loading = btn.parentNode.querySelector('#loading-btn');
-        if (loading !== null) {
-            loading.remove();
-        }
+        this.parent.childNodes.forEach((node) => node.remove());
     }
 }
 

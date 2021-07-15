@@ -1,23 +1,22 @@
 import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 import RadioList from './widgets/radio_list.js';
+import LoadingBtn from './widgets/loading_btn.js';
 
 
 class Catalogs extends Field {
     template = `
-        <template>
-          <fieldset id="catalogs-fields">
-            <div id="catalog-list-container" class="nes-container with-title mb-4">
-              <h3 class="title">Catalog</h3>
-              <div class="item" id="catalog-list">
-              </div>
-            </div>
+      <fieldset id="catalogs-fields">
+        <div id="catalog-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Catalog</h3>
+          <div class="item" id="catalog-list">
+          </div>
+        </div>
 
-            <button class="nes-btn is-primary btn-block mb-4" id="select-catalog-btn">
-              Next
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn is-primary btn-block mb-4" id="select-catalog-btn">
+          Next
+        </button>
+      </fieldset>
     `;
 
     items = [
@@ -33,6 +32,8 @@ class Catalogs extends Field {
         Storage.setEncoded('catalogs', {"items": this.items});
 
         this.radioList = new RadioList('catalogs', 'catalog');
+
+        this.loadingBtn = new LoadingBtn('#select-catalog-btn');
 
         this.on('catalogs-show', () => this.onShow());
 
@@ -69,7 +70,7 @@ class Catalogs extends Field {
 
         Storage.setEncoded('catalog', catalog);
 
-        this.showLoading('#select-catalog-btn');
+        this.loadingBtn.show();
 
         this.emit('catalogs-next');
     }

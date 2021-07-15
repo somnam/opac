@@ -4,20 +4,18 @@ import Storage from '../app/storage.js';
 
 class InDevelopment extends Field {
     template = `
-        <template>
-          <fieldset id="in-development-fields">
-            <div id="in-development-container" class="nes-container with-title mb-4">
-              <h3 class="title">Work in progress</h3>
-              <p class="input-hint">
-              Feature will be ready soon.
-              </p>
-            </div>
+      <fieldset id="in-development-fields">
+        <div id="in-development-container" class="nes-container with-title mb-4">
+          <h3 class="title">Work in progress</h3>
+          <p class="input-hint">
+          Feature will be ready soon.
+          </p>
+        </div>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     constructor(transport) {
@@ -32,7 +30,7 @@ class InDevelopment extends Field {
 
         this.on('in-development-hide', () => this.remove());
 
-        this.on('in-development-step-back', (caller) => {
+        this.on('in-development-back', (caller) => {
             this.emit('in-development-hide');
             this.emit(`${caller}-show`);
         });
@@ -54,7 +52,7 @@ class InDevelopment extends Field {
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('in-development-step-back', this.caller);
+        this.emit('in-development-back', this.caller);
     }
 }
 

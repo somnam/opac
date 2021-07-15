@@ -1,28 +1,27 @@
 import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 import RadioList from './widgets/radio_list.js';
+import LoadingBtn from './widgets/loading_btn.js';
 import Pager from './widgets/pager.js';
 
 
 class Shelves extends Field {
     template = `
-        <template>
-          <fieldset id="shelves-fields">
-            <div id="shelf-list-container" class="nes-container with-title mb-4">
-              <h3 class="title">Shelf</h3>
-              <div class="item" id="shelf-list">
-              </div>
-            </div>
+      <fieldset id="shelves-fields">
+        <div id="shelf-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Shelf</h3>
+          <div class="item" id="shelf-list">
+          </div>
+        </div>
 
-            <button class="nes-btn is-primary btn-block mb-4" id="select-shelf-btn">
-              Search
-            </button>
+        <button class="nes-btn is-primary btn-block mb-4" id="select-shelf-btn">
+          Search
+        </button>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     constructor(transport) {
@@ -31,6 +30,8 @@ class Shelves extends Field {
         this.transport = transport;
 
         this.radioList = new RadioList('shelves', 'shelf');
+
+        this.loadingBtn = new LoadingBtn('#select-shelf-btn');
 
         this.pager = new Pager('shelf-list-container', 'shelves-paginate');
 
@@ -49,7 +50,7 @@ class Shelves extends Field {
             this.emit('shelves-show');
         });
 
-        this.on('shelves-step-back', () => {
+        this.on('shelves-back', () => {
             this.emit('shelves-hide');
             this.emit('confirm-profile-show');
         });
@@ -99,7 +100,7 @@ class Shelves extends Field {
 
         Storage.setEncoded('shelf', shelf);
 
-        this.showLoading('#select-shelf-btn');
+        this.loadingBtn.show();
 
         this.emit('search-catalog-request');
     }
@@ -109,7 +110,7 @@ class Shelves extends Field {
 
         Storage.remove('shelf', 'shelves');
 
-        this.emit('shelves-step-back');
+        this.emit('shelves-back');
     }
 }
 

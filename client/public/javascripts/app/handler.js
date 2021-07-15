@@ -57,7 +57,13 @@ class Handler {
         });
 
         this.register("search-latest-books", (message) => {
-            console.log(message);
+            if (message.payload.result) {
+                Storage.setEncoded('latestBooks', message.payload.result);
+            } else {
+                Storage.remove('latestBooks');
+            }
+
+            this.emit('search-latest-books-results');
         });
     }
 }

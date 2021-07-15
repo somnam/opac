@@ -1,28 +1,27 @@
 import Field from './widgets/field.js';
 import Storage from '../app/storage.js';
 import RadioList from './widgets/radio_list.js';
+import LoadingBtn from './widgets/loading_btn.js';
 import Pager from './widgets/pager.js';
 
 
 class ConfirmProfile extends Field {
     template = `
-        <template>
-          <fieldset id="confirm-profile-fields">
-            <div id="profile-list-container" class="nes-container with-title mb-4">
-              <h3 class="title">Is this you?</h3>
-              <div class="item" id="profile-list">
-              </div>
-            </div>
+      <fieldset id="confirm-profile-fields">
+        <div id="profile-list-container" class="nes-container with-title mb-4">
+          <h3 class="title">Is this you?</h3>
+          <div class="item" id="profile-list">
+          </div>
+        </div>
 
-            <button class="nes-btn is-primary btn-block mb-4" id="confirm-profile-btn">
-              Next
-            </button>
+        <button class="nes-btn is-primary btn-block mb-4" id="confirm-profile-btn">
+          Next
+        </button>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     constructor(transport) {
@@ -31,6 +30,8 @@ class ConfirmProfile extends Field {
         this.transport = transport;
 
         this.radioList = new RadioList('profiles', 'profile');
+
+        this.loadingBtn = new LoadingBtn('#confirm-profile-btn');
 
         this.pager = new Pager('profile-list-container', 'confirm-profile-paginate');
 
@@ -42,7 +43,7 @@ class ConfirmProfile extends Field {
 
         this.on('confirm-profile-next', (profile) => this.onNext(profile));
 
-        this.on('confirm-profile-step-back', () => {
+        this.on('confirm-profile-back', () => {
             this.emit('confirm-profile-hide');
             this.emit('search-profile-show');
         });
@@ -108,7 +109,7 @@ class ConfirmProfile extends Field {
 
         Storage.setEncoded('profile', profile);
 
-        this.showLoading('#confirm-profile-btn');
+        this.loadingBtn.show();
 
         this.emit('confirm-profile-next', profile)
     }
@@ -118,7 +119,7 @@ class ConfirmProfile extends Field {
 
         Storage.remove('profile', 'profiles');
 
-        this.emit('confirm-profile-step-back');
+        this.emit('confirm-profile-back');
     }
 }
 

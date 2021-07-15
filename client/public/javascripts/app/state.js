@@ -7,6 +7,7 @@ import NoProfile from '../components/no_profile.js';
 import ConfirmProfile from '../components/confirm_profile.js';
 import Shelves from '../components/shelves.js';
 import InDevelopment from '../components/in_development.js';
+import SearchLatestBooks from '../components/search_latest_books.js';
 
 
 class State {
@@ -21,6 +22,7 @@ class State {
             ConfirmProfile,
             Shelves,
             InDevelopment,
+            SearchLatestBooks,
         ].forEach((component) =>{
             const componentName = component.toString();
             this.on(`${componentName}-show`, () => this.current = componentName);

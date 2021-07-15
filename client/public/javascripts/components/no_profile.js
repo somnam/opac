@@ -4,20 +4,18 @@ import Storage from '../app/storage.js';
 
 class NoProfile extends Field {
     template = `
-        <template>
-          <fieldset id="no-profile-fields">
-            <div id="no-profile-container" class="nes-container with-title mb-4">
-              <h3 class="title">Profile not found</h3>
-              <p class="input-hint">
-              Profile with the given name was not found. Try another?
-              </p>
-            </div>
+      <fieldset id="no-profile-fields">
+        <div id="no-profile-container" class="nes-container with-title mb-4">
+          <h3 class="title">Profile not found</h3>
+          <p class="input-hint">
+          Profile with the given name was not found. Try another?
+          </p>
+        </div>
 
-            <button class="nes-btn btn-block mb-4" id="go-back-btn">
-              Back
-            </button>
-          </fieldset>
-        </template>
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+      </fieldset>
     `;
 
     constructor(transport) {
@@ -29,7 +27,7 @@ class NoProfile extends Field {
 
         this.on('no-profile-hide', () => this.remove());
 
-        this.on('no-profile-step-back', () => {
+        this.on('no-profile-back', () => {
             this.emit('no-profile-hide');
             this.emit('search-profile-show');
         });
@@ -51,7 +49,7 @@ class NoProfile extends Field {
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('no-profile-step-back');
+        this.emit('no-profile-back');
     }
 }
 

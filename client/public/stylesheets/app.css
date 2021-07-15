@@ -22,10 +22,30 @@ body {
 }
 
 #app-form {
-    width: 100%;
-    max-width: 540px;
     padding: 15px;
     margin: auto;
+}
+
+fieldset {
+    width: 540px;
+}
+
+#search-latest-books-fields {
+    width: auto;
+}
+
+#latest-books-table table {
+    width: 960px;
+    border-collapse: collapse !important;
+}
+
+#latest-books-table thead {
+    background-color: lightblue;
+    text-transform: capitalize;
+}
+
+#latest-books-table tr:nth-child(even) {
+    background-color: azure;
 }
 
 .input-hint {
@@ -39,7 +59,7 @@ body {
     margin-right: auto;
 }
 
-#loading-btn:before {
+#loading-btn:before, .loading-text:after {
     content: '.';
     animation: dots 0.5s infinite;
 }
