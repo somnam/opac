@@ -1,28 +1,33 @@
 from src.core.entities.profile import (
     Profile,
     ProfileSearchParams,
-    ProfileSearchResults,
+    ProfileSearchResult,
 )
 from src.core.entities.shelf import (
     Shelf,
-    ShelvesSearchParams,
-    ShelvesSearchResults,
+    ShelfSearchParams,
+    ShelfSearchResult,
 )
-from src.core.entities.search_results import SearchResults
+from src.core.entities.search_result import SearchResult
 from src.core.entities.catalog import Catalog
 from src.core.entities.activity import Activity
-from src.core.entities.book import Book
+from src.core.entities.book import Book, BookMeta
+from src.core.entities.shelf_item import ShelfItem
+from src.core.entities.base import CollateResult
 
 
 __all__ = [
     "Profile",
     "ProfileSearchParams",
-    "ProfileSearchResults",
+    "ProfileSearchResult",
     "Shelf",
-    "ShelvesSearchParams",
-    "ShelvesSearchResults",
-    "SearchResults",
+    "ShelfSearchParams",
+    "ShelfSearchResult",
+    "SearchResult",
     "Catalog",
     "Activity",
     "Book",
+    "BookMeta",
+    "ShelfItem",
+    "CollateResult",
 ]

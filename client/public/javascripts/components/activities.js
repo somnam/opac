@@ -33,22 +33,13 @@ class Activities extends Field {
 
         this.transport = transport;
 
-        Storage.setEncoded('activities', {"items": this.items});
-
-        this.radioList = new RadioList('activities', 'activity');
-
-        this.loadingBtn = new LoadingBtn('#select-activity-btn');
-
         this.on('activities-show', () => this.onShow());
 
         this.on('activities-hide', () => this.remove());
 
         this.on('activities-next', () => this.onNext());
 
-        this.on('activities-back', () => {
-            this.emit('activities-hide');
-            this.emit('catalogs-show');
-        });
+        this.on('activities-back', () => this.onBack());
     }
 
     static toString() { return 'activities' }
@@ -56,6 +47,12 @@ class Activities extends Field {
     onShow() {
         this.render()
             .then(() => {
+                Storage.setEncoded('activities', {"items": this.items});
+
+                this.radioList = new RadioList('activities', 'activity');
+
+                this.loadingBtn = new LoadingBtn('#select-activity-btn');
+
                 this.addEvents();
                 this.radioList.update();
             })
@@ -63,7 +60,9 @@ class Activities extends Field {
     }
 
     onNext() {
-        const activity = Storage.getDecoded('activity');
+        const activity = this.radioList.checked;
+
+        Storage.setEncoded('activity', activity);
 
         switch(activity ? activity.value : null) {
             case 'search-books':
@@ -79,6 +78,13 @@ class Activities extends Field {
         }
     }
 
+    onBack() {
+        Storage.remove('activity');
+
+        this.emit('activities-hide');
+        this.emit('catalogs-show');
+    }
+
     addEvents() {
         const searchActivityBtn = document.querySelector('#select-activity-btn');
         searchActivityBtn.addEventListener('click', (event) => {
@@ -92,10 +98,6 @@ class Activities extends Field {
     selectActivityBtnListener(event) {
         event.preventDefault();
 
-        const activity = this.radioList.checked;
-
-        Storage.setEncoded('activity', activity);
-
         this.loadingBtn.show();
 
         this.emit('activities-next');
@@ -103,8 +105,6 @@ class Activities extends Field {
 
     backBtnListener(event) {
         event.preventDefault();
-
-        Storage.remove('activity');
 
         this.emit('activities-back');
     }

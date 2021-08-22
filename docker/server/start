@@ -8,11 +8,14 @@ run_container ()
     echo -e "\e[36mStarting container\e[0m"
 
     local self_path=$(dirname "$0")
-    local root_path=$(realpath "$self_path/../")
+    local root_path=$(realpath "$self_path/../../")
+    local bind_path=$(realpath "$root_path/var/")
+
     docker run \
         --detach \
         --interactive \
         --tty \
+        --mount type=bind,src="$bind_path",target=/home/server/var \
         --network opac-net \
         --network-alias opac-server \
         --name opac-server \
@@ -27,3 +30,4 @@ create_docker_network
 stop_container "opac-server"
 run_container
 check_running_container "opac-server"
+exec_command "opac-server" "create_schema"

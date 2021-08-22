@@ -5,6 +5,8 @@ import InDevelopment from '../components/in_development.js';
 import NoProfile from '../components/no_profile.js';
 import SearchCatalog from '../components/search_catalog.js';
 import SearchLatestBooks from '../components/search_latest_books.js';
+import IncludeLatestBooksShelves from '../components/include_latest_books_shelves.js';
+import ExcludeLatestBooksShelves from '../components/exclude_latest_books_shelves.js';
 import SearchProfile from '../components/search_profile.js';
 import Shelves from '../components/shelves.js';
 
@@ -21,6 +23,8 @@ class Components {
             NoProfile,
             SearchCatalog,
             SearchLatestBooks,
+            IncludeLatestBooksShelves,
+            ExcludeLatestBooksShelves,
             SearchProfile,
             Shelves,
         ].forEach((component) => {

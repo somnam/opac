@@ -1,7 +1,7 @@
 import logging
 from src.core.entities import (
-    ShelvesSearchParams,
-    ShelvesSearchResults,
+    ShelfSearchParams,
+    ShelfSearchResult,
     Profile,
 )
 from src.core.usecases import SearchShelvesUseCase
@@ -19,8 +19,8 @@ class ShelvesHandler(HandlerInterface):
     async def execute(self, payload: dict) -> dict:
         use_case = SearchShelvesUseCase(DataGateway())
 
-        search_results: ShelvesSearchResults = await use_case.execute(
-            ShelvesSearchParams(
+        search_results: ShelfSearchResult = await use_case.execute(
+            ShelfSearchParams(
                 profile=Profile(name=payload.pop('name'), value=payload.pop('value')),
                 **payload,
             )

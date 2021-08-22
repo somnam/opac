@@ -10,7 +10,7 @@ import tornado.web
 import tornado.websocket
 from src.entrypoints.websocket.exceptions import MessageDecodeError
 from src.entrypoints.websocket.handlers import (HandlerInterface,
-                                                JobSuccessHandler,
+                                                JobResultHandler,
                                                 SearchLatestBooksHandler,
                                                 SearchProfileHandler,
                                                 ShelvesHandler)
@@ -132,7 +132,7 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
 
 class WebHookApp(tornado.web.RequestHandler):
     handlers: List[Type[HandlerInterface]] = [
-        JobSuccessHandler,
+        JobResultHandler,
     ]
 
     @property

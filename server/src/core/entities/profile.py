@@ -1,6 +1,6 @@
 from typing import List
 from src.core.entities.base import BaseEntity
-from src.core.entities.search_results import SearchResults
+from src.core.entities.search_result import SearchResult
 from dataclasses import dataclass, field
 
 
@@ -17,5 +17,5 @@ class ProfileSearchParams(BaseEntity):
 
 
 @dataclass
-class ProfileSearchResults(SearchResults):
+class ProfileSearchResult(SearchResult):
     items: List[Profile] = field(default_factory=list)

@@ -44,32 +44,15 @@ class SearchLatestBooks extends Field {
 
         this.on('search-latest-books-start', () => this.onStart());
 
-        this.on(`search-latest-books-request`, (message) => {
-            this.transport.send('search-latest-books', message);
+        this.on(`search-latest-books-request`, () => this.onRequest());
 
-            Storage.set('latestBooksProgress', true);
-
-            this.emit('search-latest-books-show');
-        });
+        this.on(`search-latest-books-data`, () => this.onData());
 
         this.on('search-latest-books-show', () => this.onShow());
 
         this.on('search-latest-books-hide', () => this.remove());
 
-        this.on('search-latest-books-results', () => {
-            Storage.remove('latestBooksProgress');
-
-            if (Storage.getDecoded('latestBooks') !== null) {
-                this.emit('search-latest-books-show');
-            } else {
-                console.log("No latest books found.")
-            }
-        });
-
-        this.on('search-latest-books-back', () => {
-            this.emit('search-latest-books-hide');
-            this.emit('confirm-profile-show');
-        });
+        this.on('search-latest-books-back', () => this.onBack());
     }
 
     static toString() { return 'search-latest-books' }
@@ -80,7 +63,7 @@ class SearchLatestBooks extends Field {
         switch(catalog ? catalog.value : null) {
             case "4949":
                 this.emit('activities-hide');
-                this.emit('in-development-show', 'activities');
+                this.emit('in-development-show');
                 break;
             case "5004":
                 this.emit('activities-hide');
@@ -89,6 +72,32 @@ class SearchLatestBooks extends Field {
             default:
                 console.error("No catalog defined.");
                 break;
+        }
+    }
+
+    onRequest() {
+        const message = {
+            "catalog": Storage.getDecoded('catalog'),
+            "included_shelves": Storage.getDecoded('include-latest-book-shelves'),
+            "excluded_shelves": Storage.getDecoded('exclude-latest-book-shelves'),
+        };
+
+        this.transport.fetch('search-latest-books', message)
+            .then(() => this.emit('search-latest-books-data'))
+            .catch(error => console.error(error));
+
+        Storage.set('latest-books-progress', true);
+
+        this.emit('search-latest-books-show');
+    }
+
+    onData() {
+        Storage.remove('latest-books-progress');
+
+        if (Storage.getDecoded('latest-books') !== null) {
+            this.emit('search-latest-books-show');
+        } else {
+            console.log("No latest books found.")
         }
     }
 
@@ -101,9 +110,16 @@ class SearchLatestBooks extends Field {
             .catch(error => console.error(error));
     }
 
+    onBack() {
+        Storage.remove('latest-books', 'latest-books-progress');
+
+        this.emit('search-latest-books-hide');
+        this.emit('exclude-latest-book-shelves-show');
+    }
+
     update() {
-        const inProgress = Storage.get('latestBooksProgress');
-        const searchResult = Storage.getDecoded('latestBooks');
+        const inProgress = Storage.get('latest-books-progress');
+        const searchResult = Storage.getDecoded('latest-books');
 
         if (inProgress) {
             this.loading.show();
@@ -123,8 +139,6 @@ class SearchLatestBooks extends Field {
 
     backBtnListener(event) {
         event.preventDefault();
-
-        Storage.remove('latestBooks', 'latestBooksProgress');
 
         this.emit('search-latest-books-back');
     }

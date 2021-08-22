@@ -13,6 +13,10 @@ export default class Storage {
         }
     }
 
+    static removeAll() {
+        localStorage.clear();
+    }
+
     static getDecoded(item) {
         return JSON.parse(localStorage.getItem(item));
     }

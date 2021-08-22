@@ -8,6 +8,8 @@ import ConfirmProfile from '../components/confirm_profile.js';
 import Shelves from '../components/shelves.js';
 import InDevelopment from '../components/in_development.js';
 import SearchLatestBooks from '../components/search_latest_books.js';
+import IncludeLatestBooksShelves from '../components/include_latest_books_shelves.js';
+import ExcludeeLatestBooksShelves from '../components/exclude_latest_books_shelves.js';
 
 
 class State {
@@ -23,6 +25,8 @@ class State {
             Shelves,
             InDevelopment,
             SearchLatestBooks,
+            IncludeLatestBooksShelves,
+            ExcludeeLatestBooksShelves,
         ].forEach((component) =>{
             const componentName = component.toString();
             this.on(`${componentName}-show`, () => this.current = componentName);

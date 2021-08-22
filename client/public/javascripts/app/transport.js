@@ -1,3 +1,5 @@
+import Handler from "./handler.js";
+
 export default class Transport {
     constructor() {
         const host = 'localhost',
@@ -6,7 +8,10 @@ export default class Transport {
         return new Promise((resolve, reject) => {
             this.socket = new WebSocket(`ws://${host}:${port}/`);
 
+            this.handler = new Handler(this);
+
             this.socket.onopen = (event) => resolve(this);
+
             this.socket.onerror = (error) => reject(error);
         });
     }
@@ -20,5 +25,16 @@ export default class Transport {
             operation: operation,
             payload: message || null,
         }));
+    }
+
+    fetch(operation, message) {
+        return new Promise((resolve, reject) => {
+            this.send(operation, message);
+
+            this.onmessage((event) => this.handler.handle(event)
+                .then(() => resolve())
+                .catch(error => reject(error))
+            );
+        })
     }
 }

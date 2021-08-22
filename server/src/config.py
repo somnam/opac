@@ -1,6 +1,6 @@
+import os
 import json
 import logging
-from os import path
 from typing import List, Dict, Optional, Any
 from configparser import ConfigParser, ExtendedInterpolation
 
@@ -8,15 +8,22 @@ logger = logging.getLogger(__name__)
 
 
 class Config(ConfigParser):
-    app_dir: str = path.abspath(path.join(path.dirname(__file__), '..'))
-    config_files: List = ['config.ini']
+    app_dir: str = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    config_files: List = [
+        'config.loggers.ini.example',
+        'config.loggers.ini',
+        'config.ini.example',
+        'config.ini',
+    ]
 
     def __init__(self) -> None:
         super().__init__(interpolation=ExtendedInterpolation())
 
-        # Read config file
         logger.debug(f"Reading configuration files: {self.config_files}")
-        self.read([f"{self.app_dir}/{file}" for file in self.config_files])
+
+        paths = [f"{self.app_dir}/{file}" for file in self.config_files]
+
+        self.read([path for path in paths if os.path.exists(path)])
 
     def optionxform(self, optionstr: str) -> str:
         """Don't lowercase keys."""

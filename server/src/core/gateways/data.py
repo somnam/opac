@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from src.core.gateways.shelves import ShelvesGatewayInterface
-from src.core.gateways.profiles import ProfilesGatewayInterface
+from src.core.gateways.shelf import ShelfGatewayInterface
+from src.core.gateways.profile import ProfileGatewayInterface
 from src.core.gateways.client import ClientGatewayInterface
 
 
@@ -9,12 +9,12 @@ class DataGatewayInterface(ABC):
 
     @property
     @abstractmethod
-    def shelves(self) -> ShelvesGatewayInterface:
+    def shelf(self) -> ShelfGatewayInterface:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def profiles(self) -> ProfilesGatewayInterface:
+    def profile(self) -> ProfileGatewayInterface:
         raise NotImplementedError
 
     @property

@@ -3,11 +3,7 @@ import {EventEmitter} from '../mixin/event_emitter.js';
 
 
 class Handler {
-    constructor(transport) {
-        this.transport = transport;
-
-        this.transport.onmessage((event) => this.handle(event));
-
+    constructor() {
         this.handlers = {};
 
         this.registerHandlers();
@@ -22,11 +18,14 @@ class Handler {
         const message = JSON.parse(event.data),
               operation = message.operation;
 
-        if (this.handlers.hasOwnProperty(operation)) {
-            this.handlers[operation].forEach(handler => handler(message))
-        } else {
-            console.error(`Handler for operation ${operation} not defined.`)
-        }
+        return new Promise((resolve, reject) => {
+            if (this.handlers.hasOwnProperty(operation)) {
+                this.handlers[operation].forEach(handler => handler(message));
+                resolve();
+            } else {
+                reject(`Handler for operation ${operation} not defined.`);
+            }
+        });
     }
 
     registerHandlers() {
@@ -36,8 +35,6 @@ class Handler {
             } else {
                 Storage.remove('shelves');
             }
-
-            this.emit(`shelves-results`);
         });
 
         this.register("open-connection", (message) => {
@@ -52,18 +49,14 @@ class Handler {
             } else {
                 Storage.remove('profiles');
             }
-
-            this.emit('search-profile-results');
         });
 
         this.register("search-latest-books", (message) => {
             if (message.payload.result) {
-                Storage.setEncoded('latestBooks', message.payload.result);
+                Storage.setEncoded('latest-books', message.payload.result);
             } else {
-                Storage.remove('latestBooks');
+                Storage.remove('latest-books');
             }
-
-            this.emit('search-latest-books-results');
         });
     }
 }

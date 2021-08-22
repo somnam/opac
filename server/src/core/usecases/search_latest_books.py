@@ -1,11 +1,8 @@
-import asyncio
-import itertools
 import logging
 from typing import List, Optional, Set
 
-from src.core.entities import Book, Catalog, Profile, Shelf
+from src.core.entities import Book, Catalog, Shelf
 from src.core.repositories import DataRepositoryInterface
-from src.core.usecases.refresh_shelf_books import RefreshShelfBooksUseCase
 
 logger = logging.getLogger('src.core.usecases')
 
@@ -13,41 +10,61 @@ logger = logging.getLogger('src.core.usecases')
 class SearchLatestBooksUseCase:
     def __init__(self, repository: DataRepositoryInterface) -> None:
         self._repository = repository
-        self._refresh_shelf_use_case = RefreshShelfBooksUseCase(repository)
 
     async def execute(
         self,
         catalog: Catalog,
-        profile: Profile,
         included_shelves: List[Shelf],
         excluded_shelves: Optional[List[Shelf]] = None,
     ) -> List[Book]:
 
-        awaitables = [self._refresh_shelf_use_case.execute(profile, shelf)
-                      for shelf in itertools.chain(included_shelves, (excluded_shelves or []))]
-
-        if awaitables:
-            await asyncio.gather(*awaitables)
-
-        latest_books: List[Book] = []
+        with self._repository.catalog.unit_of_work():
+            latest_books: List[Book] = self._repository.catalog.latest_books(catalog)
 
         if not latest_books:
-            return []
+            # TMP
+            for book in (
+                Book(
+                    title="Tęcza grawitacji",
+                    author="Thomas Pynchon",
+                    isbn="8374692952",
+                ),
+                Book(
+                    title="Infinite Jest",
+                    author="David Foster Wallace",
+                    isbn="0316920045",
+                ),
+                Book(
+                    title="The World Atlas of Coffee",
+                    author="James Hoffmann",
+                    isbn="9781784724290",
+                ),
+                Book(
+                    title="Zaśpiewam Ci piosenkę",
+                    author="Yang Fumin",
+                    isbn="9788380029668",
+                ),
+            ):
+                latest_books.append(book)
+
+            return latest_books
 
         included_books: Set[Book] = set()
 
         excluded_books: Set[Book] = set()
 
         for shelf in included_shelves:
-            books = await self._repository.gateway.shelves.books(shelf)
+            shelf_items = await self._repository.shelf.items(shelf)
 
-            included_books.update((book for book in books if book.isbn is not None))
+            included_books.update((shelf_item.book for shelf_item in shelf_items
+                                   if shelf_item.book.isbn is not None))
 
         if excluded_shelves:
             for shelf in excluded_shelves:
-                books = await self._repository.gateway.shelves.books(shelf)
+                shelf_items = await self._repository.shelf.items(shelf)
 
-                excluded_books.update((book for book in books if book.isbn is not None))
+                excluded_books.update((shelf_item.book for shelf_item in shelf_items
+                                       if shelf_item.book.isbn is not None))
 
         matching_books = included_books.difference(excluded_books).intersection(latest_books)
 

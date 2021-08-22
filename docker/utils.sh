@@ -57,6 +57,7 @@ stop_container ()
     docker container prune -f 1>/dev/null
 }
 
+
 create_config_file ()
 {
     local config_path=$(realpath "$1/config.ini")
@@ -66,6 +67,16 @@ create_config_file ()
         cp $config_example_path $config_path;
     fi
 }
+
+
+exec_command ()
+{
+    if [[ "$(docker ps -q -f name=$1)" ]]; then
+        echo -e "\e[36mRunning command '$2'\e[0m"
+        docker exec -it "$1" bash -l -c "$2"
+    fi
+}
+
 
 run_tests ()
 {

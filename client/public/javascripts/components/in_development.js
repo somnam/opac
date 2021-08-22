@@ -13,7 +13,7 @@ class InDevelopment extends Field {
         </div>
 
         <button class="nes-btn btn-block mb-4" id="go-back-btn">
-          Back
+          Start
         </button>
       </fieldset>
     `;
@@ -23,17 +23,11 @@ class InDevelopment extends Field {
 
         this.transport = transport;
 
-        this.on('in-development-show', (caller) => {
-            this.caller = caller;
-            this.onShow();
-        });
+        this.on('in-development-show', () => this.onShow());
 
         this.on('in-development-hide', () => this.remove());
 
-        this.on('in-development-back', (caller) => {
-            this.emit('in-development-hide');
-            this.emit(`${caller}-show`);
-        });
+        this.on('in-development-back', () => this.onBack());
     }
 
     static toString() { return 'in-development' }
@@ -44,6 +38,13 @@ class InDevelopment extends Field {
             .catch(error => console.error(error));
     }
 
+    onBack() {
+      Storage.removeAll();
+
+      this.emit('in-development-hide');
+      this.emit(`catalogs-show`);
+    }
+
     addEvents() {
         const backBtn = document.querySelector('#in-development-fields > #go-back-btn');
         backBtn.addEventListener('click', (event) => this.backBtnListener(event));
@@ -52,7 +53,7 @@ class InDevelopment extends Field {
     backBtnListener(event) {
         event.preventDefault();
 
-        this.emit('in-development-back', this.caller);
+        this.emit('in-development-back');
     }
 }
 

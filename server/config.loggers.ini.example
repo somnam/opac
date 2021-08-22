@@ -1,0 +1,37 @@
+[loggers]
+keys = root, src
+
+[handlers]
+keys = console, src
+
+[formatters]
+keys = generic, src
+
+[logger_root]
+level = INFO
+handlers = console
+qualname =
+
+[logger_src]
+level = INFO
+handlers = src
+propagate = 0
+qualname = src
+
+[handler_console]
+class = logging.StreamHandler
+formatter = generic
+args = (sys.stderr,)
+
+[handler_src]
+class = logging.StreamHandler
+formatter = src
+args = (sys.stderr,)
+
+[formatter_generic]
+format = %(asctime)-15s %(levelname)-5.5s [%(filename)s:%(lineno)s] [%(funcName)s] %(message)s
+class = logging.Formatter
+
+[formatter_src]
+format = %(message)s
+class = logging.Formatter

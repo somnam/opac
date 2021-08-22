@@ -9,6 +9,8 @@ install_requires = [
     "requests==2.25.1",
     "redis==3.5.3",
     "rq==1.9.0",
+    "sqlalchemy==1.4.22",
+    "sqlalchemy-utils==0.37.8",
 ]
 
 setup_requires = [
@@ -33,6 +35,7 @@ entry_points = {
     "console_scripts": [
         "run_app=src.entrypoints.websocket.app:run",
         "run_worker=src.entrypoints.jobs.worker:run",
+        "create_schema=src.entrypoints.scripts.schema:run",
     ],
 }
 

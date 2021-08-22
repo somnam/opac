@@ -10,13 +10,20 @@ host = opac-broker
 queues = ["high", "default", "low"]
 
 
+[db:handler]
+sqlalchemy.url = sqlite:///var/opac.db
+sqlalchemy.pool_pre_ping = true
+sqlalchemy.pool_recycle = 3600
+
+
+
 [lc]
 url = http://lubimyczytac.pl
 profile_search_url = https://lubimyczytac.pl/account/getMoreSearchedAccounts
-profile_library_url = https://lubimyczytac.pl/{profile_id}/biblioteczka/lista
+profile_library_url = https://lubimyczytac.pl/profil/{profile_id}/{profile_name}/biblioteczka/lista
+profile_shelf_url = https://lubimyczytac.pl/profil/{profile_id}/{profile_name}/biblioteczka/lista?shelfs={shelf_id}
+shelf_items_url = https://lubimyczytac.pl/profile/getLibraryBooksList
 
 
 [latest_books_scraper]
-included_shelves = [{"name": "", "value": ""}]
-excluded_shelves = [{"name": "", "value": ""}] 
 invalidate_days = 30

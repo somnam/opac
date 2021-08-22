@@ -5,10 +5,12 @@ class SearchCatalog {
     constructor(transport) {
         this.transport = transport;
 
-        this.on('search-catalog-request', () => {
-            this.emit('shelves-hide');
-            this.emit('in-development-show', 'shelves');
-        });
+        this.on('search-catalog-request', () => this.onRequest());
+    }
+
+    onRequest() {
+        this.emit('shelves-hide');
+        this.emit('in-development-show');
     }
 }
 

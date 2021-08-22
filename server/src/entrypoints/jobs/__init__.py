@@ -1,8 +1,7 @@
-from src.entrypoints.jobs.base import job_on_success
-from src.entrypoints.jobs.search_latest_books import search_latest_books
+from src.entrypoints.jobs.task import search_latest_books, on_result
 
 
 __all__ = [
     "search_latest_books",
-    "job_on_success",
+    "on_result",
 ]

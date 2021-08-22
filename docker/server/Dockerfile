@@ -5,6 +5,12 @@ WORKDIR /root
 ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm
 
+RUN apt-get update \
+    && mkdir -p /usr/share/man/man1 \
+    && apt-get install -y --no-install-recommends sqlite3 \
+    && apt-get clean && rm -rf /var/lib/apt/lists
+
+
 # Create server user
 RUN useradd server --create-home --shell /bin/bash\
     && su -c "mkdir -p /home/server/.local/bin" server

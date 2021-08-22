@@ -1,5 +1,4 @@
 import Field from './widgets/field.js';
-import Storage from '../app/storage.js';
 
 
 class NoProfile extends Field {
@@ -27,18 +26,20 @@ class NoProfile extends Field {
 
         this.on('no-profile-hide', () => this.remove());
 
-        this.on('no-profile-back', () => {
-            this.emit('no-profile-hide');
-            this.emit('search-profile-show');
-        });
+        this.on('no-profile-back', () => this.onBack());
     }
 
     static toString() { return 'no-profile' }
 
-    onShow(caller) {
+    onShow() {
         this.render()
             .then(() => this.addEvents())
             .catch(error => console.error(error));
+    }
+
+    onBack() {
+        this.emit('no-profile-hide');
+        this.emit('search-profile-show');
     }
 
     addEvents() {

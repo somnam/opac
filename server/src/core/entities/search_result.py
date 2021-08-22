@@ -4,7 +4,7 @@ from src.core.entities.base import BaseEntity
 
 
 @dataclass
-class SearchResults(BaseEntity):
+class SearchResult(BaseEntity):
     items: List[Any] = field(default_factory=list)
     page: int = 1
     prev_page: int = 0

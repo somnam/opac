@@ -29,20 +29,12 @@ class Catalogs extends Field {
 
         this.transport = transport;
 
-        Storage.setEncoded('catalogs', {"items": this.items});
-
-        this.radioList = new RadioList('catalogs', 'catalog');
-
-        this.loadingBtn = new LoadingBtn('#select-catalog-btn');
-
         this.on('catalogs-show', () => this.onShow());
 
         this.on('catalogs-hide', () => this.remove());
 
-        this.on('catalogs-next', () => {
-            this.emit('catalogs-hide');
-            this.emit('activities-show');
-        });
+        this.on('catalogs-next', () => this.onNext());
+
     }
 
     static toString() { return 'catalogs' }
@@ -50,10 +42,25 @@ class Catalogs extends Field {
     onShow() {
         this.render()
             .then(() => {
+                Storage.setEncoded('catalogs', {"items": this.items});
+
+                this.radioList = new RadioList('catalogs', 'catalog');
+
+                this.loadingBtn = new LoadingBtn('#select-catalog-btn');
+
                 this.addEvents();
                 this.radioList.update();
             })
             .catch(error => console.error(error));
+    }
+
+    onNext() {
+        const catalog = this.radioList.checked;
+
+        Storage.setEncoded('catalog', catalog);
+
+        this.emit('catalogs-hide');
+        this.emit('activities-show');
     }
 
     addEvents() {
@@ -65,10 +72,6 @@ class Catalogs extends Field {
 
     selectCatalogBtnListener(event) {
         event.preventDefault();
-
-        const catalog = this.radioList.checked;
-
-        Storage.setEncoded('catalog', catalog);
 
         this.loadingBtn.show();
 

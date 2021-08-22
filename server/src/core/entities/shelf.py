@@ -1,7 +1,7 @@
 from typing import List
 from dataclasses import dataclass, field
 from src.core.entities.base import BaseEntity
-from src.core.entities.search_results import SearchResults
+from src.core.entities.search_result import SearchResult
 from src.core.entities.profile import Profile
 
 
@@ -9,16 +9,18 @@ from src.core.entities.profile import Profile
 class Shelf(BaseEntity):
     name: str
     value: str
+    profile: Profile
+    pages: int = 1
 
 
 @dataclass
-class ShelvesSearchParams(BaseEntity):
+class ShelfSearchParams(BaseEntity):
     profile: Profile
     page: int = 1
 
 
 @dataclass
-class ShelvesSearchResults(SearchResults):
+class ShelfSearchResult(SearchResult):
     items: List[Shelf] = field(default_factory=list)
 
     def __post_init__(self) -> None:

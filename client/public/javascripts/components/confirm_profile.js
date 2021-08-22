@@ -29,24 +29,15 @@ class ConfirmProfile extends Field {
 
         this.transport = transport;
 
-        this.radioList = new RadioList('profiles', 'profile');
-
-        this.loadingBtn = new LoadingBtn('#confirm-profile-btn');
-
-        this.pager = new Pager('profile-list-container', 'confirm-profile-paginate');
-
         this.on('confirm-profile-show', () => this.onShow());
 
         this.on('confirm-profile-hide', () => this.remove());
 
-        this.on('confirm-profile-paginate', (page) => this.onPaginate(page));
+        this.on('confirm-profile-paginate', page => this.onPaginate(page));
 
-        this.on('confirm-profile-next', (profile) => this.onNext(profile));
+        this.on('confirm-profile-next', () => this.onNext());
 
-        this.on('confirm-profile-back', () => {
-            this.emit('confirm-profile-hide');
-            this.emit('search-profile-show');
-        });
+        this.on('confirm-profile-back', () => this.onBack());
     }
 
     static toString() { return 'confirm-profile' }
@@ -54,26 +45,31 @@ class ConfirmProfile extends Field {
     onShow() {
         this.render()
             .then(() => {
+                this.radioList = new RadioList('profiles', 'profile');
+
+                this.pager = new Pager('profile-list-container', 'confirm-profile-paginate');
+
+                this.loadingBtn = new LoadingBtn('#confirm-profile-btn');
+
                 this.addEvents();
                 this.update();
             })
             .catch(error => console.error(error));
     }
 
-    onNext(profile) {
+    onNext() {
+        const profile = this.radioList.checked;
+
+        Storage.setEncoded('profile', profile);
 
         const activity = Storage.getDecoded('activity');
 
         switch(activity ? activity.value : null) {
             case 'search-books':
-                this.emit('shelves-request', profile)
+                this.emit('shelves-request', profile);
                 break;
             case 'search-latest-books':
-                this.emit('confirm-profile-hide');
-                this.emit('search-latest-books-request', {
-                    "catalog": Storage.getDecoded('catalog'),
-                    "profile": Storage.getDecoded('profile'),
-                });
+                this.emit('include-latest-book-shelves-request', profile);
                 break;
             default:
                 console.error("No activity defined.");
@@ -81,12 +77,20 @@ class ConfirmProfile extends Field {
         }
     }
 
+    onBack() {
+        Storage.remove('profile', 'profiles');
+
+        this.emit('confirm-profile-hide');
+        this.emit('search-profile-show');
+    }
+
     update() {
         this.radioList.update();
 
         const profiles = Storage.getDecoded('profiles');
-        if (profiles !== null)
+        if (profiles !== null) {
             this.pager.update(profiles.prev_page, profiles.next_page);
+        }
     }
 
     addEvents() {
@@ -105,19 +109,13 @@ class ConfirmProfile extends Field {
     confirmBtnListener(event) {
         event.preventDefault();
 
-        const profile = this.radioList.checked;
-
-        Storage.setEncoded('profile', profile);
-
         this.loadingBtn.show();
 
-        this.emit('confirm-profile-next', profile)
+        this.emit('confirm-profile-next');
     }
 
     backBtnListener(event) {
         event.preventDefault();
-
-        Storage.remove('profile', 'profiles');
 
         this.emit('confirm-profile-back');
     }

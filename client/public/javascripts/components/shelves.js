@@ -29,50 +29,71 @@ class Shelves extends Field {
 
         this.transport = transport;
 
-        this.radioList = new RadioList('shelves', 'shelf');
-
-        this.loadingBtn = new LoadingBtn('#select-shelf-btn');
-
-        this.pager = new Pager('shelf-list-container', 'shelves-paginate');
-
         this.on('shelves-show', () => this.onShow());
 
         this.on('shelves-hide', () => this.remove());
 
         this.on('shelves-paginate', (page) => this.onPaginate(page));
 
-        this.on(`shelves-request`, (message) => {
-            this.transport.send('shelves', message);
-        });
+        this.on(`shelves-request`, (message) => this.onRequest(message));
 
-        this.on('shelves-results', () => {
-            this.emit('confirm-profile-hide');
-            this.emit('shelves-show');
-        });
+        this.on('shelves-data', () => this.onData());
 
-        this.on('shelves-back', () => {
-            this.emit('shelves-hide');
-            this.emit('confirm-profile-show');
-        });
+        this.on('shelves-next', () => this.onNext());
+
+        this.on('shelves-back', () => this.onBack());
     }
 
     static toString() { return 'shelves' }
 
+    onRequest(message) {
+        this.transport.fetch('shelves', message)
+        .then(() => this.emit('shelves-data'))
+        .catch(error => console.error(error));
+    }
+
+    onData() {
+        this.emit('confirm-profile-hide');
+        this.emit('shelves-show');
+    }
+
     onShow() {
         this.render()
             .then(() => {
+                this.radioList = new RadioList('shelves', 'shelf');
+
+                this.pager = new Pager('shelf-list-container', 'shelves-paginate');
+
+                this.loadingBtn = new LoadingBtn('#select-shelf-btn');
+
                 this.addEvents();
                 this.update();
             })
             .catch(error => console.error(error));
     }
 
+    onNext() {
+        const shelf = this.radioList.checked;
+
+        Storage.setEncoded('shelf', shelf);
+
+        this.emit('search-catalog-request');
+    }
+
+    onBack() {
+        Storage.remove('shelf', 'shelves');
+
+        this.emit('shelves-hide');
+        this.emit('confirm-profile-show');
+    }
+
     update() {
         this.radioList.update();
 
         const shelves = Storage.getDecoded('shelves');
-        if (shelves !== null)
+        if (shelves !== null) {
             this.pager.update(shelves.prev_page, shelves.next_page);
+        }
     }
 
     addEvents() {
@@ -96,19 +117,13 @@ class Shelves extends Field {
     selectShelfBtnListener(event) {
         event.preventDefault();
 
-        const shelf = this.radioList.checked;
-
-        Storage.setEncoded('shelf', shelf);
-
         this.loadingBtn.show();
 
-        this.emit('search-catalog-request');
+        this.emit('shelves-next');
     }
 
     backBtnListener(event) {
         event.preventDefault();
-
-        Storage.remove('shelf', 'shelves');
 
         this.emit('shelves-back');
     }

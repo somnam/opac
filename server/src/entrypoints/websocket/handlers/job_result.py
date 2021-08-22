@@ -8,12 +8,12 @@ from src.entrypoints.websocket.handlers.base import HandlerInterface
 logger = logging.getLogger('src.entrypoints.websocket')
 
 
-class JobSuccessHandler(HandlerInterface):
+class JobResultHandler(HandlerInterface):
     @classmethod
     def operation(cls) -> str:
-        return 'job-success'
+        return 'job-result'
 
-    def execute(self, payload: dict) -> Dict[str, int]:
+    def execute(self, payload: dict) -> Dict[str, Dict]:
         job_id = payload["job_id"]
 
         repository = DataRepository()
@@ -26,5 +26,7 @@ class JobSuccessHandler(HandlerInterface):
         finished = repository.job.finished(job_id)
 
         result = repository.job.result(job_id) if finished else None
+
+        logger.info(f"Job {job_id} result: {result}")
 
         return {"operation": operation, "payload": {"finished": finished, "result": result}}

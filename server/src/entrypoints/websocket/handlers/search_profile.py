@@ -1,7 +1,7 @@
 import logging
 from src.core.entities import (
     ProfileSearchParams,
-    ProfileSearchResults,
+    ProfileSearchResult,
 )
 from src.core.usecases import SearchProfileUseCase
 from src.dataproviders.gateways import DataGateway
@@ -18,7 +18,7 @@ class SearchProfileHandler(HandlerInterface):
     async def execute(self, payload: dict) -> dict:
         use_case = SearchProfileUseCase(DataGateway())
 
-        response: ProfileSearchResults = await use_case.execute(ProfileSearchParams(**payload))
+        response: ProfileSearchResult = await use_case.execute(ProfileSearchParams(**payload))
 
         result: dict = response.to_dict()
 

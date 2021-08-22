@@ -1,6 +1,7 @@
 import bs4
-from typing import Union, Generator
-from contextlib import contextmanager
+import aiohttp
+from typing import Union, Generator, AsyncIterator
+from contextlib import contextmanager, asynccontextmanager
 
 
 @contextmanager
@@ -11,3 +12,11 @@ def bs4_scope(markup: Union[str, bytes]) -> Generator:
         yield parsed_markup
     finally:
         parsed_markup.decompose()
+
+
+@asynccontextmanager
+async def aio_session(limit: int = 30) -> AsyncIterator:
+    connector = aiohttp.TCPConnector(limit=limit)
+
+    async with aiohttp.ClientSession(connector=connector, raise_for_status=True) as session:
+        yield session

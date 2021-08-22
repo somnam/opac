@@ -29,40 +29,62 @@ class SearchProfile extends Field {
 
         this.transport = transport;
 
-        this.loadingBtn = new LoadingBtn('#search-profile-btn');
+        this.on('search-profile-data', () => this.onData());
 
         this.on('search-profile-show', () => this.onShow());
 
         this.on('search-profile-hide', () => this.remove());
 
-        this.on(`search-profile-request`, (message) => {
-            this.transport.send('search-profile', message);
-        });
+        this.on(`search-profile-request`, (message) => this.onRequest(message));
 
-        this.on('search-profile-results', () => {
-            this.emit('search-profile-hide');
-            if (Storage.getDecoded('profiles') !== null) {
-                this.emit('confirm-profile-show');
-            } else {
-                this.emit('no-profile-show');
-            }
-        });
+        this.on('search-profile-next', () => this.onNext());
 
-        this.on('search-profile-back', () => {
-            this.emit('search-profile-hide');
-            this.emit(`activities-show`);
-        });
+        this.on('search-profile-back', () => this.onBack());
     }
 
     static toString() { return 'search-profile' }
 
+    onRequest(message) {
+        this.transport.fetch('search-profile', message)
+            .then(() => this.emit('search-profile-data'))
+            .catch(error => console.error(error));
+    }
+
+    onData() {
+        this.emit('search-profile-hide');
+
+        if (Storage.getDecoded('profiles') !== null) {
+            this.emit('confirm-profile-show');
+        } else {
+            this.emit('no-profile-show');
+        }
+    }
+
     onShow() {
         this.render()
-            .then(() => {
+        .then(() => {
+                this.loadingBtn = new LoadingBtn('#search-profile-btn');
                 this.addEvents();
                 this.update();
             })
             .catch(error => console.error(error));
+    }
+
+    onNext() {
+        const profileName = document.querySelector('#profile-name').value;
+        if (profileName.length === 0)
+            return;
+
+        Storage.set('searchProfile', profileName);
+
+        this.emit('search-profile-request', { phrase: profileName });
+    }
+
+    onBack() {
+        Storage.remove('searchProfile');
+
+        this.emit('search-profile-hide');
+        this.emit(`activities-show`);
     }
 
     addEvents() {
@@ -112,21 +134,13 @@ class SearchProfile extends Field {
     searchProfileBtnListener(event) {
         event.preventDefault();
 
-        const profileName = document.querySelector('#profile-name').value;
-        if (profileName.length === 0)
-            return;
-
-        Storage.set('searchProfile', profileName);
-
         this.loadingBtn.show();
 
-        this.emit('search-profile-request', {phrase: profileName});
+        this.emit('search-profile-next');
     }
 
     backBtnListener(event) {
         event.preventDefault();
-
-        Storage.remove('searchProfile');
 
         this.emit('search-profile-back');
     }
