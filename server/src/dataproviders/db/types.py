@@ -3,6 +3,7 @@
 import sqlalchemy as sa
 import sqlalchemy_utils as su
 
+from sqlalchemy import Integer
 
 # class JsonType(sa.TypeDecorator):
 #     """Enables JSON storage for sqlite with no extensions."""
@@ -28,7 +29,7 @@ class Types:
     EXTERNAL_ID = sa.CHAR(32)
     VARCHAR = sa.String
     INT = sa.Integer
-    BIGINT = sa.BigInteger
+    BIGINT = sa.BigInteger().with_variant(Integer, "sqlite")
     NUMERIC = sa.Numeric
     # JSON = JsonType
     JSON = sa.JSON

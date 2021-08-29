@@ -11,4 +11,5 @@ class DbHandlerMixin:
         return self._mixin_dbh
 
     def unit_of_work(self) -> ContextManager:
-        return self._dbh.session_scope()
+        session_scope: ContextManager = self._dbh.session_scope()
+        return session_scope

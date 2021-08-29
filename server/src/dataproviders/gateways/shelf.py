@@ -20,7 +20,7 @@ class ShelfGateway(ShelfGatewayInterface):
 
     async def search(self, profile: Profile) -> List[Shelf]:
         url: str = self._library_url.format(
-            profile_id=profile.value,
+            profile_value=profile.value,
             profile_name=profile.name,
         )
 
@@ -37,23 +37,26 @@ class ShelfGateway(ShelfGatewayInterface):
             shelves_selector = 'ul.filtr__wrapItems input[name="shelfs[]"]'
             shelves_tags = parsed_results.select(shelves_selector)
 
-            shelf_tasks = [self._set_pages(Shelf(
-                name=shelf_tag['data-shelf-name'],
-                value=shelf_tag['value'],
-                profile=profile,
-            )) for shelf_tag in shelves_tags]
+            shelf_tasks = [
+                self._set_self_pages(profile, Shelf(
+                    name=shelf_tag['data-shelf-name'],
+                    value=shelf_tag['value'],
+                    profile_value=profile.value,
+                ))
+                for shelf_tag in shelves_tags
+            ]
 
         shelves: List[Shelf] = await asyncio.gather(*shelf_tasks)
 
         return shelves
 
-    async def _set_pages(self, shelf: Shelf) -> Shelf:
+    async def _set_self_pages(self, profile: Profile, shelf: Shelf) -> Shelf:
         async with aio_session() as session:
 
             url = self._shelf_url.format(
                 shelf_id=shelf.value,
-                profile_id=shelf.profile.value,
-                profile_name=shelf.profile.name,
+                profile_value=profile.value,
+                profile_name=profile.name,
             )
 
             async with session.get(url) as response:
@@ -110,7 +113,7 @@ class ShelfGateway(ShelfGatewayInterface):
             'page': page,
             'listId': 'booksFilteredList',
             'shelfs[]': shelf.value,
-            'objectId': shelf.profile.value,
+            'objectId': shelf.profile_value,
             'own': 0,
         }
 

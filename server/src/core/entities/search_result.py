@@ -7,6 +7,7 @@ from src.core.entities.base import BaseEntity
 class SearchResult(BaseEntity):
     items: List[Any] = field(default_factory=list)
     page: int = 1
+    per_page: int = 10
     prev_page: int = 0
     next_page: int = 0
     total: int = 0
@@ -18,5 +19,10 @@ class SearchResult(BaseEntity):
         if self.page > 1:
             self.prev_page = self.page - 1
 
-        if self.total > (self.page * 10):
+        if self.total > (self.page * self.per_page):
             self.next_page = self.page + 1
+
+        # Reduce items to 'per_gage' entries from current page.
+        if self.total > self.per_page:
+            start_idx = (self.page - 1) * self.per_page
+            self.items = self.items[start_idx:start_idx + self.per_page]

@@ -1,31 +1,33 @@
-from typing import List, Set
+from typing import List
 
-from src.core.entities import Shelf, ShelfItem, CollateResult
+from src.core.entities import Profile, Shelf
 from src.core.repositories import ShelfRepositoryInterface
 from src.dataproviders.mixin import DbHandlerMixin
+from src.dataproviders.db import ShelfModel
 
 
 class ShelfRepository(ShelfRepositoryInterface, DbHandlerMixin):
+    def read_all(self, profile: Profile) -> List[Shelf]:
+        models = self._dbh.session.query(ShelfModel)\
+            .filter_by(profile_value=profile.value)\
+            .all()
 
-    def items(self, shelf: Shelf) -> List[ShelfItem]:
-        return []
+        return [Shelf(
+            name=model.name,
+            value=model.value,
+            profile_value=model.profile_value,
+            pages=model.pages,
+        ) for model in models]
 
-    def add_items(self, shelf: Shelf, items: List[ShelfItem]) -> None:
-        if not items:
+    def create_all(self, shelves: List[Shelf]) -> None:
+        if not shelves:
             return
 
-    def remove_items(self, shelf: Shelf, items: List[ShelfItem]) -> None:
-        if not items:
-            return
-
-    def collate(self, shelf: Shelf, items: Set[ShelfItem]) -> CollateResult:
-        existing_items = set(self.items(shelf))
-
-        new_items = items.difference(existing_items)
-
-        deleted_items = existing_items.difference(items)
-
-        return CollateResult(
-            new=new_items,
-            deleted=deleted_items,
-        )
+        self._dbh.session.bulk_save_objects([
+            ShelfModel(
+                name=shelf.name,
+                value=shelf.value,
+                profile_value=shelf.profile_value,
+                pages=shelf.pages,
+            ) for shelf in shelves
+        ])

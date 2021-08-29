@@ -18,8 +18,8 @@ class SearchProfileHandler(HandlerInterface):
     async def execute(self, payload: dict) -> dict:
         use_case = SearchProfileUseCase(DataGateway())
 
-        response: ProfileSearchResult = await use_case.execute(ProfileSearchParams(**payload))
+        result: ProfileSearchResult = await use_case.execute(ProfileSearchParams(**payload))
 
-        result: dict = response.to_dict()
+        response: dict = result.to_dict()
 
-        return result
+        return response

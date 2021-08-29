@@ -9,7 +9,7 @@ from src.core.entities.profile import Profile
 class Shelf(BaseEntity):
     name: str
     value: str
-    profile: Profile
+    profile_value: str
     pages: int = 1
 
 
@@ -22,10 +22,3 @@ class ShelfSearchParams(BaseEntity):
 @dataclass
 class ShelfSearchResult(SearchResult):
     items: List[Shelf] = field(default_factory=list)
-
-    def __post_init__(self) -> None:
-        super().__post_init__()
-
-        # Reduce items to 10 entries from current page.
-        start_idx = (self.page - 1) * 10
-        self.items = self.items[start_idx:start_idx + 10]

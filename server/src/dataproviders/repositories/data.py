@@ -2,10 +2,12 @@ from src.core.gateways import DataGatewayInterface
 from src.core.repositories import (DataRepositoryInterface,
                                    JobRepositoryInterface,
                                    ShelfRepositoryInterface,
+                                   ShelfItemRepositoryInterface,
                                    CatalogRepositoryInterface)
 
 from src.dataproviders.repositories.job import JobRepository
 from src.dataproviders.repositories.shelf import ShelfRepository
+from src.dataproviders.repositories.shelf_item import ShelItemfRepository
 from src.dataproviders.repositories.catalog import CatalogRepository
 from src.dataproviders.gateways import DataGateway
 
@@ -29,6 +31,12 @@ class DataRepository(DataRepositoryInterface):
         if not hasattr(self, "_shelf"):
             self._shelf = ShelfRepository()
         return self._shelf
+
+    @property
+    def shelf_item(self) -> ShelfItemRepositoryInterface:
+        if not hasattr(self, "_shelf_item"):
+            self._shelf_item = ShelItemfRepository()
+        return self._shelf_item
 
     @property
     def catalog(self) -> CatalogRepositoryInterface:

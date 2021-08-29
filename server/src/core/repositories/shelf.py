@@ -1,23 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import List, Set
+from typing import List
 
-from src.core.entities import ShelfItem, Shelf, CollateResult
+from src.core.entities import Profile, Shelf
 
 
 class ShelfRepositoryInterface(ABC):
-
     @abstractmethod
-    def items(self, shelf: Shelf) -> List[ShelfItem]:
+    def read_all(self, profile: Profile) -> List[Shelf]:
         raise NotImplementedError
 
     @abstractmethod
-    def add_items(self, shelf: Shelf, items: List[ShelfItem]) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def remove_items(self, shelf: Shelf, items: List[ShelfItem]) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def collate(self, shelf: Shelf, items: Set[ShelfItem]) -> CollateResult:
+    def create_all(self, shelves: List[Shelf]) -> None:
         raise NotImplementedError

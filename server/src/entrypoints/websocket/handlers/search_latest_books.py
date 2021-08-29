@@ -3,7 +3,7 @@ import logging
 import re
 from typing import List
 
-from src.core.entities import Catalog, Shelf, Profile
+from src.core.entities import Catalog, Shelf
 from src.dataproviders.repositories import DataRepository
 from src.entrypoints.websocket.handlers.base import HandlerInterface
 from src.entrypoints.jobs import search_latest_books, on_result
@@ -56,7 +56,7 @@ class SearchLatestBooksHandler(HandlerInterface):
             Shelf(
                 name=item["name"],
                 value=item["value"],
-                profile=Profile(**item["profile"]),
+                profile_value=item["profile_value"],
                 pages=item["pages"],
             )
             for item in payload

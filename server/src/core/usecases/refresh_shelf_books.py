@@ -12,10 +12,10 @@ class RefreshShelfItemsUseCase:
 
         shelf_items: Set[ShelfItem] = await self._repository.gateway.shelf.items(shelf)
 
-        result: CollateResult = self._repository.shelf.collate(shelf, shelf_items)
+        result: CollateResult = self._repository.shelf_item.collate(shelf, shelf_items)
 
         if result.new:
-            self._repository.shelf.add_items(shelf, result.new)
+            self._repository.shelf_item.add(shelf, result.new)
 
         if result.deleted:
-            self._repository.shelf.remove_items(shelf, result.deleted)
+            self._repository.shelf_item.remove(shelf, result.deleted)
