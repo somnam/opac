@@ -33,4 +33,4 @@ loop_time = 600
 
 
 [task:refresh_shelf_items_schedule]
-loop_time = 3600
+loop_time = 14400
