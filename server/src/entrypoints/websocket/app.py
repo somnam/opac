@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import logging.config
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import jsonschema
@@ -8,19 +9,26 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+from src.config import Config
 from src.entrypoints.websocket.exceptions import MessageDecodeError
 from src.entrypoints.websocket.handlers import (HandlerInterface,
                                                 JobResultHandler,
                                                 SearchLatestBooksHandler,
                                                 SearchProfileHandler,
+                                                PostProfileHandler,
                                                 ShelvesHandler)
 
-logger = logging.getLogger('src.entrypoints.websocket')
+config = Config()
+
+logging.config.fileConfig(config)
+
+logger = logging.getLogger(__name__)
 
 
 class WebSocketApp(tornado.websocket.WebSocketHandler):
     handlers: List[Type[HandlerInterface]] = [
         SearchProfileHandler,
+        PostProfileHandler,
         ShelvesHandler,
         SearchLatestBooksHandler,
     ]
@@ -130,31 +138,16 @@ class WebSocketApp(tornado.websocket.WebSocketHandler):
         return True
 
 
-class WebHookApp(tornado.web.RequestHandler):
-    handlers: List[Type[HandlerInterface]] = [
-        JobResultHandler,
-    ]
-
-    @property
-    def handlers_map(self) -> Dict:
-        if not hasattr(self, "_handlers_map"):
-            self._handlers_map = {}
-
-            for handler in self.handlers:
-                self._handlers_map[handler.operation()] = handler()
-
-        return self._handlers_map
-
+class JobResultApp(tornado.web.RequestHandler):
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
         # route / handler / kwargs
-        return (r"/client/(?P<client_id>\w+)/(?P<operation>\S+)", cls, kwargs)
+        return (r"/client/(?P<client_id>\w+)/{0}".format(JobResultHandler.operation()), cls, kwargs)
 
     def post(self, *args: Any, **kwargs: Any) -> None:
         client_id = kwargs["client_id"]
-        operation = kwargs["operation"]
 
-        logger.info(f"Hook called with client_id {client_id} and operation {operation}.")
+        logger.info(f"Endpoint called with client_id {client_id}.")
 
         client = WebSocketApp.clients.get(client_id)
 
@@ -162,18 +155,12 @@ class WebHookApp(tornado.web.RequestHandler):
             logger.error(f"Client with id {client_id} not found.")
             return
 
-        handler: Optional[HandlerInterface] = self.handlers_map.get(operation)
-
-        if not handler:
-            logger.error(f"Handler for operation {operation} not defined.")
-            return
-
         try:
             payload = json.loads(self.request.body)
         except json.JSONDecodeError as e:
             raise MessageDecodeError(str(e))
 
-        response: Dict = handler.execute(payload)
+        response: Dict = JobResultHandler().execute(payload)
 
         client.write_message(json.dumps(response))
 
@@ -183,7 +170,7 @@ def run_app(port: int) -> None:
     app = tornado.web.Application(
         [
             WebSocketApp.route(),
-            WebHookApp.route(),
+            JobResultApp.route(),
         ],
     )
 

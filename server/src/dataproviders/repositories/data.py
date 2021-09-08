@@ -1,45 +1,41 @@
-from src.core.gateways import DataGatewayInterface
-from src.core.repositories import (DataRepositoryInterface,
-                                   JobRepositoryInterface,
-                                   ShelfRepositoryInterface,
-                                   ShelfItemRepositoryInterface,
-                                   CatalogRepositoryInterface)
+from src.core.repositories import DataRepositoryInterface
 
-from src.dataproviders.repositories.job import JobRepository
+from src.dataproviders.repositories.base import BaseDbRepository
 from src.dataproviders.repositories.shelf import ShelfRepository
-from src.dataproviders.repositories.shelf_item import ShelItemfRepository
+from src.dataproviders.repositories.shelf_item import ShelfItemRepository
 from src.dataproviders.repositories.catalog import CatalogRepository
+from src.dataproviders.repositories.profile import ProfileRepository
 from src.dataproviders.gateways import DataGateway
 
 
-class DataRepository(DataRepositoryInterface):
+class DataRepository(DataRepositoryInterface, BaseDbRepository):
 
     @property
-    def gateway(self) -> DataGatewayInterface:
+    def gateway(self) -> DataGateway:
         if not hasattr(self, "_gateway"):
             self._gateway = DataGateway()
         return self._gateway
 
     @property
-    def job(self) -> JobRepositoryInterface:
-        if not hasattr(self, "_job"):
-            self._job = JobRepository()
-        return self._job
+    def profile(self) -> ProfileRepository:
+        if not hasattr(self, "_profile"):
+            self._profile = ProfileRepository(self._dbh)
+        return self._profile
 
     @property
-    def shelf(self) -> ShelfRepositoryInterface:
+    def shelf(self) -> ShelfRepository:
         if not hasattr(self, "_shelf"):
-            self._shelf = ShelfRepository()
+            self._shelf = ShelfRepository(self._dbh)
         return self._shelf
 
     @property
-    def shelf_item(self) -> ShelfItemRepositoryInterface:
+    def shelf_item(self) -> ShelfItemRepository:
         if not hasattr(self, "_shelf_item"):
-            self._shelf_item = ShelItemfRepository()
+            self._shelf_item = ShelfItemRepository(self._dbh)
         return self._shelf_item
 
     @property
-    def catalog(self) -> CatalogRepositoryInterface:
+    def catalog(self) -> CatalogRepository:
         if not hasattr(self, "_catalog"):
-            self._catalog = CatalogRepository()
+            self._catalog = CatalogRepository(self._dbh)
         return self._catalog

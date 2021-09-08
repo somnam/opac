@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Union, Callable
 from configparser import ConfigParser, ExtendedInterpolation
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,24 @@ class Config(ConfigParser):
         return self._get_conv(section, option, self.struct_converter,
                               raw=raw, vars=vars, fallback=fallback)
 
+    def get_section(self, section: str) -> Dict[str, Union[bool, int, float, str, Callable]]:
+        contents: Dict[str, Union[bool, int, float, str, Callable]] = {}
+
+        if not self.has_section(section):
+            return contents
+
+        for option, value in self[section].items():
+            if value.isnumeric():
+                contents[option] = int(value)
+            elif value.lower() in ('true', 'false'):
+                contents[option] = bool(value)
+            elif self._is_float(value):
+                contents[option] = float(value)
+            else:
+                contents[option] = value
+
+        return contents
+
     @staticmethod
     def struct_converter(value: str) -> Any:
         try:
@@ -43,3 +61,11 @@ class Config(ConfigParser):
             logger.error(f'Could not decode value "{value}": {e}')
             decoded_value = None
         return decoded_value
+
+    @staticmethod
+    def _is_float(value: str) -> bool:
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False

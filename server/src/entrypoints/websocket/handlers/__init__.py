@@ -3,11 +3,13 @@ from src.entrypoints.websocket.handlers.search_profile import SearchProfileHandl
 from src.entrypoints.websocket.handlers.shelves import ShelvesHandler
 from src.entrypoints.websocket.handlers.search_latest_books import SearchLatestBooksHandler
 from src.entrypoints.websocket.handlers.job_result import JobResultHandler
+from src.entrypoints.websocket.handlers.post_profile import PostProfileHandler
 
 
 __all__ = [
     "HandlerInterface",
     "SearchProfileHandler",
+    "PostProfileHandler",
     "ShelvesHandler",
     "SearchLatestBooksHandler",
     "JobResultHandler",

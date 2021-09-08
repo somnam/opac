@@ -1,14 +1,12 @@
 import logging
-from src.core.entities import (
-    ShelfSearchParams,
-    ShelfSearchResult,
-    Profile,
-)
-from src.core.usecases import SearchShelvesUseCase
-from src.entrypoints.websocket.handlers.base import HandlerInterface
-from src.dataproviders.repositories import DataRepository
 
-logger = logging.getLogger('src.entrypoints.websocket')
+from src.core.adapters import payload_to_search_params
+from src.core.entities import ShelfSearchResult
+from src.core.usecases import SearchShelvesUseCase
+from src.dataproviders.repositories import DataRepository
+from src.entrypoints.websocket.handlers.base import HandlerInterface
+
+logger = logging.getLogger(__name__)
 
 
 class ShelvesHandler(HandlerInterface):
@@ -20,10 +18,7 @@ class ShelvesHandler(HandlerInterface):
         use_case = SearchShelvesUseCase(DataRepository())
 
         search_results: ShelfSearchResult = await use_case.execute(
-            ShelfSearchParams(
-                profile=Profile(name=payload.pop('name'), value=payload.pop('value')),
-                **payload,
-            )
+            payload_to_search_params(payload)
         )
 
         result: dict = search_results.to_dict()

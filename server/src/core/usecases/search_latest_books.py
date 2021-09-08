@@ -4,21 +4,22 @@ from typing import List, Optional, Set
 from src.core.entities import Book, Catalog, Shelf
 from src.core.repositories import DataRepositoryInterface
 
-logger = logging.getLogger('src.core.usecases')
+logger = logging.getLogger(__name__)
 
 
 class SearchLatestBooksUseCase:
     def __init__(self, repository: DataRepositoryInterface) -> None:
         self._repository = repository
 
-    async def execute(
+    def execute(
         self,
         catalog: Catalog,
         included_shelves: List[Shelf],
         excluded_shelves: Optional[List[Shelf]] = None,
     ) -> List[Book]:
+        logger.info(f'Searching latest books in {catalog.name}')
 
-        with self._repository.catalog.unit_of_work():
+        with self._repository.unit_of_work():
             latest_books: List[Book] = self._repository.catalog.latest_books(catalog)
 
         if not latest_books:
@@ -54,18 +55,21 @@ class SearchLatestBooksUseCase:
         excluded_books: Set[Book] = set()
 
         for shelf in included_shelves:
-            shelf_items = await self._repository.shelf_item.read_all(shelf)
+            shelf_items = self._repository.shelf_item.read_all(shelf)
 
             included_books.update((shelf_item.book for shelf_item in shelf_items
                                    if shelf_item.book.isbn is not None))
 
         if excluded_shelves:
             for shelf in excluded_shelves:
-                shelf_items = await self._repository.shelf_item.read_all(shelf)
+                shelf_items = self._repository.shelf_item.read_all(shelf)
 
                 excluded_books.update((shelf_item.book for shelf_item in shelf_items
                                        if shelf_item.book.isbn is not None))
 
         matching_books = included_books.difference(excluded_books).intersection(latest_books)
+
+        if matching_books:
+            logger.info(f'Search found {len(matching_books)} latest books in {catalog.name}')
 
         return sorted(matching_books)

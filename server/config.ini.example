@@ -16,6 +16,9 @@ sqlalchemy.pool_pre_ping = true
 sqlalchemy.pool_recycle = 3600
 
 
+[gateway]
+connections = 10
+
 
 [lc]
 url = http://lubimyczytac.pl
@@ -25,5 +28,9 @@ profile_shelf_url = https://lubimyczytac.pl/profil/{profile_value}/{profile_name
 shelf_items_url = https://lubimyczytac.pl/profile/getLibraryBooksList
 
 
-[latest_books_scraper]
-invalidate_days = 30
+[task:refresh_shelves_schedule]
+loop_time = 600
+
+
+[task:refresh_shelf_items_schedule]
+loop_time = 3600

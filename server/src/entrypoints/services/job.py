@@ -1,17 +1,23 @@
 import logging
+import logging.config
+
+from datetime import timedelta
 from typing import Any, Callable, Optional
 
 import redis
 import rq
 from src.config import Config
-from src.core.repositories import JobRepositoryInterface
+from src.dataproviders.gateways import DataGateway
+
 
 config = Config()
 
-logger = logging.getLogger('src.dataproviders.repositories')
+logging.config.fileConfig(config)
+
+logger = logging.getLogger(__name__)
 
 
-class JobRepository(JobRepositoryInterface):
+class JobService:
     connection_pool = redis.ConnectionPool(host=config.get("redis", "host"))
     connection = redis.Redis(connection_pool=connection_pool)
     serializer = rq.serializers.DefaultSerializer
@@ -19,7 +25,6 @@ class JobRepository(JobRepositoryInterface):
     _sleep_time = 1
 
     def __init__(self) -> None:
-
         self.queue = rq.Queue(connection=self.connection)
 
     def exists(self, job_id: str) -> bool:
@@ -32,10 +37,28 @@ class JobRepository(JobRepositoryInterface):
         meta: Optional[dict] = None,
         args: Optional[list] = None,
         kwargs: Optional[dict] = None,
+        delay: Optional[int] = None,
         **options: Optional[Any],
     ) -> int:
 
-        queued_job = self.queue.enqueue(job, meta=meta, args=args, kwargs=kwargs, **options)
+        if delay:
+            queued_job = self.queue.enqueue_in(
+                timedelta(seconds=delay),
+                job,
+                meta=meta,
+                args=args,
+                kwargs=kwargs,
+                **options,
+            )
+
+        else:
+            queued_job = self.queue.enqueue(
+                job,
+                meta=meta,
+                args=args,
+                kwargs=kwargs,
+                **options,
+            )
 
         job_id: int = queued_job.get_id()
 
@@ -68,3 +91,17 @@ class JobRepository(JobRepositoryInterface):
         job_key = rq.job.Job.key_for(job_id)
 
         return self.connection.hget(job_key, field)
+
+    @staticmethod
+    def push_result(job: rq.job.Job, connection: redis.Redis, result: Any) -> None:
+
+        job.meta["progress"] = 100
+
+        job.save()
+
+        client_id: int = job.meta.get("client_id", 0)
+
+        if client_id:
+            logger.info(f'Pushing job {job.get_id()} result to client {client_id}.')
+
+            DataGateway().client.push(client_id=client_id, job_id=job.get_id(), operation="job-result")

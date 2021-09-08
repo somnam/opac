@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Set
+from typing import List
 
-from src.core.entities import ShelfItem, Shelf, CollateResult
+from src.core.entities import ShelfItem, Shelf
 
 
 class ShelfItemRepositoryInterface(ABC):
@@ -11,13 +11,9 @@ class ShelfItemRepositoryInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add(self, shelf: Shelf, items: List[ShelfItem]) -> None:
+    def create_all(self, items: List[ShelfItem]) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def remove(self, shelf: Shelf, items: List[ShelfItem]) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def collate(self, shelf: Shelf, items: Set[ShelfItem]) -> CollateResult:
+    def delete_all(self, items: List[ShelfItem]) -> None:
         raise NotImplementedError

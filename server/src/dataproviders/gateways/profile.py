@@ -9,7 +9,7 @@ from src.core.gateways import ProfileGatewayInterface
 from src.core.entities import Profile, ProfileSearchParams, ProfileSearchResult
 
 config = Config()
-logger = logging.getLogger("src.gateways")
+logger = logging.getLogger(__name__)
 
 
 class ProfileGateway(ProfileGatewayInterface):

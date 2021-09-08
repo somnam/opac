@@ -7,10 +7,17 @@ from src.core.entities.profile import Profile
 
 @dataclass
 class Shelf(BaseEntity):
+    shelf_id: str = field(init=False)
+    profile_id: str
     name: str
     value: str
-    profile_value: str
     pages: int = 1
+
+    def __post_init__(self) -> None:
+        self.shelf_id = self.id_from_attributes(self.profile_id, self.value)
+
+    def __hash__(self) -> int:
+        return hash(self.shelf_id)
 
 
 @dataclass

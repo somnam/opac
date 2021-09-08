@@ -34,7 +34,7 @@ extras_require = {
 entry_points = {
     "console_scripts": [
         "run_app=src.entrypoints.websocket.app:run",
-        "run_worker=src.entrypoints.jobs.worker:run",
+        "run_worker=src.entrypoints.tasks.worker:run",
         "create_schema=src.entrypoints.scripts.schema:run",
     ],
 }

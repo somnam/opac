@@ -1,14 +1,17 @@
 import logging
 from typing import Dict
 
-from src.dataproviders.repositories import DataRepository
 from src.entrypoints.websocket.exceptions import JobNOtFound
 from src.entrypoints.websocket.handlers.base import HandlerInterface
+from src.entrypoints.services import JobService
 
-logger = logging.getLogger('src.entrypoints.websocket')
+logger = logging.getLogger(__name__)
 
 
 class JobResultHandler(HandlerInterface):
+    def __init__(self) -> None:
+        self._job_service = JobService()
+
     @classmethod
     def operation(cls) -> str:
         return 'job-result'
@@ -16,16 +19,14 @@ class JobResultHandler(HandlerInterface):
     def execute(self, payload: dict) -> Dict[str, Dict]:
         job_id = payload["job_id"]
 
-        repository = DataRepository()
-
-        if not repository.job.exists(job_id):
+        if not self._job_service.exists(job_id):
             raise JobNOtFound()
 
-        operation = repository.job.operation(job_id)
+        operation = self._job_service.operation(job_id)
 
-        finished = repository.job.finished(job_id)
+        finished = self._job_service.finished(job_id)
 
-        result = repository.job.result(job_id) if finished else None
+        result = self._job_service.result(job_id) if finished else None
 
         logger.info(f"Job {job_id} result: {result}")
 

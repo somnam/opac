@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Set
+from typing import Set
 
 from src.core.entities import Shelf, ShelfSearchParams, ShelfItem
 
@@ -7,7 +7,7 @@ from src.core.entities import Shelf, ShelfSearchParams, ShelfItem
 class ShelfGatewayInterface(ABC):
 
     @abstractmethod
-    async def search(self, params: ShelfSearchParams) -> List[Shelf]:
+    async def search(self, params: ShelfSearchParams) -> Set[Shelf]:
         raise NotImplementedError()
 
     @abstractmethod

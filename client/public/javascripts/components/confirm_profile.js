@@ -38,6 +38,8 @@ class ConfirmProfile extends Field {
         this.on('confirm-profile-next', () => this.onNext());
 
         this.on('confirm-profile-back', () => this.onBack());
+
+        this.on('post-profile', (profile) => this.onPostProfile(profile));
     }
 
     static toString() { return 'confirm-profile' }
@@ -62,6 +64,8 @@ class ConfirmProfile extends Field {
 
         Storage.setEncoded('profile', profile);
 
+        this.emit('post-profile', profile);
+
         const activity = Storage.getDecoded('activity');
 
         switch(activity ? activity.value : null) {
@@ -75,6 +79,10 @@ class ConfirmProfile extends Field {
                 console.error("No activity defined.");
                 break;
         }
+    }
+
+    onPostProfile(profile) {
+        this.transport.send('post-profile', profile);
     }
 
     onBack() {

@@ -2,6 +2,9 @@ import bs4
 import aiohttp
 from typing import Union, Generator, AsyncIterator
 from contextlib import contextmanager, asynccontextmanager
+from src.config import Config
+
+config = Config()
 
 
 @contextmanager
@@ -15,7 +18,7 @@ def bs4_scope(markup: Union[str, bytes]) -> Generator:
 
 
 @asynccontextmanager
-async def aio_session(limit: int = 30) -> AsyncIterator:
+async def aio_session(limit: int = config.getint('gateway', 'connections')) -> AsyncIterator:
     connector = aiohttp.TCPConnector(limit=limit)
 
     async with aiohttp.ClientSession(connector=connector, raise_for_status=True) as session:

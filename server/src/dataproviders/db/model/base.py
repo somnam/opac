@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 from sqlalchemy import MetaData, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils.models import generic_repr
@@ -8,9 +8,9 @@ from src.dataproviders.db.types import Types
 @generic_repr
 class DeclarativeBase(Types):
     @classmethod
-    def columns(cls) -> Any:
+    def columns(cls) -> List[Any]:
         '''List table columns.'''
-        return inspect(cls).mapper.columns.values()
+        return list(inspect(cls).mapper.columns.values())
 
 
 Model = declarative_base(

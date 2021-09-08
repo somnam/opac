@@ -1,32 +1,31 @@
 import asyncio
 import logging
-import re
-from typing import List
 
-from src.core.entities import Catalog, Shelf
-from src.dataproviders.repositories import DataRepository
+from src.core.adapters import payload_to_catalog, payload_to_shelves
+from src.entrypoints.services import JobService
 from src.entrypoints.websocket.handlers.base import HandlerInterface
-from src.entrypoints.jobs import search_latest_books, on_result
+from src.entrypoints.tasks import search_latest_books
 
-logger = logging.getLogger('src.entrypoints.websocket')
+logger = logging.getLogger(__name__)
 
 
 class SearchLatestBooksHandler(HandlerInterface):
+    def __init__(self) -> None:
+        self._job_service = JobService()
+
     @classmethod
     def operation(cls) -> str:
         return 'search-latest-books'
 
     async def execute(self, payload: dict) -> None:
-        await asyncio.sleep(0)
+        catalog = payload_to_catalog(payload["catalog"])
 
-        catalog = self._payload_to_catalog(payload["catalog"])
+        included_shelves = payload_to_shelves(payload["included_shelves"])
 
-        included_shelves = self._payload_to_shelves(payload["included_shelves"])
+        excluded_shelves = payload_to_shelves(payload["excluded_shelves"])
 
-        excluded_shelves = self._payload_to_shelves(payload["excluded_shelves"])
-
-        DataRepository().job.enqueue(
-            search_latest_books,
+        self._job_service.enqueue(
+            job=search_latest_books,
             meta={
                 "operation": "search-latest-books",
                 "progress": 0,
@@ -37,27 +36,7 @@ class SearchLatestBooksHandler(HandlerInterface):
                 "included_shelves": [shelf.to_dict() for shelf in included_shelves],
                 "excluded_shelves": [shelf.to_dict() for shelf in excluded_shelves],
             },
-            on_success=on_result,
+            on_success=self._job_service.push_result,
         )
 
-    def _payload_to_catalog(self, payload: dict) -> Catalog:
-
-        result = re.search(r'^([^\(]+)\s\(([^\)]+)\)$', payload["name"])
-
-        if result:
-            name, city = result.groups()
-        else:
-            name, city = "", ""
-
-        return Catalog(name=name, city=city, value=payload["value"])
-
-    def _payload_to_shelves(self, payload: list) -> List[Shelf]:
-        return [
-            Shelf(
-                name=item["name"],
-                value=item["value"],
-                profile_value=item["profile_value"],
-                pages=item["pages"],
-            )
-            for item in payload
-        ]
+        await asyncio.sleep(0)

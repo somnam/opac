@@ -14,7 +14,7 @@ from src.core.exceptions import DatabaseError
 from src.dataproviders.db.model import Model
 
 config = Config()
-logger = logging.getLogger("linkcheck.db")
+logger = logging.getLogger(__name__)
 
 
 @listens_for(Engine, "connect")

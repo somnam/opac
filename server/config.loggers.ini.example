@@ -1,11 +1,11 @@
 [loggers]
-keys = root, src
+keys = root, src, sqlalchemy, tornado, rq
 
 [handlers]
-keys = console, src
+keys = console
 
 [formatters]
-keys = generic, src
+keys = generic
 
 [logger_root]
 level = INFO
@@ -14,24 +14,32 @@ qualname =
 
 [logger_src]
 level = INFO
-handlers = src
-propagate = 0
+handlers =
 qualname = src
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+; "level = INFO" logs SQL queries.
+; "level = DEBUG" logs SQL queries and results.
+; "level = WARN" logs neither.  (Recommended for production systems.)
+
+[logger_tornado]
+level = INFO
+handlers =
+qualname = tornado
+
+[logger_rq]
+level = INFO
+handlers =
+qualname = rq
 
 [handler_console]
 class = logging.StreamHandler
 formatter = generic
 args = (sys.stderr,)
 
-[handler_src]
-class = logging.StreamHandler
-formatter = src
-args = (sys.stderr,)
-
 [formatter_generic]
 format = %(asctime)-15s %(levelname)-5.5s [%(filename)s:%(lineno)s] [%(funcName)s] %(message)s
-class = logging.Formatter
-
-[formatter_src]
-format = %(message)s
 class = logging.Formatter

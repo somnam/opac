@@ -7,7 +7,7 @@ from src.core.usecases import SearchProfileUseCase
 from src.dataproviders.gateways import DataGateway
 from src.entrypoints.websocket.handlers.base import HandlerInterface
 
-logger = logging.getLogger('src.entrypoints.websocket')
+logger = logging.getLogger(__name__)
 
 
 class SearchProfileHandler(HandlerInterface):

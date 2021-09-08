@@ -1,9 +1,12 @@
 import rq
 import redis
+import logging.config
 
 from src.config import Config
 
 config = Config()
+
+logging.config.fileConfig(config)
 
 # Preload libraries
 
@@ -16,4 +19,4 @@ def run() -> None:
     with rq.Connection(connection):
         queues = config.getstruct("rq", "queues")
 
-        rq.Worker(queues=queues).work()
+        rq.Worker(queues=queues).work(with_scheduler=True)
