@@ -31,11 +31,11 @@ RUN pip install --user pip-tools &&\
     rm -rf /home/worker/.cache
 
 # Copy application files
-COPY --chown=worker:worker ./server/ /home/worker/
+COPY --chown=worker:worker ./server/ ./etc/worker/ /home/worker/
 
 # Expose port
 EXPOSE 8888
 
 # Run app.
-CMD ["run_worker"]
-
+# Run supervisor
+CMD ["supervisord", "-c", "supervisord.conf"]

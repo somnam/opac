@@ -1,12 +1,13 @@
 import logging
 import logging.config
 
-from src.core.usecases import ShelvesRefreshScheduleUseCase, ShelfItemsRefreshScheduleUseCase
-from src.dataproviders.repositories import DataRepository
-from src.entrypoints.tasks.base import Schedule
-from src.entrypoints.tasks.task import refresh_shelves, refresh_shelf_items
-from src.entrypoints.services import JobService
 from src.config import Config
+from src.core.usecases import (ShelfItemsRefreshScheduleUseCase,
+                               ShelvesRefreshScheduleUseCase)
+from src.dataproviders.repositories import DataRepository
+from src.entrypoints.services import JobService
+from src.entrypoints.tasks.base import Schedule
+from src.entrypoints.tasks.worker import refresh_shelf_items, refresh_shelves
 
 config = Config()
 
@@ -47,13 +48,9 @@ def refresh_shelf_items_schedule() -> None:
         )
 
 
-def main() -> None:
+def run() -> None:
     try:
         logger.info("Starting scheduler.")
         Schedule.run()
     except KeyboardInterrupt:
         logger.info("Shutting down scheduler.")
-
-
-if __name__ == "__main__":
-    main()

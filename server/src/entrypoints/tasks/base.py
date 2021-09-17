@@ -2,8 +2,15 @@ import logging
 import sched
 import time
 from datetime import datetime, timedelta
-from typing import List, Callable
 from threading import Thread
+from typing import Callable, List
+
+import redis
+import rq
+import rq.scheduler
+from src.config import Config
+
+config = Config()
 
 logger = logging.getLogger(__name__)
 
@@ -83,3 +90,32 @@ class Schedule:
 
         for thread in Schedule.threads:
             thread.join()
+
+
+class Worker:
+    @staticmethod
+    def run() -> None:
+        connection_pool = redis.ConnectionPool(host=config.get("redis", "host"))
+
+        connection = redis.Redis(connection_pool=connection_pool)
+
+        queues = config.getstruct("rq", "queues")
+        result_ttl = config.getint("rq", "result_ttl")
+        logging_level = config.get("logger_rq", "level")
+
+        # Release scheduler locks before starting a new worker.
+        rq.scheduler.RQScheduler(
+            queues=queues,
+            connection=connection,
+            logging_level=logging_level,
+        ).release_locks()
+
+        # Start worker with scheduler.
+        rq.Worker(
+            queues=queues,
+            connection=connection,
+            default_result_ttl=result_ttl,
+        ).work(
+            with_scheduler=True,
+            logging_level=logging_level,
+        )
