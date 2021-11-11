@@ -82,7 +82,8 @@ class ConfirmProfile extends Field {
     }
 
     onPostProfile(profile) {
-        this.transport.send('post-profile', profile);
+        this.transport.post('profile', profile)
+            .catch(error => console.error(error));
     }
 
     onBack() {

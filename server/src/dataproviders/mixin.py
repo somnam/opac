@@ -1,6 +1,6 @@
-from typing import ContextManager, Set
+from typing import Sequence
 
-from src.core.entities.base import BaseEntity, CollateResult
+from src.core.entities import BaseEntity, CollateResult
 from src.dataproviders.db import DbHandler
 
 
@@ -15,27 +15,27 @@ class DbHandlerMixin:
     def _dbh(self, dbh: DbHandler) -> None:
         self._mixin_dbh = dbh
 
-    def unit_of_work(self) -> ContextManager:
-        session_scope: ContextManager = self._dbh.session_scope()
-        return session_scope
-
 
 class CollateMixin:
-    def collate(self, items: Set[BaseEntity], current_items: Set[BaseEntity]) -> CollateResult:
+    def collate(self, items: Sequence[BaseEntity], current_items: Sequence[BaseEntity]) -> CollateResult:
 
-        new_items = items.difference(current_items)
+        items_set = set(items)
 
-        deleted_items = current_items.difference(items)
+        current_items_set = set(current_items)
+
+        new_items = items_set.difference(current_items_set)
+
+        deleted_items = current_items_set.difference(items_set)
 
         items_map = {item: item for item in items}
 
         updated_items = {
-            item for item in current_items.intersection(items)
+            item for item in current_items_set.intersection(items_set)
             if item != items_map[item]
         }
 
         return CollateResult(
-            new=new_items,
-            updated=updated_items,
-            deleted=deleted_items,
+            new=list(new_items),
+            updated=list(updated_items),
+            deleted=list(deleted_items),
         )

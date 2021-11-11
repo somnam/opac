@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 from dataclasses import dataclass, field
 from src.core.entities.base import BaseEntity
 from src.core.entities.search_result import SearchResult
@@ -12,6 +13,7 @@ class Shelf(BaseEntity):
     name: str
     value: str
     pages: int = 1
+    refreshed_at: Optional[datetime] = None
 
     def __post_init__(self) -> None:
         self.shelf_id = self.id_from_attributes(self.profile_id, self.value)

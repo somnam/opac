@@ -45,7 +45,7 @@ export default class IncludeLatestBooksShelves extends Field {
     static toString() { return 'include-latest-book-shelves' }
 
     onRequest(message) {
-        this.transport.fetch('shelves', message)
+        this.transport.recv('shelves', message)
             .then(() => this.emit('include-latest-book-shelves-data'))
             .catch(error => console.error(error));
     }

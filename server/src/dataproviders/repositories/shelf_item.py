@@ -4,10 +4,9 @@ from src.core.entities import Shelf, ShelfItem
 from src.core.repositories import ShelfItemRepositoryInterface
 from src.dataproviders.db import ShelfItemModel
 from src.dataproviders.repositories.base import BaseDbRepository
-from src.dataproviders.mixin import CollateMixin
 
 
-class ShelfItemRepository(ShelfItemRepositoryInterface, BaseDbRepository, CollateMixin):
+class ShelfItemRepository(BaseDbRepository, ShelfItemRepositoryInterface):
 
     def read_all(self, shelf: Shelf) -> List[ShelfItem]:
         query = self._dbh.session.query(*ShelfItemModel.columns())\

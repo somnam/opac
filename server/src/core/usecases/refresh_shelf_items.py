@@ -1,9 +1,8 @@
 import asyncio
 import logging
-from typing import List, Set
+from typing import List
 
-from src.core.entities import CollateResult, ScheduleItem, Shelf, ShelfItem
-from src.core.entities.profile import Profile
+from src.core.entities import CollateResult, ScheduleItem, Shelf
 from src.core.exceptions import ProfileNotFoundError
 from src.core.repositories import DataRepositoryInterface
 
@@ -18,36 +17,38 @@ class RefreshShelfItemsUseCase:
         logger.info(f'Refreshing items on shelf {shelf.name}')
 
         with self._repository.unit_of_work():
-            profile: Profile = self._repository.profile.read(shelf.profile_id)
+            profile = self._repository.profile.read(shelf.profile_id)
 
         if not profile:
             raise ProfileNotFoundError(f"Profile {shelf.profile_id} not found.")
 
-        gateway_items: Set[ShelfItem] = asyncio.run(self._repository.gateway.shelf.items(profile, shelf))
+        gateway_items = asyncio.run(self._repository.gateway.shelf.items(profile, shelf))
 
         with self._repository.unit_of_work():
-            current_items = set(self._repository.shelf_item.read_all(shelf))
+            current_items = self._repository.shelf_item.read_all(shelf)
 
-        result: CollateResult = self._repository.shelf_item.collate(gateway_items, current_items)
+        result: CollateResult = self._repository.collate(gateway_items, current_items)
 
         if result:
             with self._repository.unit_of_work():
 
                 if result.new:
                     logger.info(f"Found {len(result.new)} new items on shelf {shelf.name}")
-                    self._repository.shelf_item.create_all(result.new)
+                    new_shelf_items: List = result.new
+                    self._repository.shelf_item.create_all(new_shelf_items)
                     logger.info(f"Created {len(result.new)} new items on shelf {shelf.name}")
 
                 if result.deleted:
                     logger.info(f"Found {len(result.deleted)} deleted items on shelf {shelf.name}")
-                    self._repository.shelf_item.delete_all(result.deleted)
+                    deleted_shelf_items: List = result.deleted
+                    self._repository.shelf_item.delete_all(deleted_shelf_items)
                     logger.info(f"Deleted {len(result.deleted)} items from shelf {shelf.name}")
 
         else:
             logger.info(f"No items changed on shelf {shelf.name}")
 
 
-class ShelfItemsRefreshScheduleUseCase:
+class ScheduleShelfItemsRefreshUseCase:
     def __init__(self, repository: DataRepositoryInterface) -> None:
         self._repository = repository
 

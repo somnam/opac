@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class HandlerInterface(ABC):
+class WebSocketOperationInterface(ABC):
     client_id: None
 
     @classmethod
     @abstractmethod
-    def operation(cls) -> str:
+    def name(cls) -> str:
         raise NotImplementedError
 
     @abstractmethod

@@ -5,7 +5,7 @@ import State from './app/state.js';
 
 class WebSocketApp {
     constructor() {
-        (new Transport())
+        (new Transport('localhost', '8888', false))
             .then(transport => {
                 this.components = new Components(transport);
                 this.state = new State();

@@ -6,7 +6,7 @@ from src.dataproviders.db.model import LatestBookModel
 from src.dataproviders.repositories.base import BaseDbRepository
 
 
-class CatalogRepository(CatalogRepositoryInterface, BaseDbRepository):
+class CatalogRepository(BaseDbRepository, CatalogRepositoryInterface):
 
     def latest_books(self, catalog: Catalog) -> List[Book]:
 

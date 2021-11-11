@@ -1,13 +1,14 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-from src.core.repositories.shelf import ShelfRepositoryInterface
-from src.core.repositories.shelf_item import ShelfItemRepositoryInterface
+from src.core.gateways import DataGatewayInterface
+from src.core.repositories.base import BaseRepository
 from src.core.repositories.catalog import CatalogRepositoryInterface
 from src.core.repositories.profile import ProfileRepositoryInterface
-from src.core.gateways import DataGatewayInterface
+from src.core.repositories.shelf import ShelfRepositoryInterface
+from src.core.repositories.shelf_item import ShelfItemRepositoryInterface
 
 
-class DataRepositoryInterface(ABC):
+class DataRepositoryInterface(BaseRepository):
 
     @property
     @abstractmethod

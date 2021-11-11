@@ -6,7 +6,7 @@ config = Config()
 
 
 class ClientGateway(ClientGatewayInterface):
-    url = config.get('client', 'url')
+    _url = config.get('server', 'url')
 
     def push(self, client_id: str, job_id: int, operation: str) -> None:
-        requests.post(f"{self.url}/client/{client_id}/{operation}", json={"job_id": job_id})
+        requests.post(f"{self._url}/client/{client_id}/{operation}", json={"job_id": job_id})

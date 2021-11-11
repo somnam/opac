@@ -1,10 +1,11 @@
-from typing import Optional
-from src.dataproviders.db import DbHandler
-from src.dataproviders.mixin import DbHandlerMixin
+from typing import ContextManager
+
+from src.core.repositories.base import BaseRepository as BaseRepositoryInterface
+from src.dataproviders.mixin import CollateMixin, DbHandlerMixin
 
 
-class BaseDbRepository(DbHandlerMixin):
+class BaseDbRepository(DbHandlerMixin, CollateMixin, BaseRepositoryInterface):
 
-    def __init__(self, dbh: Optional[DbHandler] = None) -> None:
-        if dbh is not None:
-            self._dbh = dbh
+    def unit_of_work(self) -> ContextManager:
+        session_scope: ContextManager = self._dbh.session_scope()
+        return session_scope

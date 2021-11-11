@@ -1,24 +1,22 @@
 import logging
-from src.core.entities import (
-    ProfileSearchParams,
-    ProfileSearchResult,
-)
+
 from src.core.usecases import SearchProfileUseCase
+from src.core.adapters import payload_to_profile_search_params
 from src.dataproviders.gateways import DataGateway
-from src.entrypoints.websocket.handlers.base import HandlerInterface
+from src.entrypoints.web.handlers.websocket.base import WebSocketOperationInterface
 
 logger = logging.getLogger(__name__)
 
 
-class SearchProfileHandler(HandlerInterface):
+class ProfileSearchOperation(WebSocketOperationInterface):
     @classmethod
-    def operation(cls) -> str:
+    def name(cls) -> str:
         return 'search-profile'
 
     async def execute(self, payload: dict) -> dict:
         use_case = SearchProfileUseCase(DataGateway())
 
-        result: ProfileSearchResult = await use_case.execute(ProfileSearchParams(**payload))
+        result = await use_case.execute(payload_to_profile_search_params(payload))
 
         response: dict = result.to_dict()
 

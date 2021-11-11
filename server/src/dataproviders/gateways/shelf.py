@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import List, Set, Optional
+from typing import List, Optional
 from datetime import date
 
 import aiohttp
@@ -19,7 +19,7 @@ class ShelfGateway(ShelfGatewayInterface):
     _shelf_url: str = config.get('lc', 'profile_shelf_url')
     _items_url: str = config.get('lc', 'shelf_items_url')
 
-    async def search(self, profile: Profile) -> Set[Shelf]:
+    async def search(self, profile: Profile) -> List[Shelf]:
         url: str = self._library_url.format(
             profile_value=profile.value,
             profile_name=profile.name,
@@ -32,14 +32,14 @@ class ShelfGateway(ShelfGatewayInterface):
 
         except aiohttp.ClientError as e:
             logger.error(f"Fetching shelves failed: {e}")
-            return set()
+            return []
 
         with bs4_scope(search_results) as parsed_results:
             shelves_selector = 'ul.filtr__wrapItems input[name="shelfs[]"]'
             shelves_tags = parsed_results.select(shelves_selector)
 
             shelf_tasks = [
-                self._set_self_pages(profile, Shelf(
+                self._set_shelf_pages(profile, Shelf(
                     name=shelf_tag['data-shelf-name'],
                     value=shelf_tag['value'],
                     profile_id=profile.profile_id,
@@ -49,9 +49,9 @@ class ShelfGateway(ShelfGatewayInterface):
 
         shelves: List[Shelf] = await asyncio.gather(*shelf_tasks)
 
-        return set(shelves)
+        return shelves
 
-    async def _set_self_pages(self, profile: Profile, shelf: Shelf) -> Shelf:
+    async def _set_shelf_pages(self, profile: Profile, shelf: Shelf) -> Shelf:
         async with aio_session() as session:
 
             url = self._shelf_url.format(
@@ -73,19 +73,19 @@ class ShelfGateway(ShelfGatewayInterface):
 
         return shelf
 
-    async def items(self, profile: Profile, shelf: Shelf) -> Set[ShelfItem]:
+    async def items(self, profile: Profile, shelf: Shelf) -> List[ShelfItem]:
         item_urls = await self._item_urls(profile, shelf)
 
         if not item_urls:
             logger.warning(f'No items found on shelf {shelf.name}')
-            return set()
+            return []
 
         async with aio_session() as session:
             item_tasks = [self._shelf_item(session, shelf, url) for url in item_urls]
 
             shelf_items: List[Optional[ShelfItem]] = await asyncio.gather(*item_tasks)
 
-        return set((shelf_item for shelf_item in shelf_items if shelf_item is not None))
+        return [shelf_item for shelf_item in shelf_items if shelf_item is not None]
 
     async def _item_urls(self, profile: Profile, shelf: Shelf) -> List[str]:
         async with aio_session() as session:

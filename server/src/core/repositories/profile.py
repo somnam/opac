@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import List, Optional
 
 from src.core.entities import Profile
+from src.core.repositories.base import BaseRepository
 
 
-class ProfileRepositoryInterface(ABC):
+class ProfileRepositoryInterface(BaseRepository):
     @abstractmethod
     def exists(self, profile_id: str) -> bool:
         raise NotImplementedError

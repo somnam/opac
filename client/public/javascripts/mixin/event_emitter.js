@@ -5,7 +5,10 @@ export let EventEmitter = {
         if (!this.events[event])
             this.events[event] = [];
 
-        this.events[event].push(listener);
+        const index = this.events[event].indexOf(listener);
+        if (index === -1) {
+            this.events[event].push(listener);
+        }
     },
 
     off(event, listener) {
@@ -13,8 +16,9 @@ export let EventEmitter = {
             return;
 
         const index = this.events[event].indexOf(listener);
-        if (index === -1)
+        if (index === -1) {
             return;
+        }
 
         this.events[event].splice(index, 1);
     },

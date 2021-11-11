@@ -58,14 +58,14 @@ class SearchLatestBooksUseCase:
             shelf_items = self._repository.shelf_item.read_all(shelf)
 
             included_books.update((shelf_item.book for shelf_item in shelf_items
-                                   if shelf_item.book.isbn is not None))
+                                   if shelf_item.isbn is not None))
 
         if excluded_shelves:
             for shelf in excluded_shelves:
                 shelf_items = self._repository.shelf_item.read_all(shelf)
 
                 excluded_books.update((shelf_item.book for shelf_item in shelf_items
-                                       if shelf_item.book.isbn is not None))
+                                       if shelf_item.isbn is not None))
 
         matching_books = included_books.difference(excluded_books).intersection(latest_books)
 

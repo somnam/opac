@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import date
 
 from src.core.entities.base import BaseEntity
+from src.core.entities.book import Book
 
 
 @dataclass
@@ -24,3 +25,11 @@ class ShelfItem(BaseEntity):
 
     def __hash__(self) -> int:
         return hash(self.shelf_item_id)
+
+    @property
+    def book(self) -> Book:
+        return Book(
+            title=self.title,
+            author=self.author,
+            isbn=self.isbn,
+        )

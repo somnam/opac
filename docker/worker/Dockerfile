@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 
 WORKDIR /root
 
@@ -21,7 +21,7 @@ ENV PATH /home/worker/.local/bin:$PATH
 COPY --chown=worker:worker ./docker/.bash_aliases ./docker/.vimrc /home/worker/
 
 # Copy requirements file
-COPY --chown=worker:worker ./server/setup.py /home/worker
+COPY --chown=worker:worker ./server/setup.py ./server/setup.cfg /home/worker/
 
 # Build requirements
 RUN pip install --user pip-tools &&\

@@ -12,3 +12,4 @@ class ShelfModel(Model):
     name = Column(Model.VARCHAR(512), nullable=False)
     value = Column(Model.EXTERNAL_ID, nullable=False)
     pages = Column(Model.INT, nullable=False)
+    refreshed_at = Column(Model.DATETIME, nullable=True)

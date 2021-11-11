@@ -1,4 +1,4 @@
-[client]
+[server]
 url = http://opac-server:8888
 
 
@@ -8,6 +8,7 @@ host = opac-broker
 
 [rq]
 queues = ["high", "default", "low"]
+result_ttl = 600
 
 
 [db:handler]
@@ -34,3 +35,7 @@ loop_time = 600
 
 [task:refresh_shelf_items_schedule]
 loop_time = 14400
+
+
+[usecase:schedule_shelf_items_import]
+page_time = 60

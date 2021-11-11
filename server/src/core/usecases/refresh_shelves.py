@@ -8,7 +8,7 @@ from src.core.repositories import DataRepositoryInterface
 logger = logging.getLogger(__name__)
 
 
-class RefreshShelvesfUseCase:
+class RefreshShelvesUseCase:
     def __init__(self, repository: DataRepositoryInterface) -> None:
         self._repository = repository
 
@@ -18,33 +18,36 @@ class RefreshShelvesfUseCase:
         gateway_shelves = asyncio.run(self._repository.gateway.shelf.search(profile))
 
         with self._repository.unit_of_work():
-            current_shelves = set(self._repository.shelf.read_all(profile))
+            current_shelves = self._repository.shelf.read_all(profile)
 
-        result: CollateResult = self._repository.shelf.collate(gateway_shelves, current_shelves)
+        result: CollateResult = self._repository.collate(gateway_shelves, current_shelves)
 
         if result:
             with self._repository.unit_of_work():
 
                 if result.new:
                     logger.info(f"Found {len(result.new)} new shelves on profile {profile.name}")
-                    self._repository.shelf.create_all(result.new)
+                    new_shelfs: List = result.new
+                    self._repository.shelf.create_all(new_shelfs)
                     logger.info(f"Created {len(result.new)} new shelves on profile {profile.name}")
 
                 if result.updated:
                     logger.info(f"Found {len(result.updated)} updated shelves on profile {profile.name}")
-                    self._repository.shelf.update_all(result.updated)
+                    updated_shelfs: List = result.updated
+                    self._repository.shelf.update_all(updated_shelfs)
                     logger.info(f"Updated {len(result.updated)} shelves on profile {profile.name}")
 
                 if result.deleted:
                     logger.info(f"Found {len(result.deleted)} deleted shelves on profile {profile.name}")
-                    self._repository.shelf.delete_all(result.deleted)
+                    deleted_shelfs: List = result.deleted
+                    self._repository.shelf.delete_all(deleted_shelfs)
                     logger.info(f"Deleted {len(result.deleted)} shelves from profile {profile.name}")
 
         else:
             logger.info(f"No shelves changed on profile {profile.name}")
 
 
-class ShelvesRefreshScheduleUseCase:
+class ScheduleShelvesRefreshUseCase:
     def __init__(self, repository: DataRepositoryInterface) -> None:
         self._repository = repository
 

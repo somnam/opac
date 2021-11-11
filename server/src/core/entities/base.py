@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass, field
-from typing import Dict, Any, Set
+from typing import Dict, Any, List
 from hashlib import md5
 
 
@@ -16,9 +16,9 @@ class BaseEntity:
 
 @dataclass
 class CollateResult(BaseEntity):
-    new: Set[BaseEntity] = field(default_factory=set)
-    updated: Set[BaseEntity] = field(default_factory=set)
-    deleted: Set[BaseEntity] = field(default_factory=set)
+    new: List[BaseEntity] = field(default_factory=list)
+    updated: List[BaseEntity] = field(default_factory=list)
+    deleted: List[BaseEntity] = field(default_factory=list)
 
     def __bool__(self) -> bool:
         return bool(self.new or self.updated or self.deleted)

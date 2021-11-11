@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import List
 
 from src.core.entities import ShelfItem, Shelf
+from src.core.repositories.base import BaseRepository
 
 
-class ShelfItemRepositoryInterface(ABC):
+class ShelfItemRepositoryInterface(BaseRepository):
 
     @abstractmethod
     def read_all(self, shelf: Shelf) -> List[ShelfItem]:

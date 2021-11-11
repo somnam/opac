@@ -1,8 +1,7 @@
 import re
 from typing import List
 
-
-from src.core.entities import Catalog, Shelf, Profile, ShelfSearchParams
+from src.core.entities import Catalog, Profile, ProfileSearchParams, Shelf, ShelfSearchParams
 
 
 def payload_to_catalog(payload: dict) -> Catalog:
@@ -37,7 +36,7 @@ def payload_to_shelves(payload: list) -> List[Shelf]:
     return [payload_to_shelf(item) for item in payload]
 
 
-def payload_to_search_params(payload: dict) -> ShelfSearchParams:
+def payload_to_shelf_search_params(payload: dict) -> ShelfSearchParams:
     search_params = ShelfSearchParams(
         profile=Profile(name=payload.pop('name'), value=payload.pop('value')),
     )
@@ -46,3 +45,10 @@ def payload_to_search_params(payload: dict) -> ShelfSearchParams:
         search_params.page = payload['page']
 
     return search_params
+
+
+def payload_to_profile_search_params(payload: dict) -> ProfileSearchParams:
+    return ProfileSearchParams(
+        phrase=payload["phrase"],
+        page=payload.get("page", 1),
+    )

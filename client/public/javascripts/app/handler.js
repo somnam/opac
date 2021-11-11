@@ -50,14 +50,6 @@ class Handler {
                 Storage.remove('profiles');
             }
         });
-
-        this.register("search-latest-books", (message) => {
-            if (message.payload.result) {
-                Storage.setEncoded('latest-books', message.payload.result);
-            } else {
-                Storage.remove('latest-books');
-            }
-        });
     }
 }
 

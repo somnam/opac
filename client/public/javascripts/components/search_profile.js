@@ -45,7 +45,7 @@ class SearchProfile extends Field {
     static toString() { return 'search-profile' }
 
     onRequest(message) {
-        this.transport.fetch('search-profile', message)
+        this.transport.recv('search-profile', message)
             .then(() => this.emit('search-profile-data'))
             .catch(error => console.error(error));
     }

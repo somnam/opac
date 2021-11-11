@@ -1,12 +1,14 @@
 import Handler from "./handler.js";
 
 export default class Transport {
-    constructor() {
-        const host = 'localhost',
-              port = '8888';
+    constructor(host, port, secure = true) {
+        this.host = host;
+        this.port = port;
+        this.ws_schema = secure ? "wss" : "ws";
+        this.http_schema = secure ? "https" : "http";
 
         return new Promise((resolve, reject) => {
-            this.socket = new WebSocket(`ws://${host}:${port}/`);
+            this.socket = new WebSocket(`${this.ws_schema}://${this.host}:${this.port}/ws`);
 
             this.handler = new Handler(this);
 
@@ -16,8 +18,19 @@ export default class Transport {
         });
     }
 
-    onmessage(callback) {
-        this.socket.onmessage = callback;
+    post(endpoint, message) {
+        let body = null;
+        if (message !== undefined && message !== null) {
+            body = JSON.stringify(message);
+        }
+
+        const url = `${this.http_schema}://${this.host}:${this.port}/${endpoint}`;
+
+        return fetch(url, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+            body: body,
+        })
     }
 
     send(operation, message) {
@@ -27,14 +40,13 @@ export default class Transport {
         }));
     }
 
-    fetch(operation, message) {
-        return new Promise((resolve, reject) => {
-            this.send(operation, message);
+    recv(operation, message) {
+        this.send(operation, message);
 
-            this.onmessage((event) => this.handler.handle(event)
+        return new Promise((resolve, reject) => {
+            this.socket.onmessage = (event) => this.handler.handle(event)
                 .then(() => resolve())
-                .catch(error => reject(error))
-            );
+                .catch(error => reject(error));
         })
     }
 }

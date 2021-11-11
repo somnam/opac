@@ -1,6 +1,5 @@
 import Field from './widgets/field.js';
 import DataTable from './widgets/data_table.js';
-import Loading from './widgets/loading.js';
 import Storage from '../app/storage.js';
 import {EventEmitter} from '../mixin/event_emitter.js';
 
@@ -37,8 +36,6 @@ class SearchLatestBooks extends Field {
         super();
 
         this.transport = transport;
-
-        this.loading = new Loading('#search-latest-books-container');
 
         this.dataTable = new DataTable('latest-books', this.headers);
 
@@ -82,18 +79,18 @@ class SearchLatestBooks extends Field {
             "excluded_shelves": Storage.getDecoded('exclude-latest-book-shelves'),
         };
 
-        this.transport.fetch('search-latest-books', message)
-            .then(() => this.emit('search-latest-books-data'))
+        this.transport.post('latest-books/search', message)
+            .then(response => response.json())
+            .then(result => {
+                Storage.setEncoded('latest-books', result);
+                this.emit('search-latest-books-data');
+            })
             .catch(error => console.error(error));
-
-        Storage.set('latest-books-progress', true);
 
         this.emit('search-latest-books-show');
     }
 
     onData() {
-        Storage.remove('latest-books-progress');
-
         if (Storage.getDecoded('latest-books') !== null) {
             this.emit('search-latest-books-show');
         } else {
@@ -111,21 +108,14 @@ class SearchLatestBooks extends Field {
     }
 
     onBack() {
-        Storage.remove('latest-books', 'latest-books-progress');
-
         this.emit('search-latest-books-hide');
         this.emit('exclude-latest-book-shelves-show');
     }
 
     update() {
-        const inProgress = Storage.get('latest-books-progress');
         const searchResult = Storage.getDecoded('latest-books');
 
-        if (inProgress) {
-            this.loading.show();
-            this.dataTable.update();
-        } else if (searchResult) {
-            this.loading.hide();
+        if (searchResult) {
             this.dataTable.update(searchResult.items);
         } else {
             console.log("No results.");

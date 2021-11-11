@@ -20,7 +20,7 @@ export default class ExcludeLatestBooksShelves extends Field {
             Back
         </button>
     </fieldset>
-        `;
+    `;
 
     constructor(transport) {
         super();
@@ -52,7 +52,7 @@ export default class ExcludeLatestBooksShelves extends Field {
         if (shelves && showCurrentPage) {
             this.emit('exclude-latest-book-shelves-data');
         } else {
-            this.transport.fetch('shelves', message)
+            this.transport.recv('shelves', message)
                 .then(() => this.emit('exclude-latest-book-shelves-data'))
                 .catch(error => console.error(error));
         }
@@ -92,7 +92,7 @@ export default class ExcludeLatestBooksShelves extends Field {
         this.emit('search-latest-books-request');
     }
 
-    onBack () {
+    onBack() {
         Storage.remove('exclude-latest-book-shelves');
 
         this.emit('exclude-latest-book-shelves-hide');

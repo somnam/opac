@@ -34,15 +34,14 @@ class ProfileGateway(ProfileGatewayInterface):
             return ProfileSearchResult()
 
         with bs4_scope(search_results) as parsed_results:
-            profiles: List[Profile] = [
-                Profile(
-                    name=link.text.strip(),
-                    value=next(
-                        (part for part in urlparse(link.get("href")).path.split('/') if part.isdigit()),
-                        None,
-                    ),
-                )
-                for link in parsed_results.select("span.user-name > a")
-            ]
+            profiles: List[Profile] = []
+
+            for link in parsed_results.select("span.user-name > a"):
+                parts = urlparse(link.get("href")).path.split('/')
+                value = next((part for part in parts if part.isdigit()), None)
+                if value is None:
+                    continue
+
+                profiles.append(Profile(name=link.text.strip(), value=value))
 
         return ProfileSearchResult(items=profiles, page=params.page, total=search_count)

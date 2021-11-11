@@ -10,7 +10,7 @@ run_tests ()
         --rm \
         --name "$1-tests" \
         "$1:latest" \
-        python setup.py pytest
+        /bin/bash -c "python -mpip install --user tox && tox"
 }
 
 check_dependencies
