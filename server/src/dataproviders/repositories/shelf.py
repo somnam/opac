@@ -22,6 +22,7 @@ class ShelfRepository(BaseDbRepository, ShelfRepositoryInterface):
             value=model.value,
             profile_id=model.profile_id,
             pages=model.pages,
+            refreshed_at=model.refreshed_at,
         ) for model in models]
 
     def create_all(self, shelves: List[Shelf]) -> None:
@@ -38,14 +39,28 @@ class ShelfRepository(BaseDbRepository, ShelfRepositoryInterface):
             ) for shelf in shelves
         ])
 
+    def update(self, shelf: Shelf) -> None:
+        model = self._dbh.session.query(ShelfModel)\
+            .filter_by(shelf_id=shelf.shelf_id)\
+            .one_or_none()
+
+        if model:
+            model.pages = shelf.pages
+            model.refreshed_at = shelf.refreshed_at
+
     def update_all(self, shelves: List[Shelf]) -> None:
         if not shelves:
             return
 
-        ...
+        for shelf in shelves:
+            self.update(shelf)
 
     def delete_all(self, shelves: List[Shelf]) -> None:
         if not shelves:
             return
 
-        ...
+        ids = (shelf.shelf_id for shelf in shelves)
+
+        self._dbh.session.query(ShelfModel)\
+            .filter(ShelfModel.shelf_id.in_(ids))\
+            .delete(synchronize_session=False)

@@ -63,6 +63,7 @@ class LatestBooksSearchHandler(tornado.web.RequestHandler, JsonSchemaMixin):
             payload = self.decode_message(self.request.body)
         except MessageDecodeError as e:
             logger.error(f"Error decoding message: {e!s}")
+            self.set_status(400)
             return
 
         result: List[Book] = self.use_case.execute(

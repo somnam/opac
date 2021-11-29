@@ -29,47 +29,30 @@ class Shelves extends Field {
 
         this.transport = transport;
 
-        this.on('shelves-show', () => this.onShow());
-
-        this.on('shelves-hide', () => this.remove());
-
         this.on('shelves-paginate', (page) => this.onPaginate(page));
-
-        this.on(`shelves-request`, (message) => this.onRequest(message));
-
-        this.on('shelves-data', () => this.onData());
-
-        this.on('shelves-next', () => this.onNext());
-
-        this.on('shelves-back', () => this.onBack());
     }
 
     static toString() { return 'shelves' }
 
     onRequest(message) {
+        if (message == undefined || message == null) {
+            message = Storage.getDecoded('profile');
+        }
+
         this.transport.recv('shelves', message)
         .then(() => this.emit('shelves-data'))
         .catch(error => console.error(error));
     }
 
-    onData() {
-        this.emit('confirm-profile-hide');
-        this.emit('shelves-show');
-    }
+    onRender() {
+        this.radioList = new RadioList('shelves', 'shelf');
 
-    onShow() {
-        this.render()
-            .then(() => {
-                this.radioList = new RadioList('shelves', 'shelf');
+        this.pager = new Pager('shelf-list-container', 'shelves-paginate');
 
-                this.pager = new Pager('shelf-list-container', 'shelves-paginate');
+        this.loadingBtn = new LoadingBtn('#select-shelf-btn');
 
-                this.loadingBtn = new LoadingBtn('#select-shelf-btn');
-
-                this.addEvents();
-                this.update();
-            })
-            .catch(error => console.error(error));
+        this.addEvents();
+        this.update();
     }
 
     onNext() {
@@ -84,7 +67,7 @@ class Shelves extends Field {
         Storage.remove('shelf', 'shelves');
 
         this.emit('shelves-hide');
-        this.emit('confirm-profile-show');
+        this.emit('activities-request');
     }
 
     update() {

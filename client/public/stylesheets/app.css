@@ -30,12 +30,23 @@ fieldset {
     width: 540px;
 }
 
+#start-page-fields {
+    width: 960px;
+}
+
+#start-page-fields #shelves-list-container button {
+    margin: 4px 12px 12px 12px;
+}
+
 #search-latest-books-fields {
     width: auto;
 }
 
-#latest-books-table table {
+#latest-books-fields {
     width: 960px;
+}
+
+#latest-books-table table {
     border-collapse: collapse !important;
 }
 

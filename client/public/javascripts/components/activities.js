@@ -32,31 +32,20 @@ class Activities extends Field {
         super();
 
         this.transport = transport;
-
-        this.on('activities-show', () => this.onShow());
-
-        this.on('activities-hide', () => this.remove());
-
-        this.on('activities-next', () => this.onNext());
-
-        this.on('activities-back', () => this.onBack());
     }
 
     static toString() { return 'activities' }
 
-    onShow() {
-        this.render()
-            .then(() => {
-                Storage.setEncoded('activities', {"items": this.items});
+    onRender() {
+        Storage.setEncoded('activities', {"items": this.items});
 
-                this.radioList = new RadioList('activities', 'activity');
+        this.radioList = new RadioList('activities', 'activity');
 
-                this.loadingBtn = new LoadingBtn('#select-activity-btn');
+        this.loadingBtn = new LoadingBtn('#select-activity-btn');
 
-                this.addEvents();
-                this.radioList.update();
-            })
-            .catch(error => console.error(error));
+        this.addEvents();
+
+        this.radioList.update();
     }
 
     onNext() {
@@ -66,11 +55,13 @@ class Activities extends Field {
 
         switch(activity ? activity.value : null) {
             case 'search-books':
+                const profile = Storage.getDecoded('profile');
+
                 this.emit('activities-hide');
-                this.emit('search-profile-show');
+                this.emit('shelves-request', profile);
                 break;
             case 'search-latest-books':
-                this.emit('search-latest-books-start');
+                this.emit('search-latest-books-request');
                 break;
             default:
                 console.error("Activity not defined.");
@@ -82,7 +73,7 @@ class Activities extends Field {
         Storage.remove('activity');
 
         this.emit('activities-hide');
-        this.emit('catalogs-show');
+        this.emit('catalogs-request');
     }
 
     addEvents() {

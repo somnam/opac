@@ -6,7 +6,7 @@ import LoadingBtn from './widgets/loading_btn.js';
 
 class Catalogs extends Field {
     template = `
-      <fieldset id="catalogs-fields">
+    <fieldset id="catalogs-fields">
         <div id="catalog-list-container" class="nes-container with-title mb-4">
           <h3 class="title">Catalog</h3>
           <div class="item" id="catalog-list">
@@ -16,7 +16,11 @@ class Catalogs extends Field {
         <button class="nes-btn is-primary btn-block mb-4" id="select-catalog-btn">
           Next
         </button>
-      </fieldset>
+
+        <button class="nes-btn btn-block mb-4" id="go-back-btn">
+          Back
+        </button>
+    </fieldset>
     `;
 
     items = [
@@ -28,30 +32,19 @@ class Catalogs extends Field {
         super();
 
         this.transport = transport;
-
-        this.on('catalogs-show', () => this.onShow());
-
-        this.on('catalogs-hide', () => this.remove());
-
-        this.on('catalogs-next', () => this.onNext());
-
     }
 
     static toString() { return 'catalogs' }
 
-    onShow() {
-        this.render()
-            .then(() => {
-                Storage.setEncoded('catalogs', {"items": this.items});
+    onRender() {
+        Storage.setEncoded('catalogs', {"items": this.items});
 
-                this.radioList = new RadioList('catalogs', 'catalog');
+        this.radioList = new RadioList('catalogs', 'catalog');
 
-                this.loadingBtn = new LoadingBtn('#select-catalog-btn');
+        this.loadingBtn = new LoadingBtn('#select-catalog-btn');
 
-                this.addEvents();
-                this.radioList.update();
-            })
-            .catch(error => console.error(error));
+        this.addEvents();
+        this.radioList.update();
     }
 
     onNext() {
@@ -60,7 +53,14 @@ class Catalogs extends Field {
         Storage.setEncoded('catalog', catalog);
 
         this.emit('catalogs-hide');
-        this.emit('activities-show');
+        this.emit('activities-request');
+    }
+
+    onBack() {
+        Storage.remove('catalogs', 'catalog');
+
+        this.emit('catalogs-hide');
+        this.emit('start-page-request');
     }
 
     addEvents() {
@@ -68,6 +68,10 @@ class Catalogs extends Field {
         searchCatalogBtn.addEventListener('click', (event) => {
             this.selectCatalogBtnListener(event);
         });
+
+        const backBtn = document.querySelector('#catalogs-fields > #go-back-btn');
+        backBtn.addEventListener('click', (event) => this.backBtnListener(event));
+
     }
 
     selectCatalogBtnListener(event) {
@@ -76,6 +80,12 @@ class Catalogs extends Field {
         this.loadingBtn.show();
 
         this.emit('catalogs-next');
+    }
+
+    backBtnListener(event) {
+        event.preventDefault();
+
+        this.emit('catalogs-back');
     }
 }
 

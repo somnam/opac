@@ -27,19 +27,9 @@ export default class ExcludeLatestBooksShelves extends Field {
 
         this.transport = transport;
 
-        this.on('exclude-latest-book-shelves-show', () => this.onShow());
-
-        this.on('exclude-latest-book-shelves-hide', () => this.remove());
-
-        this.on('exclude-latest-book-shelves-paginate', (page) => this.onPaginate(page));
-
         this.on(`exclude-latest-book-shelves-request`, (message) => this.onRequest(message));
 
-        this.on(`exclude-latest-book-shelves-data`, () => this.onData());
-
-        this.on('exclude-latest-book-shelves-next', () => this.onNext());
-
-        this.on('exclude-latest-book-shelves-back', () => this.onBack());
+        this.on('exclude-latest-book-shelves-paginate', (page) => this.onPaginate(page));
     }
 
     static toString() { return 'exclude-latest-book-shelves' }
@@ -47,7 +37,11 @@ export default class ExcludeLatestBooksShelves extends Field {
     onRequest(message) {
         const shelves = Storage.getDecoded('shelves');
 
-        const showCurrentPage = (message.page === undefined || shelves.page === message.page);
+        const showCurrentPage = (
+            message == undefined
+            || message.page === undefined
+            || shelves.page === message.page
+        );
 
         if (shelves && showCurrentPage) {
             this.emit('exclude-latest-book-shelves-data');
@@ -60,27 +54,23 @@ export default class ExcludeLatestBooksShelves extends Field {
 
     onData() {
         this.emit('include-latest-book-shelves-hide');
-        this.emit('exclude-latest-book-shelves-show');
+        super.onData();
     }
 
-    onShow() {
-        this.render()
-            .then(() => {
-                this.checkboxList = new CheckboxList(
-                    'shelves',
-                    'exclude-latest-book-shelves',
-                    this.filterIncluded,
-                );
+    onRender() {
+        this.checkboxList = new CheckboxList(
+            'shelves',
+            'exclude-latest-book-shelves',
+            this.filterIncluded,
+        );
 
-                this.pager = new Pager(
-                    'shelf-list-container',
-                    'exclude-latest-book-shelves-paginate',
-                );
+        this.pager = new Pager(
+            'shelf-list-container',
+            'exclude-latest-book-shelves-paginate',
+        );
 
-                this.addEvents();
-                this.update();
-            })
-            .catch(error => console.error(error));
+        this.addEvents();
+        this.update();
     }
 
     onNext() {
@@ -89,14 +79,16 @@ export default class ExcludeLatestBooksShelves extends Field {
         Storage.setEncoded('exclude-latest-book-shelves', shelves);
 
         this.emit('exclude-latest-book-shelves-hide');
-        this.emit('search-latest-books-request');
+        this.emit('latest-books-request');
     }
 
     onBack() {
         Storage.remove('exclude-latest-book-shelves');
 
+        const profile = Storage.getDecoded('profile');
+
         this.emit('exclude-latest-book-shelves-hide');
-        this.emit('include-latest-book-shelves-show');
+        this.emit('include-latest-book-shelves-request', profile);
     }
 
     filterIncluded() {

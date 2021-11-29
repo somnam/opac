@@ -11,7 +11,7 @@ class Profile(BaseEntity):
     value: str
 
     def __post_init__(self) -> None:
-        self.profile_id = self.id_from_attributes(self.value)
+        self.profile_id = self.id_from_attributes(self.name, self.value)
 
     def __hash__(self) -> int:
         return hash(self.profile_id)

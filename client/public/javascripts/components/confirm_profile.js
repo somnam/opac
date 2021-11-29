@@ -29,68 +29,67 @@ class ConfirmProfile extends Field {
 
         this.transport = transport;
 
-        this.on('confirm-profile-show', () => this.onShow());
-
-        this.on('confirm-profile-hide', () => this.remove());
-
         this.on('confirm-profile-paginate', page => this.onPaginate(page));
 
-        this.on('confirm-profile-next', () => this.onNext());
-
-        this.on('confirm-profile-back', () => this.onBack());
-
-        this.on('post-profile', (profile) => this.onPostProfile(profile));
+        this.on('confirm-profile', () => this.onConfirmProfile());
     }
 
     static toString() { return 'confirm-profile' }
 
-    onShow() {
-        this.render()
-            .then(() => {
-                this.radioList = new RadioList('profiles', 'profile');
+    onRequest(message) {
+        this.transport.recv('search-profile', message)
+            .then(() => this.emit('confirm-profile-data'))
+            .catch(error => console.error(error));
+    }
 
-                this.pager = new Pager('profile-list-container', 'confirm-profile-paginate');
+    onData() {
+        this.emit('search-profile-hide');
 
-                this.loadingBtn = new LoadingBtn('#confirm-profile-btn');
+        if (Storage.getDecoded('profiles') !== null) {
+            super.onData();
+        } else {
+            this.emit('no-profile-request');
+        }
+    }
 
-                this.addEvents();
-                this.update();
-            })
+    onRender() {
+        this.radioList = new RadioList('profiles', 'profile');
+
+        this.pager = new Pager('profile-list-container', 'confirm-profile-paginate');
+
+        this.loadingBtn = new LoadingBtn('#confirm-profile-btn');
+
+        this.addEvents();
+        this.update();
+    }
+
+    onConfirmProfile() {
+        const profile = this.radioList.checked;
+
+        this.transport.post('profile', profile)
+            .then(() => this.transport.get(`profile/${profile.profile_id}/shelves`))
+            .then(() => this.emit('confirm-profile-next'))
             .catch(error => console.error(error));
     }
 
     onNext() {
-        const profile = this.radioList.checked;
+        Storage.setEncoded('profile', this.radioList.checked);
+        Storage.remove('profiles', 'searchProfile');
 
-        Storage.setEncoded('profile', profile);
-
-        this.emit('post-profile', profile);
-
-        const activity = Storage.getDecoded('activity');
-
-        switch(activity ? activity.value : null) {
-            case 'search-books':
-                this.emit('shelves-request', profile);
-                break;
-            case 'search-latest-books':
-                this.emit('include-latest-book-shelves-request', profile);
-                break;
-            default:
-                console.error("No activity defined.");
-                break;
-        }
+        this.emit('confirm-profile-hide');
+        this.emit('catalogs-request');
     }
 
-    onPostProfile(profile) {
-        this.transport.post('profile', profile)
-            .catch(error => console.error(error));
-    }
+    onHide() {
+        this.loadingBtn.hide();
+        super.onHide();
+     }
 
     onBack() {
         Storage.remove('profile', 'profiles');
 
         this.emit('confirm-profile-hide');
-        this.emit('search-profile-show');
+        this.emit('search-profile-request');
     }
 
     update() {
@@ -112,7 +111,7 @@ class ConfirmProfile extends Field {
 
     onPaginate(page) {
         const profile = Storage.get('searchProfile');
-        this.emit('search-profile-request', {phrase: profile, page: page});
+        this.emit('confirm-profile-request', {phrase: profile, page: page});
     }
 
     confirmBtnListener(event) {
@@ -120,7 +119,7 @@ class ConfirmProfile extends Field {
 
         this.loadingBtn.show();
 
-        this.emit('confirm-profile-next');
+        this.emit('confirm-profile');
     }
 
     backBtnListener(event) {

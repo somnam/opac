@@ -21,25 +21,17 @@ class NoProfile extends Field {
         super();
 
         this.transport = transport;
-
-        this.on('no-profile-show', () => this.onShow());
-
-        this.on('no-profile-hide', () => this.remove());
-
-        this.on('no-profile-back', () => this.onBack());
     }
 
     static toString() { return 'no-profile' }
 
-    onShow() {
-        this.render()
-            .then(() => this.addEvents())
-            .catch(error => console.error(error));
+    onRender() {
+      this.addEvents();
     }
 
     onBack() {
         this.emit('no-profile-hide');
-        this.emit('search-profile-show');
+        this.emit('search-profile-request');
     }
 
     addEvents() {

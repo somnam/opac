@@ -20,11 +20,9 @@ class RefreshShelvesUseCase:
         with self._repository.unit_of_work():
             current_shelves = self._repository.shelf.read_all(profile)
 
-        result: CollateResult = self._repository.collate(gateway_shelves, current_shelves)
+            result: CollateResult = self._repository.collate(gateway_shelves, current_shelves)
 
-        if result:
-            with self._repository.unit_of_work():
-
+            if result:
                 if result.new:
                     logger.info(f"Found {len(result.new)} new shelves on profile {profile.name}")
                     new_shelfs: List = result.new
@@ -43,8 +41,8 @@ class RefreshShelvesUseCase:
                     self._repository.shelf.delete_all(deleted_shelfs)
                     logger.info(f"Deleted {len(result.deleted)} shelves from profile {profile.name}")
 
-        else:
-            logger.info(f"No shelves changed on profile {profile.name}")
+            else:
+                logger.info(f"No shelves changed on profile {profile.name}")
 
 
 class ScheduleShelvesRefreshUseCase:

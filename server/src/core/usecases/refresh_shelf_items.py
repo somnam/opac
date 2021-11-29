@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from typing import List
+from datetime import datetime
 
 from src.core.entities import CollateResult, ScheduleItem, Shelf
 from src.core.exceptions import ProfileNotFoundError
@@ -27,11 +28,9 @@ class RefreshShelfItemsUseCase:
         with self._repository.unit_of_work():
             current_items = self._repository.shelf_item.read_all(shelf)
 
-        result: CollateResult = self._repository.collate(gateway_items, current_items)
+            result: CollateResult = self._repository.collate(gateway_items, current_items)
 
-        if result:
-            with self._repository.unit_of_work():
-
+            if result:
                 if result.new:
                     logger.info(f"Found {len(result.new)} new items on shelf {shelf.name}")
                     new_shelf_items: List = result.new
@@ -44,8 +43,11 @@ class RefreshShelfItemsUseCase:
                     self._repository.shelf_item.delete_all(deleted_shelf_items)
                     logger.info(f"Deleted {len(result.deleted)} items from shelf {shelf.name}")
 
-        else:
-            logger.info(f"No items changed on shelf {shelf.name}")
+            else:
+                logger.info(f"No items changed on shelf {shelf.name}")
+
+            shelf.refreshed_at = datetime.utcnow()
+            self._repository.shelf.update(shelf)
 
 
 class ScheduleShelfItemsRefreshUseCase:

@@ -1,21 +1,20 @@
-import {EventEmitter} from '../mixin/event_emitter.js';
+import Field from './widgets/field.js';
 
 
-class SearchCatalog {
+class SearchCatalog extends Field {
     constructor(transport) {
-        this.transport = transport;
+        super();
 
-        this.on('search-catalog-request', () => this.onRequest());
+        this.transport = transport;
     }
 
-    onRequest() {
+    static toString() { return 'search-catalog' }
+
+    onRequest(message) {
         this.emit('shelves-hide');
-        this.emit('in-development-show');
+        this.emit('in-development-request');
     }
 }
-
-
-Object.assign(SearchCatalog.prototype, EventEmitter);
 
 
 export default SearchCatalog;

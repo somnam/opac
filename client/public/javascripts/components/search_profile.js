@@ -18,73 +18,42 @@ class SearchProfile extends Field {
           Next
         </button>
 
-        <button class="nes-btn btn-block mb-4" id="go-back-btn">
-          Back
+        <button class="nes-btn is-disabled btn-block mb-4" hidden="hidden" id="go-back-btn">
+            Back
         </button>
-      </fieldset>
+       </fieldset>
     `;
 
     constructor(transport) {
         super();
 
         this.transport = transport;
-
-        this.on('search-profile-data', () => this.onData());
-
-        this.on('search-profile-show', () => this.onShow());
-
-        this.on('search-profile-hide', () => this.remove());
-
-        this.on(`search-profile-request`, (message) => this.onRequest(message));
-
-        this.on('search-profile-next', () => this.onNext());
-
-        this.on('search-profile-back', () => this.onBack());
     }
 
     static toString() { return 'search-profile' }
 
-    onRequest(message) {
-        this.transport.recv('search-profile', message)
-            .then(() => this.emit('search-profile-data'))
-            .catch(error => console.error(error));
-    }
+    onRender() {
+        this.loadingBtn = new LoadingBtn('#search-profile-btn');
 
-    onData() {
-        this.emit('search-profile-hide');
+        this.addEvents();
 
-        if (Storage.getDecoded('profiles') !== null) {
-            this.emit('confirm-profile-show');
-        } else {
-            this.emit('no-profile-show');
-        }
-    }
-
-    onShow() {
-        this.render()
-        .then(() => {
-                this.loadingBtn = new LoadingBtn('#search-profile-btn');
-                this.addEvents();
-                this.update();
-            })
-            .catch(error => console.error(error));
+        this.update();
     }
 
     onNext() {
         const profileName = document.querySelector('#profile-name').value;
-        if (profileName.length === 0)
+        if (profileName.length === 0) {
             return;
+        }
 
         Storage.set('searchProfile', profileName);
 
-        this.emit('search-profile-request', { phrase: profileName });
+        this.emit('confirm-profile-request', { phrase: profileName });
     }
 
     onBack() {
-        Storage.remove('searchProfile');
-
         this.emit('search-profile-hide');
-        this.emit(`activities-show`);
+        this.emit('start-page-request');
     }
 
     addEvents() {
@@ -113,6 +82,13 @@ class SearchProfile extends Field {
             const searchProfileBtn = document.querySelector('#search-profile-btn');
             searchProfileBtn.classList.remove('is-disabled');
             searchProfileBtn.classList.add('is-primary');
+        }
+
+        const hasProfile = !!Storage.get('profile');
+        if (hasProfile) {
+            const backBtn = document.querySelector('#go-back-btn');
+            backBtn.classList.remove('is-disabled');
+            backBtn.removeAttribute('hidden');
         }
     }
 

@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Tuple
 
 import tornado.web
-from src.entrypoints.exceptions import JobNOtFound, MessageDecodeError
+from src.entrypoints.exceptions import MessageDecodeError
 from src.entrypoints.services import JobService
 from src.entrypoints.web.handlers.websocket import WebSocketHandler
 from src.entrypoints.web.mixin import JsonSchemaMixin
@@ -28,18 +28,22 @@ class JobResultHandler(tornado.web.RequestHandler, JsonSchemaMixin):
 
         if not client:
             logger.error(f"Client with id {client_id} not found.")
+            self.set_status(404)
             return
 
         try:
             payload = self.decode_message(self.request.body)
         except MessageDecodeError as e:
             logger.error(f"Error decoding message: {e!s}")
+            self.set_status(400)
             return
 
         job_id = payload["job_id"]
 
         if not self.job_service.exists(job_id):
-            raise JobNOtFound()
+            logger.error(f"Job with id {job_id} not found.")
+            self.set_status(404)
+            return
 
         operation = self.job_service.operation(job_id)
 

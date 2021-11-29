@@ -8,7 +8,8 @@ import tornado.web
 import tornado.websocket
 
 from src.config import Config
-from src.entrypoints.web.handlers import JobResultHandler, LatestBooksSearchHandler, ProfileHandler, WebSocketHandler
+from src.entrypoints.web.handlers import (JobResultHandler, LatestBooksSearchHandler, ProfileHandler,
+                                          ShelvesHandler, WebSocketHandler)
 
 config = Config()
 
@@ -24,6 +25,7 @@ def run_app(port: int) -> None:
             WebSocketHandler.route(),
             JobResultHandler.route(),
             ProfileHandler.route(),
+            ShelvesHandler.route(),
             LatestBooksSearchHandler.route(),
         ],
     )

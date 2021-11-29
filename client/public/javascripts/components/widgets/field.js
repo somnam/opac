@@ -1,4 +1,5 @@
-import {EventEmitter} from '../../mixin/event_emitter.js';
+import { EventEmitter } from '../../mixin/event_emitter.js';
+import { NotImplementedError, TemplateNotDefinedError } from '../../app/exception.js';
 
 
 class Field {
@@ -8,12 +9,46 @@ class Field {
 
     constructor(parentSelector) {
         this.parent = document.querySelector(parentSelector || '#app-form');
+
+        this.on(`${this}-request`, (message) => this.onRequest(message));
+
+        this.on(`${this}-data`, () => this.onData());
+
+        this.on(`${this}-show`, () => this.onShow());
+
+        this.on(`${this}-hide`, () => this.onHide());
+
+        this.on(`${this}-next`, () => this.onNext());
+
+        this.on(`${this}-back`, () => this.onBack());
     }
+
+    static toString() { throw new NotImplementedError() }
+
+    toString() { return this.__proto__.constructor.toString() }
+
+    onRequest(message = null) { this.emit(`${this}-data`) }
+
+    onData() { this.emit(`${this}-show`) }
+
+    onShow() {
+        this.render()
+            .then(() => this.onRender())
+            .catch(error => console.error(error));
+    }
+
+    onRender() { }
+
+    onHide() { this.remove() }
+
+    onNext() { }
+
+    onBack() { }
 
     render() {
         return new Promise((resolve, reject) => {
             if (!this.template)
-                reject(new Error("Field template not defined."));
+                reject(new TemplateNotDefinedError());
 
             this.remove();
 

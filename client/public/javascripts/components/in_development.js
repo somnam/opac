@@ -1,5 +1,4 @@
 import Field from './widgets/field.js';
-import Storage from '../app/storage.js';
 
 
 class InDevelopment extends Field {
@@ -22,27 +21,17 @@ class InDevelopment extends Field {
         super();
 
         this.transport = transport;
-
-        this.on('in-development-show', () => this.onShow());
-
-        this.on('in-development-hide', () => this.remove());
-
-        this.on('in-development-back', () => this.onBack());
     }
 
     static toString() { return 'in-development' }
 
-    onShow() {
-        this.render()
-            .then(() => this.addEvents())
-            .catch(error => console.error(error));
+    onRender() {
+        this.addEvents();
     }
 
     onBack() {
-      Storage.removeAll();
-
-      this.emit('in-development-hide');
-      this.emit(`catalogs-show`);
+        this.emit('in-development-hide');
+        this.emit(`start-page-request`);
     }
 
     addEvents() {

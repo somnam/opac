@@ -19,10 +19,10 @@ class RadioListState {
 }
 
 export default class RadioList {
-    constructor(collectionName, optionName) {
-        this.id = `${optionName}-list`;
+    constructor(collectionName, optionName, containerId) {
         this.name = optionName;
         this.state = new RadioListState(collectionName, optionName);
+        this.containerId = containerId || `${optionName}-list`;
     }
 
     makeOptions() {
@@ -57,7 +57,7 @@ export default class RadioList {
     makeContainer() {
         let container = document.createElement('div');
         container.setAttribute('class', 'item');
-        container.setAttribute('id', this.id);
+        container.setAttribute('id', this.containerId);
         return container;
     }
 
@@ -65,7 +65,7 @@ export default class RadioList {
         const container = this.makeContainer();
         container.appendChild(this.makeOptions());
 
-        const currentContainer = document.querySelector(`#${this.id}`);
+        const currentContainer = document.querySelector(`#${this.containerId}`);
         currentContainer.replaceWith(container);
     }
 

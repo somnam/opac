@@ -23,6 +23,6 @@ class SearchResult(BaseEntity):
             self.next_page = self.page + 1
 
         # Reduce items to 'per_gage' entries from current page.
-        if self.total > self.per_page:
+        if len(self.items) > self.per_page:
             start_idx = (self.page - 1) * self.per_page
             self.items = self.items[start_idx:start_idx + self.per_page]

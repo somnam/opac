@@ -27,19 +27,7 @@ export default class IncludeLatestBooksShelves extends Field {
 
         this.transport = transport;
 
-        this.on('include-latest-book-shelves-show', () => this.onShow());
-
-        this.on('include-latest-book-shelves-hide', () => this.remove());
-
         this.on('include-latest-book-shelves-paginate', page => this.onPaginate(page));
-
-        this.on(`include-latest-book-shelves-request`, message => this.onRequest(message));
-
-        this.on(`include-latest-book-shelves-data`, () => this.onData());
-
-        this.on('include-latest-book-shelves-next', () => this.onNext());
-
-        this.on('include-latest-book-shelves-back', () => this.onBack());
     }
 
     static toString() { return 'include-latest-book-shelves' }
@@ -50,25 +38,16 @@ export default class IncludeLatestBooksShelves extends Field {
             .catch(error => console.error(error));
     }
 
-    onData() {
-        this.emit('confirm-profile-hide');
-        this.emit('include-latest-book-shelves-show');
-    }
+    onRender() {
+        this.checkboxList = new CheckboxList('shelves', 'include-latest-book-shelves');
 
-    onShow() {
-        this.render()
-            .then(() => {
-                this.checkboxList = new CheckboxList('shelves', 'include-latest-book-shelves');
+        this.pager = new Pager(
+            'shelf-list-container',
+            'include-latest-book-shelves-paginate',
+        );
 
-                this.pager = new Pager(
-                    'shelf-list-container',
-                    'include-latest-book-shelves-paginate',
-                );
-
-                this.addEvents();
-                this.update();
-            })
-            .catch(error => console.error(error));
+        this.addEvents();
+        this.update();
     }
 
     onNext() {
@@ -84,7 +63,7 @@ export default class IncludeLatestBooksShelves extends Field {
         Storage.remove('include-latest-book-shelves', 'shelves');
 
         this.emit('include-latest-book-shelves-hide');
-        this.emit('confirm-profile-show');
+        this.emit('activities-request');
     }
 
     update() {

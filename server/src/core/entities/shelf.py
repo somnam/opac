@@ -13,7 +13,7 @@ class Shelf(BaseEntity):
     name: str
     value: str
     pages: int = 1
-    refreshed_at: Optional[datetime] = None
+    refreshed_at: Optional[datetime] = field(default=None, compare=False)
 
     def __post_init__(self) -> None:
         self.shelf_id = self.id_from_attributes(self.profile_id, self.value)

@@ -18,13 +18,26 @@ export default class Transport {
         });
     }
 
+    get(endpoint, params) {
+        const url = new URL(`${this.http_schema}://${this.host}:${this.port}/${endpoint}`);
+
+        if (params !== undefined && params !== null) {
+            url.search = new URLSearchParams(params).toString();
+        }
+
+        return fetch(url, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        })
+    }
+
     post(endpoint, message) {
         let body = null;
         if (message !== undefined && message !== null) {
             body = JSON.stringify(message);
         }
 
-        const url = `${this.http_schema}://${this.host}:${this.port}/${endpoint}`;
+        const url = new URL(`${this.http_schema}://${this.host}:${this.port}/${endpoint}`);
 
         return fetch(url, {
             method: "POST",

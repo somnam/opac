@@ -31,7 +31,7 @@ RUN pip install --user pip-tools &&\
     rm -rf /home/worker/.cache
 
 # Copy application files
-COPY --chown=worker:worker ./server/ ./etc/worker/ /home/worker/
+COPY --chown=worker:worker ./server/ ./etc/worker/supervisord.conf /home/worker/
 
 # Expose port
 EXPOSE 8888

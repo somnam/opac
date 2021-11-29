@@ -19,6 +19,10 @@ class ShelfRepositoryInterface(BaseRepository):
         raise NotImplementedError
 
     @abstractmethod
+    def update(self, shelf: Shelf) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     def update_all(self, shelves: List[Shelf]) -> None:
         raise NotImplementedError
 
