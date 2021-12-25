@@ -1,17 +1,14 @@
-import logging
 from typing import Any, Dict, Tuple
 
 import tornado.web
+
 from src.core.adapters import payload_to_profile
 from src.core.usecases import PostProfileUseCase
 from src.dataproviders.repositories.data import DataRepository
-from src.entrypoints.exceptions import MessageDecodeError
-from src.entrypoints.web.mixin import JsonSchemaMixin
-
-logger = logging.getLogger(__name__)
+from src.entrypoints.web.mixin import ErrorHandlerMixin, JsonSchemaMixin
 
 
-class ProfileHandler(tornado.web.RequestHandler, JsonSchemaMixin):
+class ProfileHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandlerMixin):
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
         # route / handler / kwargs
@@ -33,15 +30,11 @@ class ProfileHandler(tornado.web.RequestHandler, JsonSchemaMixin):
             "required": ["name", "value"],
         }
 
-        self.use_case = PostProfileUseCase(DataRepository())
-
     def post(self, *args: Any, **kwargs: Any) -> None:
 
-        try:
+        with self.handle_error():
             payload = self.decode_message(self.request.body)
-        except MessageDecodeError as e:
-            logger.error(f"Error decoding message: {e!s}")
-            self.set_status(400)
-            return
 
-        self.use_case.execute(payload_to_profile(payload))
+            use_case = PostProfileUseCase(DataRepository())
+
+            use_case.execute(payload_to_profile(payload))

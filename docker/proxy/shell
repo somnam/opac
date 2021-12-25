@@ -1,7 +1,0 @@
-#!/bin/bash
-
-source ./docker/utils.sh
-
-
-check_dependencies
-docker exec -it opac-proxy sh -l

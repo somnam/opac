@@ -25,7 +25,7 @@ USER server
 ENV PATH /home/server/.local/bin:$PATH
 
 # Copy rc files
-COPY --chown=server:server ./docker/.bash_aliases ./docker/.vimrc /home/server/
+COPY --chown=server:server ./docker/common/.bash_aliases ./docker/common/.vimrc /home/server/
 
 # Copy requirements file
 COPY --chown=server:server ./server/setup.py ./server/setup.cfg /home/server/

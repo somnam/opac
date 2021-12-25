@@ -8,7 +8,7 @@ host = opac-broker
 
 [rq]
 queues = ["high", "default", "low"]
-result_ttl = 600
+result_ttl = 180
 
 
 [db:handler]

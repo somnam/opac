@@ -3,7 +3,7 @@ import Components from './app/components.js';
 import State from './app/state.js';
 
 
-class WebSocketApp {
+class App {
     constructor() {
         (new Transport('localhost', '8888', false))
             .then(transport => {
@@ -17,4 +17,4 @@ class WebSocketApp {
 }
 
 
-document.addEventListener("DOMContentLoaded", () => new WebSocketApp());
+document.addEventListener("DOMContentLoaded", () => new App());

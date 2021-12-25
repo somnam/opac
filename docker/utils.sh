@@ -1,90 +1,110 @@
 #!/bin/bash
 
-check_dependencies ()
+check_docker ()
 {
     set -e
-    [[ -x "$(which docker)" ]] || (echo -e "\e[33mDocker isn't installed\e[0m" && exit 1)
+
+    [[ -x "$(which docker)" ]] || (echo -e "\e[33mDocker not installed\e[0m" && exit 1)
+
     set +e
 }
 
 
-create_docker_network ()
+docker_compose_path ()
 {
-    if [[ ! "$(docker network ls -q -f name=opac-net)" ]]; then
-        if docker network create --driver bridge opac-net 2>/dev/null; then
-            echo -e "\e[32mDocker 'opac-net' network created\e[0m"
-        fi
-    fi
+    echo "$HOME/.docker/cli-plugins"
 }
 
 
-build_docker_image ()
+docker_compose_file_path ()
 {
-    echo -e "\e[36mBuilding docker image\e[0m"
+    echo "$(docker_compose_path)/docker-compose"
+}
 
-    local self_path=$(dirname "$0")
-    local dockerfile_path=$(realpath "$self_path/Dockerfile")
+
+docker_compose_installed ()
+{
     set -e
-    [[ -f "$dockerfile_path" ]] || (echo -e "\e[33mDockerfile doesn't exist\e[0m" && exit 1)
+
+    local compose_installed=false
+    local compose_path=$(docker_compose_file_path)
+
+    [[ -f "$compose_path" ]] && compose_installed=true
+
+    echo "$compose_installed"
+
     set +e
-
-    docker build --quiet --tag $1 --file $dockerfile_path . 1>/dev/null
-    docker image prune -f 1>/dev/null
 }
 
 
-check_running_container ()
+docker_compose_works ()
 {
-    sleep 2
+    local compose_works=false
+    local docker=$(which docker)
 
-    if [[ "$(docker ps -q -f name=$1)" ]];
-    then
-        echo -e "\e[32mContainer '$1' started\e[0m"
-    else
-        local code=$?
-        echo -e "\e[31mContainer '$1' not started\e[0m"
-        docker logs "$1"
-        exit $code
-    fi
+    $docker compose &>/dev/null
+
+    [[ $? -eq 0 ]] && compose_works=true
+
+    echo "$compose_works"
 }
 
 
-stop_container ()
+install_docker_compose ()
 {
-    if [[ "$(docker ps -q -f name=$1)" ]]; then
-        docker stop -t 0 $1
-    fi
-    docker container prune -f 1>/dev/null
+    set -e
+
+    local wget=$(which wget)
+    local grep=$(which grep)
+    local cut=$(which cut)
+
+    local release_url="https://api.github.com/repos/docker/compose/releases/latest"
+
+    local download_url=$(
+        $wget -q -O- $release_url \
+            | $grep "browser_download_url.*docker-compose-linux-x86_64[^\.]" \
+            | $cut -d \" -f 4
+    )
+
+    [[ -n $download_url ]] || (echo -e "\e[33mDocker compose download url not found\e[0m" && exit 1)
+
+    local mkdir=$(which mkdir)
+    local chmod=$(which chmod)
+
+    echo -e "\e[36mDownloading docker compose\e[0m"
+
+    $mkdir -p $(docker_compose_path) && \
+        $wget -q $download_url -O $(docker_compose_file_path) && \
+        $chmod u+x $(docker_compose_file_path)
+
+    set +e
+}
+
+
+check_docker_compose ()
+{
+    set -e
+
+    [[ $(docker_compose_installed) = true ]] || (echo -e "\e[33mDocker compose not installed\e[0m" && exit 1)
+
+    [[ $(docker_compose_works) = true ]] || (echo -e "\e[33mDocker compose not working\e[0m" && exit 1)
+
+    set +e
 }
 
 
 create_config_file ()
 {
+    set -e
+
+    local cp=$(which cp)
     local config_path=$(realpath "$1/config.ini")
     local config_example_path=$(realpath "$1/config.ini.example")
+
     if [[ ! -f "$config_path" && -f "$config_example_path" ]]; then
         echo -e "\e[36mCreating config file\e[0m"
-        cp $config_example_path $config_path;
+        $cp $config_example_path $config_path;
     fi
-}
 
-
-exec_command ()
-{
-    if [[ "$(docker ps -q -f name=$1)" ]]; then
-        echo -e "\e[36mRunning command '$2'\e[0m"
-        docker exec -it "$1" bash -l -c "$2"
-    fi
-}
-
-
-run_tests ()
-{
-    echo -e "\e[36mStarting $1 tests\e[0m"
-
-    docker run \
-        --rm \
-        --name "$1-tests" \
-        "$1:latest" \
-        python setup.py pytest
+    set +e
 }

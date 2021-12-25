@@ -18,7 +18,7 @@ USER worker
 ENV PATH /home/worker/.local/bin:$PATH
 
 # Copy rc files
-COPY --chown=worker:worker ./docker/.bash_aliases ./docker/.vimrc /home/worker/
+COPY --chown=worker:worker ./docker/common/.bash_aliases ./docker/common/.vimrc /home/worker/
 
 # Copy requirements file
 COPY --chown=worker:worker ./server/setup.py ./server/setup.cfg /home/worker/
@@ -32,9 +32,6 @@ RUN pip install --user pip-tools &&\
 
 # Copy application files
 COPY --chown=worker:worker ./server/ ./etc/worker/supervisord.conf /home/worker/
-
-# Expose port
-EXPOSE 8888
 
 # Run app.
 # Run supervisor

@@ -1,10 +1,25 @@
-class MessageDecodeError(Exception):
+from src.core.exceptions import NotFound, BadRequest
+
+
+class MessageDecodeError(BadRequest):
     pass
 
 
-class MessageSchemaNotDefined(Exception):
+class MessageSchemaError(BadRequest):
     pass
 
 
-class JobNOtFound(Exception):
+class MessageSchemaNotFound(NotFound):
+    pass
+
+
+class JobNotFound(NotFound):
+    pass
+
+
+class ClientNotFound(NotFound):
+    pass
+
+
+class OperationNotFound(NotFound):
     pass

@@ -6,6 +6,7 @@ from datetime import date
 import aiohttp
 from src.config import Config
 from src.core.entities import Book, ShelfItem, Profile, Shelf
+from src.core.exceptions import BadGateway
 from src.core.gateways import ShelfGatewayInterface
 from src.dataproviders.gateways.base import bs4_scope, aio_session
 
@@ -31,8 +32,7 @@ class ShelfGateway(ShelfGatewayInterface):
                     search_results = await response.read()
 
         except aiohttp.ClientError as e:
-            logger.error(f"Fetching shelves failed: {e}")
-            return []
+            raise BadGateway(f"Fetching shelves failed: {e}")
 
         with bs4_scope(search_results) as parsed_results:
             shelves_selector = 'ul.filtr__wrapItems input[name="shelfs[]"]'

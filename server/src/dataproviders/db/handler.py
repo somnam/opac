@@ -42,12 +42,15 @@ class DbHandler:
         try:
             yield self.session
             self.session.commit()
+
         except (DBAPIError, SQLAlchemyError, InterfaceError, OperationalError) as e:
             self.session.rollback()
             raise DatabaseError() from e
+
         except Exception:
             self.session.rollback()
             raise
+
         finally:
             self.session.close()
             delattr(self, "session")

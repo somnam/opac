@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import aiohttp
 from src.config import Config
 from src.dataproviders.gateways.base import bs4_scope
+from src.core.exceptions import BadGateway
 from src.core.gateways import ProfileGatewayInterface
 from src.core.entities import Profile, ProfileSearchParams, ProfileSearchResult
 
@@ -30,8 +31,7 @@ class ProfileGateway(ProfileGatewayInterface):
                     search_count = response_json["data"]["count"]
 
         except aiohttp.ClientError as e:
-            logger.error(f"Fetching book urls on page failed: {e}")
-            return ProfileSearchResult()
+            raise BadGateway(f"Fetching book urls on page failed: {e}")
 
         with bs4_scope(search_results) as parsed_results:
             profiles: List[Profile] = []

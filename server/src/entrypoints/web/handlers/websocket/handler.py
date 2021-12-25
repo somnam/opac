@@ -6,16 +6,16 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-from src.entrypoints.exceptions import MessageDecodeError
+from src.entrypoints.exceptions import OperationNotFound
 from src.entrypoints.web.handlers.websocket.base import WebSocketOperationInterface
 from src.entrypoints.web.handlers.websocket.profile_search import ProfileSearchOperation
 from src.entrypoints.web.handlers.websocket.shelves import ShelvesOperation
-from src.entrypoints.web.mixin import JsonSchemaMixin
+from src.entrypoints.web.mixin import JsonSchemaMixin, ErrorHandlerMixin
 
 logger = logging.getLogger(__name__)
 
 
-class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin):
+class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, ErrorHandlerMixin):
     operations: List[Type[WebSocketOperationInterface]] = [
         ProfileSearchOperation,
         ShelvesOperation,
@@ -74,28 +74,27 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin):
     async def on_message(self, message: Union[str, bytes]) -> None:
         logger.info(f"Got message: {message!r}")
 
-        try:
+        with self.handle_error():
             decoded_message = self.decode_message(message)
-        except MessageDecodeError as e:
-            logger.error(f"Error decoding message: {e!s}")
-            return
 
-        operation_name = decoded_message["operation"]
+            operation_name = decoded_message["operation"]
 
-        operation = self.operations_map.get(operation_name)
+            operation = self.operations_map.get(operation_name)
 
-        if not operation:
-            logger.error(f"Operation {decoded_message['operation']} not defined.")
-            return
+            if not operation:
+                raise OperationNotFound(f"Operation {operation_name} not defined.")
 
-        operation.client_id = self.client_id
+            operation.client_id = self.client_id
 
-        response = await operation.execute(decoded_message["payload"])
+            response = await operation.execute(decoded_message["payload"])
 
-        if response is not None:
-            logger.info(f"Return message: {response}")
+            if response is not None:
+                logger.info(f"Return message: {response}")
 
-            self.write_message(self.encode_message({"operation": operation_name, "payload": response}))
+                self.write_message(self.encode_message({
+                    "operation": operation_name,
+                    "payload": response,
+                }))
 
     def on_close(self) -> None:
         logger.info("Closing connection")

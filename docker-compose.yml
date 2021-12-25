@@ -1,0 +1,70 @@
+---
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile
+    networks:
+      - opac-net-public
+      - opac-net-private
+    hostname: opac-server
+    container_name: opac-server
+    volumes:
+      - ./var:/home/server/var
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/worker/Dockerfile
+    depends_on:
+      - broker
+    networks:
+      - opac-net-private
+      - opac-net-public
+    hostname: opac-worker
+    container_name: opac-worker
+    volumes:
+      - ./var:/home/worker/var
+
+  broker:
+    build:
+      context: .
+      dockerfile: ./docker/broker/Dockerfile
+    networks:
+      - opac-net-private
+    hostname: opac-broker
+    container_name: opac-broker
+
+  client:
+    build:
+      context: .
+      dockerfile: ./docker/client/Dockerfile
+    networks:
+      - opac-net-public
+    hostname: opac-client
+    container_name: opac-client
+
+  proxy:
+    build:
+      context: .
+      dockerfile: ./docker/proxy/Dockerfile
+    depends_on:
+      - server
+      - client
+    ports:
+      - 8080:8080
+      - 8888:8888
+    networks:
+      - opac-net-public
+    hostname: opac-proxy
+    container_name: opac-proxy
+
+
+networks:
+
+  opac-net-public:
+    internal: false
+
+  opac-net-private:
+    internal: true

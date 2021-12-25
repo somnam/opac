@@ -1,7 +1,0 @@
-#!/bin/bash
-
-source ./docker/utils.sh
-
-
-check_dependencies
-stop_container "opac-proxy"

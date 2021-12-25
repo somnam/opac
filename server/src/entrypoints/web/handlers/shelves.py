@@ -1,17 +1,13 @@
-import logging
 from typing import Any, Dict, Tuple
 
 import tornado.web
 
 from src.core.usecases import GetProfileShelvesUseCase
 from src.dataproviders.repositories.data import DataRepository
-from src.entrypoints.exceptions import MessageDecodeError
-from src.entrypoints.web.mixin import JsonSchemaMixin
-
-logger = logging.getLogger(__name__)
+from src.entrypoints.web.mixin import ErrorHandlerMixin, JsonSchemaMixin
 
 
-class ShelvesHandler(tornado.web.RequestHandler, JsonSchemaMixin):
+class ShelvesHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandlerMixin):
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
         # route / handler / kwargs
@@ -30,16 +26,14 @@ class ShelvesHandler(tornado.web.RequestHandler, JsonSchemaMixin):
             "required": ["profile_id"],
         }
 
-        self.use_case = GetProfileShelvesUseCase(DataRepository())
-
     def get(self, *args: Any, **kwargs: Any) -> None:
-        try:
+        with self.handle_error():
             self.validate_message(kwargs)
-        except MessageDecodeError as e:
-            logger.error(f"Error decoding message: {e!s}")
-            self.set_status(400)
-            return
 
-        shelves = self.use_case.execute(kwargs["profile_id"])
+            use_case = GetProfileShelvesUseCase(DataRepository())
 
-        self.write(self.encode_message({"items": [shelf.to_dict() for shelf in shelves]}))
+            shelves = use_case.execute(kwargs["profile_id"])
+
+            self.write(self.encode_message({
+                "items": [shelf.to_dict() for shelf in shelves],
+            }))

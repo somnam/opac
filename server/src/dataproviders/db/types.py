@@ -1,22 +1,7 @@
-# import json
-
 import sqlalchemy as sa
 import sqlalchemy_utils as su
 
 from sqlalchemy import Integer
-
-# class JsonType(sa.TypeDecorator):
-#     """Enables JSON storage for sqlite with no extensions."""
-#     impl = sa.Text
-
-#     def process_bind_param(self, value, dialect):
-#         return json.dumps(value)
-
-#     def process_result_value(self, value, dialect):
-#         try:
-#             return json.loads(value)
-#         except (ValueError, TypeError):
-#             return None
 
 
 class Types:
