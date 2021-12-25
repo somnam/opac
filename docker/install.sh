@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./docker/utils.sh
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
 
 main ()
