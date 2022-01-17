@@ -13,6 +13,14 @@ services:
     volumes:
       - ./var:/home/server/var
 
+  schema:
+    image: opac_server:latest
+    depends_on:
+      - server
+    volumes:
+      - ./var:/home/server/var
+    command: bash -l -c "create_schema"
+
   worker:
     build:
       context: .

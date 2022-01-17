@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class WebSocketOperationInterface(ABC):
+class IWebSocketOperation(ABC):
     client_id: None
 
     @classmethod

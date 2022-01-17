@@ -6,9 +6,9 @@ from typing import Generator
 from sqlalchemy import engine_from_config
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
-from sqlalchemy.exc import (DBAPIError, InterfaceError, OperationalError,
-                            SQLAlchemyError)
+from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from sqlalchemy.orm import scoped_session, sessionmaker
+
 from src.config import Config
 from src.core.exceptions import DatabaseError
 from src.dataproviders.db.model import Model
@@ -43,7 +43,7 @@ class DbHandler:
             yield self.session
             self.session.commit()
 
-        except (DBAPIError, SQLAlchemyError, InterfaceError, OperationalError) as e:
+        except (DBAPIError, SQLAlchemyError) as e:
             self.session.rollback()
             raise DatabaseError() from e
 

@@ -1,6 +1,7 @@
 import Field from './widgets/field.js';
 import ButtonGroup from './widgets/button_group.js';
 import Storage from '../app/storage.js';
+import { ProfileNotFoundError, InternalServerError } from '../app/exception.js';
 
 
 class StartPage extends Field {
@@ -34,21 +35,32 @@ class StartPage extends Field {
 
     static toString() { return 'start-page' }
 
-    onRequest() {
+    onData() {
         if (!Storage.get('profile')) {
             this.emit('search-profile-request');
-        } else {
-            super.onRequest();
+            return;
         }
-    }
 
-    onData() {
         const profile = Storage.getDecoded('profile');
 
-        this.transport.get(`profile/${profile.profile_id}/shelves`)
-            .then(response => response.json())
+        this.transport.get(`profile/${profile.uuid}/shelves`)
+            .then(response => {
+                if (response.status === 404) {
+                    throw new ProfileNotFoundError();
+                } else if (!response.ok) {
+                    throw new InternalServerError();
+                }
+
+                return response.json();
+            })
             .then(result => this.onShelves(result))
-            .catch(error => console.error(error));
+            .catch(error => {
+                if (error.code && error.code === 404) {
+                    this.emit('search-profile-request');
+                } else {
+                    console.error(error);
+                }
+            });
     }
 
     onShelves(result) {

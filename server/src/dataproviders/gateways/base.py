@@ -1,7 +1,9 @@
-import bs4
+from contextlib import asynccontextmanager, contextmanager
+from typing import AsyncIterator, Generator, Union
+
 import aiohttp
-from typing import Union, Generator, AsyncIterator
-from contextlib import contextmanager, asynccontextmanager
+import bs4
+
 from src.config import Config
 
 config = Config()

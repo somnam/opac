@@ -1,6 +1,6 @@
-from typing import Sequence
+from typing import Iterator
 
-from src.core.entities import BaseEntity, CollateResult
+from src.core.entities import Collate, Entity
 from src.dataproviders.db import DbHandler
 
 
@@ -17,7 +17,7 @@ class DbHandlerMixin:
 
 
 class CollateMixin:
-    def collate(self, items: Sequence[BaseEntity], current_items: Sequence[BaseEntity]) -> CollateResult:
+    def collate(self, items: Iterator[Entity], current_items: Iterator[Entity]) -> Collate:
 
         items_set = set(items)
 
@@ -27,14 +27,13 @@ class CollateMixin:
 
         deleted_items = current_items_set.difference(items_set)
 
-        items_map = {item: item for item in items}
+        common_items = current_items_set.intersection(items_set)
 
-        updated_items = {
-            item for item in current_items_set.intersection(items_set)
-            if item != items_map[item]
-        }
+        items_map = {item: item for item in items_set}
 
-        return CollateResult(
+        updated_items = {item for item in common_items if item != items_map[item]}
+
+        return Collate(
             new=list(new_items),
             updated=list(updated_items),
             deleted=list(deleted_items),

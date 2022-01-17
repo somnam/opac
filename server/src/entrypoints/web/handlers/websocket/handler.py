@@ -7,7 +7,7 @@ import tornado.web
 import tornado.websocket
 
 from src.entrypoints.exceptions import OperationNotFound
-from src.entrypoints.web.handlers.websocket.base import WebSocketOperationInterface
+from src.entrypoints.web.handlers.websocket.base import IWebSocketOperation
 from src.entrypoints.web.handlers.websocket.profile_search import ProfileSearchOperation
 from src.entrypoints.web.handlers.websocket.shelves import ShelvesOperation
 from src.entrypoints.web.mixin import JsonSchemaMixin, ErrorHandlerMixin
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, ErrorHandlerMixin):
-    operations: List[Type[WebSocketOperationInterface]] = [
+    operations: List[Type[IWebSocketOperation]] = [
         ProfileSearchOperation,
         ShelvesOperation,
     ]

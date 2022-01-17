@@ -1,24 +1,21 @@
-from typing import List
-from src.core.entities.base import BaseEntity
-from src.core.entities.search_result import SearchResult
 from dataclasses import dataclass, field
+from typing import List
+
+from src.core.entities.entity import Entity
+from src.core.entities.search_result import SearchResult
 
 
-@dataclass
-class Profile(BaseEntity):
-    profile_id: str = field(init=False)
+@dataclass(eq=False)
+class Profile(Entity):
     name: str
     value: str
 
     def __post_init__(self) -> None:
-        self.profile_id = self.id_from_attributes(self.name, self.value)
-
-    def __hash__(self) -> int:
-        return hash(self.profile_id)
+        self.uuid = self.get_uuid(self.name, self.value)
 
 
 @dataclass
-class ProfileSearchParams(BaseEntity):
+class ProfileSearchParams(Entity):
     phrase: str
     page: int = 1
 

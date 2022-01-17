@@ -5,6 +5,7 @@ from abc import abstractmethod
 from contextlib import contextmanager
 from json import JSONEncoder
 from typing import Any, Dict, Generator, Optional, Union
+from uuid import UUID
 
 import jsonschema
 
@@ -19,6 +20,9 @@ class DefaultEncoder(JSONEncoder):
 
         if isinstance(object_, (datetime.date, datetime.datetime)):
             return object_.isoformat()
+
+        elif isinstance(object_, UUID):
+            return str(object_)
 
         return super().default(object_)
 

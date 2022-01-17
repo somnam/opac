@@ -1,5 +1,5 @@
 import { EventEmitter } from '../../mixin/event_emitter.js';
-import { NotImplementedError, TemplateNotDefinedError } from '../../app/exception.js';
+import { NotImplementedError } from '../../app/exception.js';
 
 
 class Field {
@@ -27,7 +27,7 @@ class Field {
 
     toString() { return this.__proto__.constructor.toString() }
 
-    onRequest(message = null) { this.emit(`${this}-data`) }
+    onRequest(message = null) { this.emit(`${this}-data`, message); }
 
     onData() { this.emit(`${this}-show`) }
 
@@ -48,7 +48,7 @@ class Field {
     render() {
         return new Promise((resolve, reject) => {
             if (!this.template)
-                reject(new TemplateNotDefinedError());
+                reject(new NotImplementedError());
 
             this.remove();
 

@@ -1,26 +1,26 @@
 import asyncio
 import logging
-from typing import List, Optional
+from typing import List, Iterator, Optional
 from datetime import date
 
 import aiohttp
 from src.config import Config
 from src.core.entities import Book, ShelfItem, Profile, Shelf
 from src.core.exceptions import BadGateway
-from src.core.gateways import ShelfGatewayInterface
+from src.core.gateways import IShelfGateway
 from src.dataproviders.gateways.base import bs4_scope, aio_session
 
 config = Config()
 logger = logging.getLogger(__name__)
 
 
-class ShelfGateway(ShelfGatewayInterface):
+class ShelfGateway(IShelfGateway):
     _url = config.get('lc', 'url')
     _library_url = config.get('lc', 'profile_library_url')
     _shelf_url: str = config.get('lc', 'profile_shelf_url')
     _items_url: str = config.get('lc', 'shelf_items_url')
 
-    async def search(self, profile: Profile) -> List[Shelf]:
+    async def search(self, profile: Profile) -> Iterator[Shelf]:
         url: str = self._library_url.format(
             profile_value=profile.value,
             profile_name=profile.name,
@@ -39,27 +39,28 @@ class ShelfGateway(ShelfGatewayInterface):
             shelves_tags = parsed_results.select(shelves_selector)
 
             shelf_tasks = [
-                self._set_shelf_pages(profile, Shelf(
+                self._shelf(
+                    profile=profile,
                     name=shelf_tag['data-shelf-name'],
                     value=shelf_tag['value'],
-                    profile_id=profile.profile_id,
-                ))
+                )
                 for shelf_tag in shelves_tags
             ]
 
         shelves: List[Shelf] = await asyncio.gather(*shelf_tasks)
 
-        return shelves
+        return iter(shelves)
 
-    async def _set_shelf_pages(self, profile: Profile, shelf: Shelf) -> Shelf:
+    async def _shelf(self, profile: Profile, name: str, value: str) -> Shelf:
+        shelf = Shelf(profile_uuid=profile.uuid, name=name, value=value)
+
+        url = self._shelf_url.format(
+            shelf_id=shelf.value,
+            profile_value=profile.value,
+            profile_name=profile.name,
+        )
+
         async with aio_session() as session:
-
-            url = self._shelf_url.format(
-                shelf_id=shelf.value,
-                profile_value=profile.value,
-                profile_name=profile.name,
-            )
-
             async with session.get(url) as response:
                 content = await response.read()
 
@@ -69,23 +70,24 @@ class ShelfGateway(ShelfGatewayInterface):
                         '> li.page-item:nth-last-child(2)'
                         '> a.page-link'
                     )
-                    shelf.pages = int(pager_tag['data-pager-page']) if pager_tag else 1
+                    if pager_tag:
+                        shelf.pages = int(pager_tag['data-pager-page'])
 
         return shelf
 
-    async def items(self, profile: Profile, shelf: Shelf) -> List[ShelfItem]:
+    async def items(self, profile: Profile, shelf: Shelf) -> Iterator[ShelfItem]:
         item_urls = await self._item_urls(profile, shelf)
 
         if not item_urls:
             logger.warning(f'No items found on shelf {shelf.name}')
-            return []
+            return iter([])
 
         async with aio_session() as session:
             item_tasks = [self._shelf_item(session, shelf, url) for url in item_urls]
 
             shelf_items: List[Optional[ShelfItem]] = await asyncio.gather(*item_tasks)
 
-        return [shelf_item for shelf_item in shelf_items if shelf_item is not None]
+        return iter([shelf_item for shelf_item in shelf_items if shelf_item])
 
     async def _item_urls(self, profile: Profile, shelf: Shelf) -> List[str]:
         async with aio_session() as session:
@@ -176,8 +178,8 @@ class ShelfGateway(ShelfGatewayInterface):
                 book = Book(title=title, author=author, isbn=isbn)
 
                 return ShelfItem(
-                    book_id=book.book_id,
-                    shelf_id=shelf.shelf_id,
+                    book_uuid=book.uuid,
+                    shelf_uuid=shelf.uuid,
                     title=title,
                     author=author,
                     isbn=isbn,

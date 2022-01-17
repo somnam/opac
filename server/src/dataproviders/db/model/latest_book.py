@@ -8,9 +8,8 @@ class LatestBookModel(Model):
 
     _pk = Column(Model.BIGINT, primary_key=True)
 
-    catalog_id = Column(Model.EXTERNAL_ID, nullable=False, index=True)
-    book_id = Column(Model.MD5, nullable=False, index=True)
-    url_id = Column(Model.MD5, nullable=False, index=True)
+    uuid = Column(Model.UUID, nullable=False, index=True)
+    catalog_uuid = Column(Model.UUID, nullable=False, index=True)
 
     title = Column(Model.VARCHAR(512), nullable=False)
     author = Column(Model.VARCHAR(512), nullable=False)

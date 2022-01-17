@@ -33,7 +33,9 @@ class State {
             IncludeLatestBooksShelves,
             ExcludeeLatestBooksShelves,
         ].forEach((component) =>{
-            this.on(`${component}-request`, () => this.current = `${component}`);
+            this.on(`${component}-request`, () => {
+                this.current = `${component}`;
+            });
         });
     }
 

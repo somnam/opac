@@ -1,4 +1,5 @@
 from typing import Any, Dict, Tuple
+from uuid import UUID
 
 import tornado.web
 
@@ -11,29 +12,28 @@ class ShelvesHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandlerMi
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
         # route / handler / kwargs
-        return (r"/profile/(?P<profile_id>\w+)/shelves", cls, kwargs)
+        return (r"/profile/(?P<profile_uuid>[^\/]+)/shelves", cls, kwargs)
 
     def initialize(self) -> None:
         self.message_schema = {
             "type": "object",
             "properties": {
-                "profile_id": {
+                "profile_uuid": {
                     "type": "string",
-                    "minLength": 32,
-                    "maxLength": 32,
+                    "format": "uuid",
                 },
             },
-            "required": ["profile_id"],
+            "required": ["profile_uuid"],
         }
 
-    def get(self, *args: Any, **kwargs: Any) -> None:
+    async def get(self, *args: Any, **kwargs: Any) -> None:
         with self.handle_error():
             self.validate_message(kwargs)
 
             use_case = GetProfileShelvesUseCase(DataRepository())
 
-            shelves = use_case.execute(kwargs["profile_id"])
+            shelves = await use_case.execute(UUID(kwargs["profile_uuid"]))
 
             self.write(self.encode_message({
-                "items": [shelf.to_dict() for shelf in shelves],
+                "items": [shelf.dict() for shelf in shelves],
             }))

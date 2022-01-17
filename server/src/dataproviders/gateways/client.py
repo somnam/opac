@@ -1,11 +1,12 @@
 import requests
-from src.core.gateways import ClientGatewayInterface
+
 from src.config import Config
+from src.core.gateways import IClientGateway
 
 config = Config()
 
 
-class ClientGateway(ClientGatewayInterface):
+class ClientGateway(IClientGateway):
     _url = config.get('server', 'url')
 
     def push(self, client_id: str, job_id: int, operation: str) -> None:

@@ -8,9 +8,9 @@ class ShelfItemModel(Model):
 
     _pk = Column(Model.BIGINT, primary_key=True)
 
-    shelf_item_id = Column(Model.MD5, nullable=False, index=True)
-    book_id = Column(Model.MD5, nullable=False, index=True)
-    shelf_id = Column(Model.MD5, nullable=False, index=True)
+    uuid = Column(Model.UUID, nullable=False, index=True)
+    book_uuid = Column(Model.UUID, nullable=False, index=True)
+    shelf_uuid = Column(Model.UUID, nullable=False, index=True)
 
     title = Column(Model.VARCHAR(512), nullable=False)
     author = Column(Model.VARCHAR(512), nullable=False)

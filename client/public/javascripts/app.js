@@ -7,8 +7,8 @@ class App {
     constructor() {
         (new Transport('localhost', '8888', false))
             .then(transport => {
-                this.components = new Components(transport);
                 this.state = new State();
+                this.components = new Components(transport);
 
                 this.state.restore();
             })

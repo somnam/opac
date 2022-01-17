@@ -25,7 +25,7 @@ def payload_to_profile(payload: dict) -> Profile:
 
 def payload_to_shelf(payload: dict) -> Shelf:
     return Shelf(
-        profile_id=payload["profile_id"],
+        profile_uuid=payload["profile_uuid"],
         name=payload["name"],
         value=payload["value"],
         pages=payload["pages"],

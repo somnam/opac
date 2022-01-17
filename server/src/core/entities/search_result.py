@@ -1,10 +1,11 @@
-from typing import List, Any
 from dataclasses import dataclass, field
-from src.core.entities.base import BaseEntity
+from typing import Any, List
+
+from src.core.entities.entity import Entity
 
 
 @dataclass
-class SearchResult(BaseEntity):
+class SearchResult(Entity):
     items: List[Any] = field(default_factory=list)
     page: int = 1
     per_page: int = 10

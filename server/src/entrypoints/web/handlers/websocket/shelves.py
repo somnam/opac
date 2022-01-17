@@ -4,12 +4,12 @@ from src.core.adapters import payload_to_shelf_search_params
 from src.core.entities import ShelfSearchResult
 from src.core.usecases import SearchShelvesUseCase
 from src.dataproviders.repositories import DataRepository
-from src.entrypoints.web.handlers.websocket.base import WebSocketOperationInterface
+from src.entrypoints.web.handlers.websocket.base import IWebSocketOperation
 
 logger = logging.getLogger(__name__)
 
 
-class ShelvesOperation(WebSocketOperationInterface):
+class ShelvesOperation(IWebSocketOperation):
     @classmethod
     def name(cls) -> str:
         return 'shelves'
@@ -21,6 +21,6 @@ class ShelvesOperation(WebSocketOperationInterface):
 
         search_results: ShelfSearchResult = await use_case.execute(search_params)
 
-        result: dict = search_results.to_dict()
+        result: dict = search_results.dict()
 
         return result

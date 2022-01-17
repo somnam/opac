@@ -1,11 +1,10 @@
-from src.core.gateways.data import DataGatewayInterface
-
-from src.dataproviders.gateways.shelf import ShelfGateway
-from src.dataproviders.gateways.profile import ProfileGateway
+from src.core.gateways.data import IDataGateway
 from src.dataproviders.gateways.client import ClientGateway
+from src.dataproviders.gateways.profile import ProfileGateway
+from src.dataproviders.gateways.shelf import ShelfGateway
 
 
-class DataGateway(DataGatewayInterface):
+class DataGateway(IDataGateway):
 
     @property
     def shelf(self) -> ShelfGateway:

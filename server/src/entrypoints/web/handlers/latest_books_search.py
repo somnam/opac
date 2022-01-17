@@ -64,4 +64,6 @@ class LatestBooksSearchHandler(tornado.web.RequestHandler, JsonSchemaMixin, Erro
                 excluded_shelves=(payload["excluded_shelves"]),
             )
 
-            self.write({"items": [book.to_dict() for book in result]})
+            self.write(self.encode_message({
+                "items": [book.dict() for book in result],
+            }))

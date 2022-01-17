@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.core.entities import ProfileSearchParams, ProfileSearchResult
 
 
-class ProfileGatewayInterface(ABC):
+class IProfileGateway(ABC):
 
     @abstractmethod
     async def search(self, params: ProfileSearchParams) -> ProfileSearchResult:

@@ -1,14 +1,7 @@
-from src.core.repositories.data import DataRepositoryInterface
-from src.core.repositories.shelf import ShelfRepositoryInterface
-from src.core.repositories.shelf_item import ShelfItemRepositoryInterface
-from src.core.repositories.catalog import CatalogRepositoryInterface
-from src.core.repositories.profile import ProfileRepositoryInterface
-
+from src.core.repositories.data import IDataRepository
+from src.core.repositories.entity import IEntityRepository
 
 __all__ = [
-    "DataRepositoryInterface",
-    "ShelfRepositoryInterface",
-    "ShelfItemRepositoryInterface",
-    "CatalogRepositoryInterface",
-    "ProfileRepositoryInterface",
+    "IDataRepository",
+    "IEntityRepository",
 ]

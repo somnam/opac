@@ -2,13 +2,13 @@ import logging
 from typing import List, Optional, Set
 
 from src.core.entities import Book, Catalog, Shelf
-from src.core.repositories import DataRepositoryInterface
+from src.core.repositories import IDataRepository
 
 logger = logging.getLogger(__name__)
 
 
 class SearchLatestBooksUseCase:
-    def __init__(self, repository: DataRepositoryInterface) -> None:
+    def __init__(self, repository: IDataRepository) -> None:
         self._repository = repository
 
     def execute(
@@ -20,7 +20,9 @@ class SearchLatestBooksUseCase:
         logger.info(f'Searching latest books in {catalog.name}')
 
         with self._repository.unit_of_work():
-            latest_books: List[Book] = self._repository.catalog.latest_books(catalog)
+            latest_books: List[Book] = list(self._repository.latest_book.search(
+                catalog_uuid=catalog.uuid,
+            ))
 
         if not latest_books:
             # TMP
@@ -55,14 +57,14 @@ class SearchLatestBooksUseCase:
         excluded_books: Set[Book] = set()
 
         for shelf in included_shelves:
-            shelf_items = self._repository.shelf_item.read_all(shelf)
+            shelf_items = self._repository.shelf_item.search(shelf_uuid=shelf.uuid)
 
             included_books.update((shelf_item.book for shelf_item in shelf_items
                                    if shelf_item.isbn is not None))
 
         if excluded_shelves:
             for shelf in excluded_shelves:
-                shelf_items = self._repository.shelf_item.read_all(shelf)
+                shelf_items = self._repository.shelf_item.search(shelf_uuid=shelf.uuid)
 
                 excluded_books.update((shelf_item.book for shelf_item in shelf_items
                                        if shelf_item.isbn is not None))

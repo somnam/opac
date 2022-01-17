@@ -67,7 +67,7 @@ class ConfirmProfile extends Field {
         const profile = this.radioList.checked;
 
         this.transport.post('profile', profile)
-            .then(() => this.transport.get(`profile/${profile.profile_id}/shelves`))
+            .then(() => this.transport.get(`profile/${profile.uuid}/shelves`))
             .then(() => this.emit('confirm-profile-next'))
             .catch(error => console.error(error));
     }

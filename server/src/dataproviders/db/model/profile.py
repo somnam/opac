@@ -7,6 +7,6 @@ class ProfileModel(Model):
 
     _pk = Column(Model.BIGINT, primary_key=True)
 
-    profile_id = Column(Model.MD5, nullable=False, index=True)
+    uuid = Column(Model.UUID, nullable=False, index=True)
     name = Column(Model.VARCHAR(512), nullable=False)
     value = Column(Model.EXTERNAL_ID, nullable=False, index=True)

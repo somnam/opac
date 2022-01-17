@@ -3,22 +3,23 @@ from typing import Dict, List
 from urllib.parse import urlparse
 
 import aiohttp
+
 from src.config import Config
-from src.dataproviders.gateways.base import bs4_scope
-from src.core.exceptions import BadGateway
-from src.core.gateways import ProfileGatewayInterface
 from src.core.entities import Profile, ProfileSearchParams, ProfileSearchResult
+from src.core.exceptions import BadGateway
+from src.core.gateways import IProfileGateway
+from src.dataproviders.gateways.base import bs4_scope
 
 config = Config()
 logger = logging.getLogger(__name__)
 
 
-class ProfileGateway(ProfileGatewayInterface):
+class ProfileGateway(IProfileGateway):
 
     async def search(self, params: ProfileSearchParams) -> ProfileSearchResult:
         url: str = config.get('lc', 'profile_search_url')
 
-        data: Dict[str, str] = {"listId": "searchedAccounts", **params.to_dict()}
+        data: Dict[str, str] = {"listId": "searchedAccounts", **params.dict()}
 
         headers: Dict[str, str] = {"X-Requested-With": "XMLHttpRequest"}
 
