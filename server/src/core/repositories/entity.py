@@ -13,17 +13,21 @@ class IEntityRepository(IRepository, Generic[TEntity]):
     def exists(self, uuid: UUID) -> bool:
         raise NotImplementedError
 
+    @abstractmethod
     def create(self, entity: TEntity) -> TEntity:
-        return next(self.create_collection((entity,)))
+        raise NotImplementedError
 
+    @abstractmethod
     def read(self, **kwargs: Any) -> Optional[TEntity]:
-        return next(self.search(**kwargs), None)
+        raise NotImplementedError
 
+    @abstractmethod
     def update(self, entity: TEntity) -> TEntity:
-        return next(self.update_collection((entity,)))
+        raise NotImplementedError
 
+    @abstractmethod
     def delete(self, entity: TEntity) -> int:
-        return self.delete_collection((entity,))
+        raise NotImplementedError
 
     @abstractmethod
     def search(self, **kwargs: Any) -> Iterator[TEntity]:

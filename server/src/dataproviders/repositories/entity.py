@@ -1,10 +1,10 @@
-from typing import Any, Callable, Collection, Generic, Iterator, Type
+from typing import Any, Callable, Collection, Generic, Iterator, Optional, Type
 from uuid import UUID
 
-from src.core.types import TEntity
 from src.core.repositories import IEntityRepository
-from src.dataproviders.types import TModel
+from src.core.types import TEntity
 from src.dataproviders.repositories.base import BaseDbRepository
+from src.dataproviders.types import TModel
 
 
 class EntityRepository(BaseDbRepository, IEntityRepository, Generic[TEntity, TModel]):
@@ -24,6 +24,18 @@ class EntityRepository(BaseDbRepository, IEntityRepository, Generic[TEntity, TMo
         exists = self._dbh.session.query(self.model._pk).filter_by(uuid=uuid).exists()
         result: bool = self._dbh.session.query(exists).scalar()
         return result
+
+    def create(self, entity: TEntity) -> TEntity:
+        return next(self.create_collection((entity,)))
+
+    def read(self, **kwargs: Any) -> Optional[TEntity]:
+        return next(self.search(**kwargs), None)
+
+    def update(self, entity: TEntity) -> TEntity:
+        return next(self.update_collection((entity,)))
+
+    def delete(self, entity: TEntity) -> int:
+        return self.delete_collection((entity,))
 
     def search(self, **kwargs: Any) -> Iterator[TEntity]:
         models = self._dbh.session.query(*self.model.columns())\
