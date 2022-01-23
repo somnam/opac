@@ -28,6 +28,6 @@ class GetProfileShelvesUseCase:
             logger.info(f"Creating {len(shelves)} new shelves on profile {profile.name}")
 
             with self._repository.unit_of_work():
-                self._repository.shelf.create_collection(shelves)
+                self._repository.shelf.create_many(shelves)
 
         return shelves

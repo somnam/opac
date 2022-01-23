@@ -16,6 +16,6 @@ class SearchShelvesUseCase:
             shelves = list(await self._repository.gateway.shelf.search(profile))
 
             with self._repository.unit_of_work():
-                self._repository.shelf.create_collection(shelves)
+                self._repository.shelf.create_many(shelves)
 
         return ShelfSearchResult(items=shelves, page=params.page)

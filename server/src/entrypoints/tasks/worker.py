@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import logging.config
 from typing import Dict
@@ -16,11 +17,15 @@ logger = logging.getLogger(__name__)
 
 
 def refresh_shelves(profile: Dict) -> None:
-    RefreshShelvesUseCase(DataRepository()).execute(payload_to_profile(profile))
+    asyncio.get_event_loop().run_until_complete(
+        RefreshShelvesUseCase(DataRepository()).execute(payload_to_profile(profile))
+    )
 
 
 def refresh_shelf_items(shelf: Dict) -> None:
-    RefreshShelfItemsUseCase(DataRepository()).execute(payload_to_shelf(shelf))
+    asyncio.get_event_loop().run_until_complete(
+        RefreshShelfItemsUseCase(DataRepository()).execute(payload_to_shelf(shelf))
+    )
 
 
 def run() -> None:

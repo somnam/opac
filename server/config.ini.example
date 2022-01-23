@@ -21,6 +21,10 @@ sqlalchemy.pool_recycle = 3600
 connections = 10
 
 
+[repository]
+batch_size = 1000
+
+
 [lc]
 url = http://lubimyczytac.pl
 profile_search_url = https://lubimyczytac.pl/account/getMoreSearchedAccounts

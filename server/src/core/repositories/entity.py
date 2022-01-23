@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Collection, Generic, Iterator, Optional, Type
+from typing import Any, Generic, Iterator, Optional, Sequence, Type
 from uuid import UUID
 
 from src.core.repositories.base import IRepository
@@ -34,13 +34,13 @@ class IEntityRepository(IRepository, Generic[TEntity]):
         raise NotImplementedError
 
     @abstractmethod
-    def create_collection(self, entities: Collection[TEntity]) -> Iterator[TEntity]:
+    def create_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
         raise NotImplementedError
 
     @abstractmethod
-    def update_collection(self, entities: Collection[TEntity]) -> Iterator[TEntity]:
+    def update_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
         raise NotImplementedError
 
     @abstractmethod
-    def delete_collection(self, entities: Collection[TEntity]) -> int:
+    def delete_many(self, entities: Sequence[TEntity]) -> int:
         raise NotImplementedError
