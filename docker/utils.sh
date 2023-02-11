@@ -27,9 +27,8 @@ docker_compose_installed ()
     set -e
 
     local compose_installed=false
-    local compose_path=$(docker_compose_file_path)
 
-    [[ -f "$compose_path" ]] && compose_installed=true
+    [[ -f "$(docker_compose_file_path)" ]] && compose_installed=true
 
     echo "$compose_installed"
 

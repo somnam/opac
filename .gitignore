@@ -4,8 +4,10 @@
 *.log
 *.db
 *.pid
+*.txt
 
 # Environment
 tags
 var
 .vscode
+.git
