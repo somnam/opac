@@ -1,12 +1,12 @@
-from sqlalchemy import Column
-from src.dataproviders.db.model.base import Model
+from sqlalchemy.orm import Mapped, mapped_column
+
+from src.dataproviders.db.model.entity import EntityModel
+from src.dataproviders.db.model.mixin import CreatedAtMixin
+from src.dataproviders.db.types import Types
 
 
-class ProfileModel(Model):
+class ProfileModel(EntityModel, CreatedAtMixin):
     __tablename__ = "profile"
 
-    _pk = Column(Model.BIGINT, primary_key=True)
-
-    uuid = Column(Model.UUID, nullable=False, index=True)
-    name = Column(Model.VARCHAR(512), nullable=False)
-    value = Column(Model.EXTERNAL_ID, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(Types.VARCHAR(512), nullable=False)
+    value: Mapped[str] = mapped_column(Types.EXTERNAL_ID, nullable=False, index=True)

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from src.core.entities.entity import Entity
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, kw_only=True)
 class Catalog(Entity):
     name: str
     city: str

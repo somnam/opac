@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, Generic, List
 
 from src.core.entities.entity import Entity
+from src.core.types import TEntity
 
 
-@dataclass
-class SearchResult(Entity):
+@dataclass(kw_only=True)
+class SearchResult(Entity, Generic[TEntity]):
     items: List[Any] = field(default_factory=list)
     page: int = 1
     per_page: int = 10
@@ -26,4 +27,7 @@ class SearchResult(Entity):
         # Reduce items to 'per_gage' entries from current page.
         if len(self.items) > self.per_page:
             start_idx = (self.page - 1) * self.per_page
-            self.items = self.items[start_idx:start_idx + self.per_page]
+            self.items = self.items[start_idx : start_idx + self.per_page]
+
+    def first(self) -> TEntity | None:
+        return self.items[0] if self.items else None

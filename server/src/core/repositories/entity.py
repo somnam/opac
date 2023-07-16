@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Generic, Iterator, Optional, Sequence, Type
+from typing import Generic, List, Optional, Sequence, Type
 from uuid import UUID
 
 from src.core.repositories.base import IRepository
@@ -10,37 +10,37 @@ class IEntityRepository(IRepository, Generic[TEntity]):
     entity: Type[TEntity]
 
     @abstractmethod
-    def exists(self, uuid: UUID) -> bool:
-        raise NotImplementedError
+    async def exists(self, uuid: UUID) -> bool:
+        ...
 
     @abstractmethod
-    def create(self, entity: TEntity) -> TEntity:
-        raise NotImplementedError
+    async def create(self, entity: TEntity) -> None:
+        ...
 
     @abstractmethod
-    def read(self, **kwargs: Any) -> Optional[TEntity]:
-        raise NotImplementedError
+    async def read(self, uuid: UUID) -> Optional[TEntity]:
+        ...
 
     @abstractmethod
-    def update(self, entity: TEntity) -> TEntity:
-        raise NotImplementedError
+    async def update(self, entity: TEntity) -> None:
+        ...
 
     @abstractmethod
-    def delete(self, entity: TEntity) -> int:
-        raise NotImplementedError
+    async def delete(self, entity: TEntity) -> int:
+        ...
 
     @abstractmethod
-    def search(self, **kwargs: Any) -> Iterator[TEntity]:
-        raise NotImplementedError
+    async def read_all(self) -> List[TEntity]:
+        ...
 
     @abstractmethod
-    def create_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
-        raise NotImplementedError
+    async def create_many(self, entities: Sequence[TEntity]) -> None:
+        ...
 
     @abstractmethod
-    def update_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
-        raise NotImplementedError
+    async def update_many(self, entities: Sequence[TEntity]) -> None:
+        ...
 
     @abstractmethod
-    def delete_many(self, entities: Sequence[TEntity]) -> int:
-        raise NotImplementedError
+    async def delete_many(self, entities: Sequence[TEntity]) -> int:
+        ...

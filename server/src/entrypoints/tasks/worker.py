@@ -4,8 +4,9 @@ import logging.config
 from typing import Dict
 
 from src.config import Config
-from src.core.adapters import payload_to_profile, payload_to_shelf
+from src.core.transforms import payload_to_profile, payload_to_shelf
 from src.core.usecases import RefreshShelfItemsUseCase, RefreshShelvesUseCase
+from src.dataproviders.gateways import DataGateway
 from src.dataproviders.repositories import DataRepository
 from src.entrypoints.tasks.base import Worker
 
@@ -18,13 +19,18 @@ logger = logging.getLogger(__name__)
 
 def refresh_shelves(profile: Dict) -> None:
     asyncio.get_event_loop().run_until_complete(
-        RefreshShelvesUseCase(DataRepository()).execute(payload_to_profile(profile))
+        RefreshShelvesUseCase(
+            gateway=DataGateway(),
+            repository=DataRepository(),
+        ).execute(payload_to_profile(profile))
     )
 
 
 def refresh_shelf_items(shelf: Dict) -> None:
     asyncio.get_event_loop().run_until_complete(
-        RefreshShelfItemsUseCase(DataRepository()).execute(payload_to_shelf(shelf))
+        RefreshShelfItemsUseCase(gateway=DataGateway(), repository=DataRepository()).execute(
+            shelf=payload_to_shelf(shelf),
+        )
     )
 
 

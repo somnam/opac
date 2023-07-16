@@ -8,9 +8,9 @@ import tornado.websocket
 
 from src.entrypoints.exceptions import OperationNotFound
 from src.entrypoints.web.handlers.websocket.base import IWebSocketOperation
-from src.entrypoints.web.handlers.websocket.profile_search import ProfileSearchOperation
+from src.entrypoints.web.handlers.websocket.profile import ProfileSearchOperation
 from src.entrypoints.web.handlers.websocket.shelves import ShelvesOperation
-from src.entrypoints.web.mixin import JsonSchemaMixin, ErrorHandlerMixin
+from src.entrypoints.web.mixin import ErrorHandlerMixin, JsonSchemaMixin
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +66,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, Erro
         if self.client_id not in WebSocketHandler.clients:
             WebSocketHandler.clients[self.client_id] = self
 
-        self.write_message(self.encode_message({
-            "operation": 'open-connection',
-            "payload": {"client_id": self.client_id},
-        }))
+        self.write_message(
+            self.encode_message(
+                {
+                    "operation": "open-connection",
+                    "payload": {"client_id": self.client_id},
+                }
+            )
+        )
 
     async def on_message(self, message: Union[str, bytes]) -> None:
         logger.info(f"Got message: {message!r}")
@@ -91,10 +95,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, Erro
             if response is not None:
                 logger.info(f"Return message: {response}")
 
-                self.write_message(self.encode_message({
-                    "operation": operation_name,
-                    "payload": response,
-                }))
+                self.write_message(
+                    self.encode_message(
+                        {
+                            "operation": operation_name,
+                            "payload": response,
+                        }
+                    )
+                )
 
     def on_close(self) -> None:
         logger.info("Closing connection")

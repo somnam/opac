@@ -36,7 +36,9 @@ class InternalServerError(OpacException):
 
 class BadGateway(OpacException):
     message = "Bad Gateway"
-    detail = "The server, while working as a gateway to handle the request, got an invalid response."
+    detail = (
+        "The server, while working as a gateway to handle the request, got an invalid response."
+    )
 
     def __init__(self, detail: Optional[str] = None) -> None:
         super().__init__(message=self.message, detail=(detail or self.detail), code=502)

@@ -1,104 +1,77 @@
-from typing import Any, Callable, Generic, Iterator, Optional, Sequence, Type
+from abc import abstractmethod
+from typing import Generic, List, Optional, Sequence, Type
 from uuid import UUID
+
+from sqlalchemy import delete, insert, select, update
 
 from src.config import Config
 from src.core.repositories import IEntityRepository
 from src.core.types import TEntity
-from src.dataproviders.repositories.base import BaseDbRepository
-from src.dataproviders.types import TModel
+from src.dataproviders.repositories.base import BaseRepository
+from src.dataproviders.types import TEntityModel
 
 config = Config()
 
 
-class EntityRepository(BaseDbRepository, IEntityRepository, Generic[TEntity, TModel]):
-    model: Type[TModel]
+class EntityRepository(BaseRepository, IEntityRepository, Generic[TEntity, TEntityModel]):
+    model: Type[TEntityModel]
 
-    _batch_size = config.getint('repository', 'batch_size')
-
-    def __init__(
-        self,
-        entity: Type[TEntity],
-        model: Type[TModel],
-        from_model: Callable[[TModel], TEntity],
-    ) -> None:
+    def __init__(self, entity: Type[TEntity], model: Type[TEntityModel]) -> None:
         self.entity = entity
         self.model = model
-        self.from_model = from_model
 
-    def exists(self, uuid: UUID) -> bool:
-        exists = self._dbh.session.query(self.model._pk).filter_by(uuid=uuid).exists()
-        result: bool = self._dbh.session.query(exists).scalar()
-        return result
+    @abstractmethod
+    def to_entity(self, model: TEntityModel) -> TEntity:
+        ...
 
-    def create(self, entity: TEntity) -> TEntity:
-        return next(self.create_many((entity,)))
+    def to_mapping(self, entity: TEntity) -> dict:
+        return entity.dict()
 
-    def read(self, **kwargs: Any) -> Optional[TEntity]:
-        return next(self.search(**kwargs), None)
+    async def exists(self, uuid: UUID) -> bool:
+        stmt = select(self.model._pk).where(self.model.uuid == uuid).exists()
+        return bool(self._db.session.scalar(select(stmt)))
 
-    def update(self, entity: TEntity) -> TEntity:
-        return next(self.update_many((entity,)))
+    async def create(self, entity: TEntity) -> None:
+        await self.create_many((entity,))
 
-    def delete(self, entity: TEntity) -> int:
-        return self.delete_many((entity,))
+    async def read(self, uuid: UUID) -> Optional[TEntity]:
+        stmt = select(self.model).where(self.model.uuid == uuid)
+        model = self._db.session.scalar(stmt)
 
-    def search(self, **kwargs: Any) -> Iterator[TEntity]:
-        models = self._dbh.session.query(*self.model.columns())\
-            .filter_by(**kwargs)
+        return self.to_entity(model) if model else None
 
-        return iter([self.from_model(model) for model in models])
+    async def update(self, entity: TEntity) -> None:
+        await self.update_many((entity,))
 
-    def create_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
+    async def delete(self, entity: TEntity) -> int:
+        return await self.delete_many((entity,))
+
+    async def read_all(self) -> List[TEntity]:
+        models = self._db.session.scalars(select(self.model))
+        return [self.to_entity(model) for model in models]
+
+    async def create_many(self, entities: Sequence[TEntity]) -> None:
         if not entities:
-            return iter([])
+            return
 
-        self._dbh.session.bulk_insert_mappings(
-            self.model,
-            [entity.dict() for entity in entities]
-        )
+        mappings = [self.to_mapping(entity) for entity in entities]
 
-        return iter(entities)
+        self._db.session.execute(insert(self.model), mappings)
 
-    def update_many(self, entities: Sequence[TEntity]) -> Iterator[TEntity]:
+    async def update_many(self, entities: Sequence[TEntity]) -> None:
         if not entities:
-            return iter([])
+            return
 
-        batches = (entities[step:step + self._batch_size]
-                   for step in range(0, len(entities), self._batch_size))
+        mappings = [self.to_mapping(entity) for entity in entities]
 
-        for batch in batches:
+        self._db.session.execute(update(self.model), mappings)
 
-            entities_by_uuid = {entity.uuid: entity for entity in batch}
-
-            models = self._dbh.session.query(self.model._pk, self.model.uuid)\
-                .filter(self.model.uuid.in_(entities_by_uuid.keys()))
-
-            mappings = []
-            for model in models:
-                mapping = dict(model)
-                mapping.update(entities_by_uuid[model.uuid].dict())
-
-                mappings.append(mapping)
-
-            self._dbh.session.bulk_update_mappings(self.model, mappings)
-
-        return iter(entities)
-
-    def delete_many(self, entities: Sequence[TEntity]) -> int:
+    async def delete_many(self, entities: Sequence[TEntity]) -> int:
         if not entities:
             return 0
 
-        batches = (entities[step:step + self._batch_size]
-                   for step in range(0, len(entities), self._batch_size))
+        uuids = [entity.uuid for entity in entities]
 
-        rows_count = 0
+        self._db.session.execute(delete(self.model).where(self.entity.uuid.in_(uuids)))
 
-        for batch in batches:
-
-            uuids = (entity.uuid for entity in batch)
-
-            rows_count += self._dbh.session.query(self.model)\
-                .filter(self.model.uuid.in_(uuids))\
-                .delete(synchronize_session=False)
-
-        return rows_count
+        return len(entities)

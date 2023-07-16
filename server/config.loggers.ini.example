@@ -1,5 +1,5 @@
 [loggers]
-keys = root, src, sqlalchemy, tornado, rq
+keys = root, src, src.dataproviders.http, sqlalchemy, tornado, rq, aiohttp.client
 
 [handlers]
 keys = console
@@ -16,6 +16,11 @@ qualname =
 level = INFO
 handlers =
 qualname = src
+
+[logger_src.dataproviders.http]
+level = INFO
+handlers =
+qualname = src.dataproviders.http
 
 [logger_sqlalchemy]
 level = WARN
@@ -34,6 +39,11 @@ qualname = tornado
 level = INFO
 handlers =
 qualname = rq
+
+[logger_aiohttp.client]
+level = INFO
+handlers =
+qualname = aiohttp.client
 
 [handler_console]
 class = logging.StreamHandler

@@ -1,14 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import ContextManager, Iterator
+from typing import AsyncContextManager, Generic
 
-from src.core.entities import Entity, Collate
+from src.core.types import TEntity
 
 
 class IRepository(ABC):
     @abstractmethod
-    def unit_of_work(self) -> ContextManager:
-        raise NotImplementedError
+    def context(self) -> AsyncContextManager:
+        ...
 
+
+class IEntityMapper(ABC, Generic[TEntity]):
     @abstractmethod
-    def collate(self, items: Iterator[Entity], current_items: Iterator[Entity]) -> Collate:
+    def to_entity(self) -> TEntity:
         raise NotImplementedError

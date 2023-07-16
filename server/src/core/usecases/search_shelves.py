@@ -1,21 +1,39 @@
-from src.core.entities import ShelfSearchParams, ShelfSearchResult
+import logging
+from typing import Optional
+
+from src.core.entities import Profile, ShelfSearchParams, ShelfSearchResult
+from src.core.exceptions import ProfileNotFoundError
+from src.core.gateways import IDataGateway
 from src.core.repositories import IDataRepository
+
+logger = logging.getLogger(__name__)
 
 
 class SearchShelvesUseCase:
-    def __init__(self, repository: IDataRepository) -> None:
+    def __init__(self, gateway: IDataGateway, repository: IDataRepository) -> None:
+        self._gateway = gateway
         self._repository = repository
 
     async def execute(self, params: ShelfSearchParams) -> ShelfSearchResult:
-        profile = params.profile
+        async with self._repository.context():
+            profile: Optional[Profile] = await self._repository.profile.read(
+                uuid=params.profile_uuid
+            )
+            if not profile:
+                raise ProfileNotFoundError()
 
-        with self._repository.unit_of_work():
-            shelves = list(self._repository.shelf.search(profile_uuid=profile.uuid))
+            shelves = await self._repository.shelf.read_all_for_profile(profile=profile)
 
         if not shelves:
-            shelves = list(await self._repository.gateway.shelf.search(profile))
+            async with self._gateway.context():
+                shelves = [shelf async for shelf in self._gateway.shelf.fetch_for_profile(profile)]
 
-            with self._repository.unit_of_work():
-                self._repository.shelf.create_many(shelves)
+            logger.info(f"Creating {len(shelves)} new shelves on profile {profile.name}")
+
+            async with self._repository.context():
+                await self._repository.shelf.create_many(shelves)
+
+        if params.shelf_uuids:
+            shelves = [shelf for shelf in shelves if shelf.uuid in params.shelf_uuids]
 
         return ShelfSearchResult(items=shelves, page=params.page)

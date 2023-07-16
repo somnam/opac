@@ -1,5 +1,11 @@
 from src.dataproviders.db.handler import DbHandler
-from src.dataproviders.db.model import LatestBookModel, Model, ProfileModel, ShelfItemModel, ShelfModel
+from src.dataproviders.db.model import (
+    BookEditionModel,
+    Model,
+    ProfileModel,
+    ShelfItemModel,
+    ShelfModel,
+)
 
 __all__ = [
     "Model",
@@ -7,5 +13,5 @@ __all__ = [
     "ShelfModel",
     "ProfileModel",
     "ShelfItemModel",
-    "LatestBookModel",
+    "BookEditionModel",
 ]

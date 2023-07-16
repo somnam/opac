@@ -1,15 +1,17 @@
-from sqlalchemy import Column
-from src.dataproviders.db.model.base import Model
+from uuid import UUID
+
+from sqlalchemy.orm import Mapped, mapped_column
+
+from src.dataproviders.db.model.entity import EntityModel
+from src.dataproviders.db.model.mixin import CreatedUpdatedAtMixin
+from src.dataproviders.db.types import Types
 
 
-class ShelfModel(Model):
+class ShelfModel(EntityModel, CreatedUpdatedAtMixin):
     __tablename__ = "shelf"
 
-    _pk = Column(Model.BIGINT, primary_key=True)
+    profile_uuid: Mapped[UUID] = mapped_column(Types.UUID, nullable=False, index=True)
 
-    uuid = Column(Model.UUID, nullable=False, index=True)
-    profile_uuid = Column(Model.UUID, nullable=False, index=True)
-    name = Column(Model.VARCHAR(512), nullable=False)
-    value = Column(Model.EXTERNAL_ID, nullable=False)
-    pages = Column(Model.INT, nullable=False)
-    refreshed_at = Column(Model.DATETIME, nullable=True)
+    name: Mapped[str] = mapped_column(Types.VARCHAR(512), nullable=False)
+    value: Mapped[str] = mapped_column(Types.EXTERNAL_ID, nullable=False)
+    pages: Mapped[int] = mapped_column(Types.INT, nullable=False)

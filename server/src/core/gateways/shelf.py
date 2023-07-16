@@ -1,15 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Iterator
+from abc import abstractmethod
+from typing import AsyncIterator
 
-from src.core.entities import Profile, Shelf, ShelfItem
+from src.core.entities import Profile, Shelf
+from src.core.gateways.base import IGateway
 
 
-class IShelfGateway(ABC):
-
+class IShelfGateway(IGateway):
     @abstractmethod
-    async def search(self, profile: Profile) -> Iterator[Shelf]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    async def items(self, profile: Profile, shelf: Shelf) -> Iterator[ShelfItem]:
-        raise NotImplementedError()
+    def fetch_for_profile(self, profile: Profile) -> AsyncIterator[Shelf]:
+        ...

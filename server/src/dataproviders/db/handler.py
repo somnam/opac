@@ -1,13 +1,13 @@
 import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from sqlite3 import Connection as SQLite3Connection
-from typing import Generator
+from typing import AsyncGenerator
 
 from sqlalchemy import engine_from_config
 from sqlalchemy.engine import Engine
 from sqlalchemy.event import listens_for
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, Session
 
 from src.config import Config
 from src.core.exceptions import DatabaseError
@@ -28,19 +28,19 @@ def set_sqlite_pragma(dbapi_connection, connection_record):  # type: ignore
 
 
 class DbHandler:
-    engine = engine_from_config(config["db:handler"])
+    engine = engine_from_config(config.get_section("db:handler"))
     scoped_session = scoped_session(sessionmaker(bind=engine))
 
     @classmethod
     def create_schema(cls) -> None:
         Model.metadata.create_all(cls.engine, checkfirst=True)
 
-    @contextmanager
-    def session_scope(self) -> Generator:
-        self.session = self.scoped_session()
+    @asynccontextmanager
+    async def session_scope(self) -> AsyncGenerator:
+        self.session: Session = self.scoped_session()
 
         try:
-            yield self.session
+            yield
             self.session.commit()
 
         except (DBAPIError, SQLAlchemyError) as e:

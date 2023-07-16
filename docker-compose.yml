@@ -11,15 +11,17 @@ services:
     hostname: opac-server
     container_name: opac-server
     volumes:
-      - ./var:/home/server/var
+      - ./server/src:/home/opac/src
+      - ./var:/home/opac/var
+    stop_grace_period: 1s
 
   schema:
-    image: opac_server:latest
+    image: opac-server:latest
     depends_on:
       - server
     volumes:
-      - ./var:/home/server/var
-    command: bash -l -c "create_schema"
+      - ./var:/home/opac/var
+    command: bash -l -c "poetry run create_schema"
 
   worker:
     build:
@@ -33,7 +35,9 @@ services:
     hostname: opac-worker
     container_name: opac-worker
     volumes:
-      - ./var:/home/worker/var
+      - ./server/src:/home/opac/src
+      - ./var:/home/opac/var
+    stop_grace_period: 1s
 
   broker:
     build:
@@ -52,6 +56,8 @@ services:
       - opac-net-public
     hostname: opac-client
     container_name: opac-client
+    volumes:
+      - ./client:/usr/share/nginx/html
 
   proxy:
     build:
@@ -67,6 +73,7 @@ services:
       - opac-net-public
     hostname: opac-proxy
     container_name: opac-proxy
+    stop_grace_period: 1s
 
 
 networks:

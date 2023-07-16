@@ -1,18 +1,22 @@
-from sqlalchemy import Column
 from datetime import datetime
-from src.dataproviders.db.model.base import Model
+from uuid import UUID
+
+from sqlalchemy.orm import Mapped, mapped_column
+
+from src.dataproviders.db.model.entity import EntityModel
+from src.dataproviders.db.model.mixin import CreatedAtMixin
+from src.dataproviders.db.types import Types
 
 
-class LatestBookModel(Model):
+class LatestBookModel(EntityModel, CreatedAtMixin):
     __tablename__ = "latest_book"
 
-    _pk = Column(Model.BIGINT, primary_key=True)
+    catalog_uuid: Mapped[UUID] = mapped_column(Types.UUID, nullable=False, index=True)
 
-    uuid = Column(Model.UUID, nullable=False, index=True)
-    catalog_uuid = Column(Model.UUID, nullable=False, index=True)
+    title: Mapped[str] = mapped_column(Types.VARCHAR(512), nullable=False)
+    author: Mapped[str] = mapped_column(Types.VARCHAR(512), nullable=False)
+    isbn: Mapped[str] = mapped_column(Types.ISBN, nullable=False, index=True)
 
-    title = Column(Model.VARCHAR(512), nullable=False)
-    author = Column(Model.VARCHAR(512), nullable=False)
-    isbn = Column(Model.ISBN, nullable=False, index=True)
-
-    created_at = Column(Model.DATETIME, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        Types.DATETIME, nullable=False, default=datetime.utcnow
+    )

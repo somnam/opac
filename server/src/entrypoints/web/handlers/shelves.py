@@ -3,8 +3,9 @@ from uuid import UUID
 
 import tornado.web
 
-from src.core.usecases import GetProfileShelvesUseCase
-from src.dataproviders.repositories.data import DataRepository
+from src.core.usecases import GetProfileShelvesUseCase, GetProfileUseCase
+from src.dataproviders.gateways import DataGateway
+from src.dataproviders.repositories import DataRepository
 from src.entrypoints.web.mixin import ErrorHandlerMixin, JsonSchemaMixin
 
 
@@ -30,10 +31,19 @@ class ShelvesHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandlerMi
         with self.handle_error():
             self.validate_message(kwargs)
 
-            use_case = GetProfileShelvesUseCase(DataRepository())
+            profile_use_case = GetProfileUseCase(repository=DataRepository())
+            profile = await profile_use_case.execute(UUID(kwargs["profile_uuid"]))
 
-            shelves = await use_case.execute(UUID(kwargs["profile_uuid"]))
+            shelves_use_case = GetProfileShelvesUseCase(
+                repository=DataRepository(),
+                gateway=DataGateway(),
+            )
+            shelves = await shelves_use_case.execute(profile)
 
-            self.write(self.encode_message({
-                "items": [shelf.dict() for shelf in shelves],
-            }))
+            self.write(
+                self.encode_message(
+                    {
+                        "items": [shelf.dict() for shelf in shelves],
+                    }
+                )
+            )

@@ -1,11 +1,8 @@
-from typing import ContextManager
+from typing import AsyncContextManager
 
-from src.core.repositories.base import IRepository
-from src.dataproviders.mixin import CollateMixin, DbHandlerMixin
+from src.dataproviders.mixin import DbHandlerMixin
 
 
-class BaseDbRepository(DbHandlerMixin, CollateMixin, IRepository):
-
-    def unit_of_work(self) -> ContextManager:
-        session_scope: ContextManager = self._dbh.session_scope()
-        return session_scope
+class BaseRepository(DbHandlerMixin):
+    def context(self) -> AsyncContextManager:
+        return self._db.session_scope()

@@ -8,6 +8,7 @@ from typing import Callable, List
 import redis
 import rq
 import rq.scheduler
+
 from src.config import Config
 
 config = Config()
@@ -16,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class ScheduleWorker:
-
     def __init__(self, action: Callable, loop_time: int = 60) -> None:
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.action = action
@@ -72,7 +72,6 @@ class Schedule:
 
     @staticmethod
     def register(loop_time: int = 60) -> Callable:
-
         def wrapper(action: Callable) -> None:
             worker = ScheduleWorker(action, loop_time=loop_time)
 
@@ -103,12 +102,14 @@ class Worker:
         result_ttl = config.getint("rq", "result_ttl")
         logging_level = config.get("logger_rq", "level")
 
-        # Release scheduler locks before starting a new worker.
-        rq.scheduler.RQScheduler(
+        scheduler = rq.scheduler.RQScheduler(
             queues=queues,
             connection=connection,
             logging_level=logging_level,
-        ).release_locks()
+        )
+        # Release scheduler locks before starting a new worker.
+        if scheduler.acquired_locks:
+            scheduler.release_locks()  # type: ignore
 
         # Start worker with scheduler.
         rq.Worker(

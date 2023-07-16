@@ -1,38 +1,37 @@
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 WORKDIR /root
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    TERM=xterm
+    TERM=xterm \
+    PIPX_VERSION=1.2.0 \
+    POETRY_VERSION=1.5.1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true
 
-# Create worker user
-RUN useradd worker --create-home --shell /bin/bash
+# Create user
+RUN useradd opac --create-home --shell /bin/bash
 
-# Work in worker users directory
-WORKDIR /home/worker
+# Work in users directory
+WORKDIR /home/opac
 
-# Switch to worker user
-USER worker
+# Switch to user
+USER opac
 
 # Set user path
-ENV PATH /home/worker/.local/bin:$PATH
-
-# Copy rc files
-COPY --chown=worker:worker ./docker/common/.bash_aliases ./docker/common/.vimrc /home/worker/
+ENV PATH="/home/opac/.local/bin:$PATH"
 
 # Copy requirements file
-COPY --chown=worker:worker ./server/setup.py ./server/setup.cfg /home/worker/
+COPY --chown=opac:opac ./server/pyproject.toml ./server/poetry.lock /home/opac/
+COPY --chown=opac:opac ./server/src/entrypoints /home/opac/src/entrypoints
 
-# Build requirements
-RUN pip install --user pip-tools &&\
-    pip-compile --quiet setup.py &&\
-    pip-sync --user requirements.txt &&\
-    pip install --user -e . &&\
-    rm -rf /home/worker/.cache
+# Install pipx and poetry
+RUN pip install "pipx==$PIPX_VERSION"
+RUN pipx install "poetry==$POETRY_VERSION"
+# Install python dependencies
+RUN poetry install --no-interaction --no-ansi
 
 # Copy application files
-COPY --chown=worker:worker ./server/ ./etc/worker/supervisord.conf /home/worker/
+COPY --chown=opac:opac ./server/ /home/opac/
 
-# Run app.
-# Run supervisor
-CMD ["supervisord", "-c", "supervisord.conf"]
+# Run app
+CMD poetry run run_worker

@@ -1,47 +1,40 @@
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 WORKDIR /root
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    TERM=xterm
+    TERM=xterm \
+    PIPX_VERSION=1.2.0 \
+    POETRY_VERSION=1.5.1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true
 
-RUN apt-get update \
-    && mkdir -p /usr/share/man/man1 \
-    && apt-get install -y --no-install-recommends procps sqlite3 \
-    && apt-get clean && rm -rf /var/lib/apt/lists
+# Create local user
+RUN useradd opac --create-home --shell /bin/bash
 
+# Work in users directory
+WORKDIR /home/opac
 
-# Create server user
-RUN useradd server --create-home --shell /bin/bash\
-    && su -c "mkdir -p /home/server/.local/bin" server
-
-# Work in server users directory
-WORKDIR /home/server
-
-# Switch to server user
-USER server
+# Switch to user
+USER opac
 
 # Set user path
-ENV PATH /home/server/.local/bin:$PATH
-
-# Copy rc files
-COPY --chown=server:server ./docker/common/.bash_aliases ./docker/common/.vimrc /home/server/
+ENV PATH="/home/opac/.local/bin:$PATH"
 
 # Copy requirements file
-COPY --chown=server:server ./server/setup.py ./server/setup.cfg /home/server/
+COPY --chown=opac:opac ./server/pyproject.toml ./server/poetry.lock /home/opac/
+COPY --chown=opac:opac ./server/src/entrypoints /home/opac/src/entrypoints
 
-# Build requirements
-RUN pip install --user pip-tools &&\
-    pip-compile --quiet setup.py &&\
-    pip-sync --user requirements.txt &&\
-    pip install --user -e . &&\
-    rm -rf /home/server/.cache
+# Install pipx and poetry
+RUN pip install "pipx==$PIPX_VERSION"
+RUN pipx install "poetry==$POETRY_VERSION"
+# Install python dependencies
+RUN poetry install --no-interaction --no-ansi
 
 # Copy application files
-COPY --chown=server:server ./server/ /home/server/
+COPY --chown=opac:opac ./server/ /home/opac/
 
 # Expose port
 EXPOSE 8888
 
-# Run app.
-CMD ["run_app"]
+# Run app
+CMD poetry run run_app

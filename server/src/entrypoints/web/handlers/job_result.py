@@ -21,9 +21,7 @@ class JobResultHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandler
         self.job_service = JobService()
 
     def post(self, *args: Any, **kwargs: Any) -> None:
-
         with self.handle_error():
-
             client_id = kwargs["client_id"]
 
             logger.info(f"Endpoint called with client_id {client_id}.")

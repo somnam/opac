@@ -21,21 +21,10 @@ sqlalchemy.pool_recycle = 3600
 connections = 10
 
 
-[repository]
-batch_size = 1000
-
-
 [lc]
 url = http://lubimyczytac.pl
 profile_search_url = https://lubimyczytac.pl/account/getMoreSearchedAccounts
 profile_library_url = https://lubimyczytac.pl/profil/{profile_value}/{profile_name}/biblioteczka/lista
 profile_shelf_url = https://lubimyczytac.pl/profil/{profile_value}/{profile_name}/biblioteczka/lista?shelfs={shelf_id}
 shelf_items_url = https://lubimyczytac.pl/profile/getLibraryBooksList
-
-
-[task:refresh_shelves_schedule]
-loop_time = 600
-
-
-[task:refresh_shelf_items_schedule]
-loop_time = 14400
+book_editions_url = https://lubimyczytac.pl/ksiazka/wydania/{shelf_item_value}

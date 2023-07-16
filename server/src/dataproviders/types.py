@@ -1,9 +1,7 @@
 from typing import TypeVar
 
-from src.dataproviders.db import Model
+from src.dataproviders.db.model.entity import EntityModel
 
-__all__ = [
-    "TModel"
-]
+__all__ = ["TEntityModel"]
 
-TModel = TypeVar("TModel", bound=Model)
+TEntityModel = TypeVar("TEntityModel", bound=EntityModel)

@@ -1,19 +1,19 @@
-import os
 import json
 import logging
-from typing import List, Dict, Optional, Any, Union, Callable
+import os
 from configparser import ConfigParser, ExtendedInterpolation
+from typing import Any, Callable, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
 
 class Config(ConfigParser):
-    app_dir: str = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    app_dir: str = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     config_files: List = [
-        'config.loggers.ini.example',
-        'config.loggers.ini',
-        'config.ini.example',
-        'config.ini',
+        "config.loggers.ini.example",
+        "config.loggers.ini",
+        "config.ini.example",
+        "config.ini",
     ]
 
     def __init__(self) -> None:
@@ -29,13 +29,26 @@ class Config(ConfigParser):
         """Don't lowercase keys."""
         return optionstr
 
-    def getstruct(self, section: str, option: str, *, raw: bool = False,
-                  vars: Optional[Dict] = None, fallback: List[str] = []) -> List[str]:
+    def getstruct(
+        self,
+        section: str,
+        option: str,
+        *,
+        raw: bool = False,
+        vars: Optional[Dict] = None,
+        fallback: List[str] = [],
+    ) -> List[str]:
         # MYPY complains about missing dynamic converter methods.
-        return self._get_conv(section, option, self.struct_converter,
-                              raw=raw, vars=vars, fallback=fallback)
+        return self._get_conv(
+            section,
+            option,
+            self.struct_converter,
+            raw=raw,
+            vars=vars,
+            fallback=fallback,
+        )
 
-    def get_section(self, section: str) -> Dict[str, Union[bool, int, float, str, Callable]]:
+    def get_section(self, section: str) -> Dict:
         contents: Dict[str, Union[bool, int, float, str, Callable]] = {}
 
         if not self.has_section(section):
@@ -44,7 +57,7 @@ class Config(ConfigParser):
         for option, value in self[section].items():
             if value.isnumeric():
                 contents[option] = int(value)
-            elif value.lower() in ('true', 'false'):
+            elif value.lower() in ("true", "false"):
                 contents[option] = bool(value)
             elif self._is_float(value):
                 contents[option] = float(value)
