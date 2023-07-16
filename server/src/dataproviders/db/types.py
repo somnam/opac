@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 import sqlalchemy_utils as su
-
 from sqlalchemy import Integer
 
 

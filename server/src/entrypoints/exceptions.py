@@ -1,4 +1,4 @@
-from src.core.exceptions import NotFound, BadRequest
+from src.core.exceptions import BadRequest, NotFound
 
 
 class MessageDecodeError(BadRequest):

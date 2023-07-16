@@ -1,13 +1,7 @@
 import re
 from typing import List
 
-from src.core.entities import (
-    Catalog,
-    Profile,
-    ProfileSearchParams,
-    Shelf,
-    ShelfSearchParams,
-)
+from src.core.entities import Catalog, Profile, ProfileSearchParams, Shelf, ShelfSearchParams
 
 
 def payload_to_catalog(payload: dict) -> Catalog:

@@ -1,7 +1,7 @@
 import logging.config
 
-from src.dataproviders.db.handler import DbHandler
 from src.config import Config
+from src.dataproviders.db.handler import DbHandler
 
 config = Config()
 
