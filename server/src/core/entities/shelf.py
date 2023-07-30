@@ -22,7 +22,7 @@ class Shelf(Entity, CreatedUpdatedAtMixin):
 @dataclass
 class ShelfSearchParams(Entity):
     profile_uuid: UUID
-    shelf_uuids: list[UUID] = field(default_factory=list)
+    phrase: str | None = None
     page: int = 1
 
 

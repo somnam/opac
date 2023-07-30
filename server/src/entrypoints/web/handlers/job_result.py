@@ -15,12 +15,12 @@ class JobResultHandler(tornado.web.RequestHandler, JsonSchemaMixin, ErrorHandler
     @classmethod
     def route(cls, **kwargs: Dict) -> Tuple[str, Any, Dict[str, Any]]:
         # route / handler / kwargs
-        return (r"/client/(?P<client_id>\w+)/job-result", cls, kwargs)
+        return (r"/profile/(?P<profile_uuid>\w+)/job/(?P<job_uuid>\w+)", cls, kwargs)
 
     def initialize(self) -> None:
         self.job_service = JobService()
 
-    def post(self, *args: Any, **kwargs: Any) -> None:
+    def get(self, *args: Any, **kwargs: Any) -> None:
         with self.handle_error():
             client_id = kwargs["client_id"]
 

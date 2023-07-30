@@ -1,3 +1,5 @@
+"use strict";
+
 export default class LoadingBtn {
     constructor(selector) {
         this.selector = selector;

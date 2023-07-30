@@ -1,3 +1,5 @@
+"use strict";
+
 export default class DataTable {
     constructor(name, headers) {
         this.id = `${name}-table`;

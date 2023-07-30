@@ -5,11 +5,6 @@ description = "opac app"
 authors = []
 packages = [{include = "src"}]
 
-[tool.poetry.scripts]
-run_app = "src.entrypoints.web.app:run"
-run_worker = "src.entrypoints.tasks.worker:run"
-create_schema = "src.entrypoints.scripts.schema:run"
-
 [tool.poetry.dependencies]
 python = "^3.11"
 aiohttp = "^3.8"

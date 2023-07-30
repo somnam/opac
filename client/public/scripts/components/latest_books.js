@@ -1,6 +1,9 @@
-import Field from './widgets/field.js';
-import DataTable from './widgets/data_table.js';
+"use strict";
+
+import Field from '../widgets/field.js';
+import DataTable from '../widgets/data_table.js';
 import Storage from '../app/storage.js';
+import { InternalServerError } from '../app/exception.js';
 
 
 class LatestBooks extends Field {
@@ -11,6 +14,10 @@ class LatestBooks extends Field {
           <div id="latest-books-table" class="nes-table-responsive"></div>
         </div>
 
+        <button class="nes-btn is-primary btn-block mb-4" id="catalogs-btn">
+          To Catalogs
+        </button>
+
         <button class="nes-btn btn-block mb-4" id="go-back-btn">
           Back
         </button>
@@ -20,21 +27,11 @@ class LatestBooks extends Field {
     headers = [
         'title',
         'author',
-        'category',
-        'pages'
-    ]
-
-    details = [
-        'subtitle',
-        'original_title',
         'isbn',
-        'release'
     ]
 
     constructor(transport) {
-        super();
-
-        this.transport = transport;
+        super(transport);
 
         this.dataTable = new DataTable('latest-books', this.headers);
     }
@@ -49,20 +46,22 @@ class LatestBooks extends Field {
         };
 
         this.transport.post('latest-books/search', message)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new InternalServerError(response.status);
+                } else {
+                    return response.json();
+                }
+            })
             .then(result => {
-                Storage.setEncoded('latest-books', result);
-                this.emit('latest-books-data');
+                if (result !== null) {
+                    Storage.setEncoded('latest-books', result);
+                    super.onInit();
+                } else {
+                    console.log("No latest books found.")
+                }
             })
             .catch(error => console.error(error));
-    }
-
-    onData() {
-        if (Storage.getDecoded('latest-books') !== null) {
-            super.onData();
-        } else {
-            console.log("No latest books found.")
-        }
     }
 
     onRender() {
@@ -71,7 +70,7 @@ class LatestBooks extends Field {
     }
 
     onBack() {
-        this.emit('latest-books-hide');
+        this.emit(`${this}-hide`);
         this.emit('exclude-latest-book-shelves-init');
     }
 
@@ -86,14 +85,24 @@ class LatestBooks extends Field {
     }
 
     addEvents() {
+        const catalogsBtn = document.querySelector('#catalogs-btn');
+        catalogsBtn.addEventListener('click', (event) => {
+            this.catalogsBtnEventListener(event);
+        });
+
         const backBtn = document.querySelector('#latest-books-fields > #go-back-btn');
         backBtn.addEventListener('click', (event) => this.backBtnListener(event));
     }
 
+    catalogsBtnEventListener(event) {
+        event.preventDefault();
+        this.emit(`${this}-hide`);
+        this.emit('catalogs-init');
+    }
+
     backBtnListener(event) {
         event.preventDefault();
-
-        this.emit('latest-books-back');
+        this.emit(`${this}-back`);
     }
 }
 

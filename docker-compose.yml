@@ -21,7 +21,7 @@ services:
       - server
     volumes:
       - ./var:/home/opac/var
-    command: bash -c "poetry run create_schema"
+    command: scripts/create-schema
 
   worker:
     build:

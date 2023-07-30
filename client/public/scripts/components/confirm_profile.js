@@ -1,8 +1,11 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from './widgets/radio_list.js';
-import LoadingBtn from './widgets/loading_btn.js';
-import Pager from './widgets/pager.js';
+import RadioList from '../widgets/radio_list.js';
+import LoadingBtn from '../widgets/loading_btn.js';
+import Pager from '../widgets/pager.js';
+import { InternalServerError } from '../app/exception.js';
 
 
 class ConfirmProfile extends Field {
@@ -25,9 +28,7 @@ class ConfirmProfile extends Field {
     `;
 
     constructor(transport) {
-        super();
-
-        this.transport = transport;
+        super(transport);
 
         this.on('confirm-profile-paginate', page => this.onPaginate(page));
 
@@ -37,27 +38,8 @@ class ConfirmProfile extends Field {
     static toString() { return 'confirm-profile' }
 
     onInit() {
-        if (Storage.getDecoded('profiles') !== null) {
-            this.emit('confirm-profile-data');
-            return;
-        }
-
-        const searchProfile = Storage.get('searchProfile');
-        if (searchProfile !== null) {
-            const message = {phrase: searchProfile};
-            this.transport.recv('search-profile', message)
-                .then(() => this.emit('confirm-profile-data'))
-                .catch(error => console.error(error));
-        } else {
-            console.log("No search profile.");
-        }
-    }
-
-    onData() {
-        this.emit('search-profile-hide');
-
-        if (Storage.getDecoded('profiles') !== null) {
-            super.onData();
+        if (Storage.get('profiles') !== null) {
+            super.onInit();
         } else {
             this.emit('no-profile-init');
         }
@@ -78,7 +60,13 @@ class ConfirmProfile extends Field {
         const profile = this.radioList.checked;
 
         this.transport.post('profile', profile)
-            .then(() => this.transport.get(`profile/${profile.uuid}/shelves`))
+            .then(response => {
+                if (!response.ok) {
+                    throw new InternalServerError(response.status);
+                } else {
+                    return Promise.resolve();
+                }
+            })
             .then(() => this.emit('confirm-profile-next'))
             .catch(error => console.error(error));
     }

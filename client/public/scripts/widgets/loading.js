@@ -1,3 +1,5 @@
+"use strict";
+
 export default class Loading {
     constructor(...selectors) {
         this.selectors = selectors;

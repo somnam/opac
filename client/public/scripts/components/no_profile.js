@@ -1,4 +1,6 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 
 
 class NoProfile extends Field {
@@ -16,12 +18,6 @@ class NoProfile extends Field {
         </button>
       </fieldset>
     `;
-
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
 
     static toString() { return 'no-profile' }
 

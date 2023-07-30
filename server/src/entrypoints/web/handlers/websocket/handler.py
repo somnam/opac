@@ -8,20 +8,13 @@ import tornado.websocket
 
 from src.entrypoints.exceptions import OperationNotFound
 from src.entrypoints.web.handlers.websocket.base import IWebSocketOperation
-from src.entrypoints.web.handlers.websocket.profile import ProfileSearchOperation
-from src.entrypoints.web.handlers.websocket.shelves import ShelvesOperation
 from src.entrypoints.web.mixin import ErrorHandlerMixin, JsonSchemaMixin
 
 logger = logging.getLogger(__name__)
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, ErrorHandlerMixin):
-    operations: List[Type[IWebSocketOperation]] = [
-        ProfileSearchOperation,
-        ShelvesOperation,
-    ]
-
-    clients: Dict[str, Any] = dict()
+    operations: List[Type[IWebSocketOperation]] = []
 
     @property
     def operations_map(self) -> Dict:
@@ -61,19 +54,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, Erro
 
     def open(self, *args: str, **kwargs: str) -> None:
         """Client opens a websocket connection."""
-        logger.info("Open connection")
-
-        if self.client_id not in WebSocketHandler.clients:
-            WebSocketHandler.clients[self.client_id] = self
-
-        self.write_message(
-            self.encode_message(
-                {
-                    "operation": "open-connection",
-                    "payload": {"client_id": self.client_id},
-                }
-            )
-        )
+        logger.info(f"Open connection for client {self.client_id}")
 
     async def on_message(self, message: Union[str, bytes]) -> None:
         logger.info(f"Got message: {message!r}")
@@ -105,9 +86,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler, JsonSchemaMixin, Erro
                 )
 
     def on_close(self) -> None:
-        logger.info("Closing connection")
-        if self.client_id in WebSocketHandler.clients:
-            del WebSocketHandler.clients[self.client_id]
+        logger.info(f"Closing connection for client {self.client_id}")
 
     def check_origin(self, origin: str) -> bool:
         logger.info(f"Origin: {origin}")

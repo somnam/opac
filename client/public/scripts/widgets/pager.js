@@ -1,4 +1,6 @@
-import {EventEmitter} from '../../mixin/event_emitter.js';
+"use strict";
+
+import {EventEmitter} from '../mixin/event_emitter.js';
 
 
 export default class Pager {

@@ -10,3 +10,7 @@ logging.config.fileConfig(config)
 
 def run() -> None:
     DbHandler.create_schema()
+
+
+if __name__ == "__main__":
+    run()

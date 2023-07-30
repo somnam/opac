@@ -1,5 +1,7 @@
-import { EventEmitter } from '../../mixin/event_emitter.js';
-import { NotImplementedError } from '../../app/exception.js';
+"use strict";
+
+import { EventEmitter } from '../mixin/event_emitter.js';
+import { NotImplementedError } from '../app/exception.js';
 
 
 class Field {
@@ -7,12 +9,12 @@ class Field {
     parser = new DOMParser();
     template = null;
 
-    constructor(parentSelector) {
-        this.parent = document.querySelector(parentSelector || '#app-form');
+    constructor(transport, parentSelector = '#app-form') {
+        this.transport = transport;
+
+        this.parent = document.querySelector(parentSelector);
 
         this.on(`${this}-init`, (message) => this.onInit(message));
-
-        this.on(`${this}-data`, () => this.onData());
 
         this.on(`${this}-show`, () => this.onShow());
 
@@ -27,9 +29,7 @@ class Field {
 
     toString() { return this.__proto__.constructor.toString() }
 
-    onInit(message = null) { this.emit(`${this}-data`, message); }
-
-    onData() { this.emit(`${this}-show`) }
+    onInit(message = null) { this.emit(`${this}-show`); }
 
     onShow() {
         this.render()
@@ -47,8 +47,9 @@ class Field {
 
     render() {
         return new Promise((resolve, reject) => {
-            if (!this.template)
+            if (!this.template) {
                 reject(new NotImplementedError());
+            }
 
             this.remove();
 

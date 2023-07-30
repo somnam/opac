@@ -1,8 +1,11 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from './widgets/radio_list.js';
-import LoadingBtn from './widgets/loading_btn.js';
-import Pager from './widgets/pager.js';
+import RadioList from '../widgets/radio_list.js';
+import LoadingBtn from '../widgets/loading_btn.js';
+import Pager from '../widgets/pager.js';
+import { NotFoundError, InternalServerError } from '../app/exception.js';
 
 
 class Shelves extends Field {
@@ -25,9 +28,7 @@ class Shelves extends Field {
     `;
 
     constructor(transport) {
-        super();
-
-        this.transport = transport;
+        super(transport);
 
         this.on('shelves-paginate', (page) => this.onPaginate(page));
     }
@@ -35,13 +36,27 @@ class Shelves extends Field {
     static toString() { return 'shelves' }
 
     onInit(message) {
-        if (message == undefined || message == null) {
-            message = Storage.getDecoded('profile');
-        }
-
-        this.transport.recv('shelves', message)
-        .then(() => this.emit('shelves-data'))
-        .catch(error => console.error(error));
+        const profile = Storage.getDecoded('profile');
+        this.transport.post(`profile/${profile.uuid}/shelves/search`, message)
+            .then(response => {
+                if (response.status === 404) {
+                    throw new NotFoundError();
+                }
+                if (!response.ok) {
+                    throw new InternalServerError(response.status);
+                } else {
+                    return response.json();
+                }
+            })
+            .then((result) => {
+                if (result.items.length !== 0) {
+                    Storage.setEncoded('shelves', result);
+                } else {
+                    Storage.remove('shelves');
+                }
+                super.onInit();
+            })
+            .catch(error => console.error(error));
     }
 
     onRender() {
@@ -90,11 +105,7 @@ class Shelves extends Field {
     }
 
     onPaginate(page) {
-        const profile = Storage.getDecoded('profile');
-        this.emit(
-            'shelves-init',
-            {name: profile.name, value: profile.value, page: page},
-        )
+        this.emit('shelves-init', {page: page})
     }
 
     selectShelfBtnListener(event) {

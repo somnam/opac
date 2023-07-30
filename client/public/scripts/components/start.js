@@ -1,12 +1,14 @@
-import Field from './widgets/field.js';
-import ButtonGroup from './widgets/button_group.js';
+"use strict";
+
+import Field from '../widgets/field.js';
+import ButtonGroup from '../widgets/button_group.js';
 import Storage from '../app/storage.js';
-import { ProfileNotFoundError, InternalServerError } from '../app/exception.js';
+import { NotFoundError, InternalServerError } from '../app/exception.js';
 
 
 class StartPage extends Field {
     template = `
-      <fieldset id="start-page-fields">
+      <fieldset id="start-fields">
         <h2 id="title" class="mb-4">Hello</h2>
         <div id="shelves-list-container" class="nes-container with-title mb-4">
             <h3 class="title">Shelves</h3>
@@ -16,7 +18,7 @@ class StartPage extends Field {
             </div>
         </div>
 
-        <button class="nes-btn is-primary btn-block mb-4" id="start-page-btn">
+        <button class="nes-btn is-primary btn-block mb-4" id="catalogs-btn">
           To Catalogs
         </button>
 
@@ -27,15 +29,9 @@ class StartPage extends Field {
        </fieldset>
     `;
 
-    constructor(transport) {
-        super();
+    static toString() { return 'start' }
 
-        this.transport = transport;
-    }
-
-    static toString() { return 'start-page' }
-
-    onData() {
+    onInit() {
         if (!Storage.get('profile')) {
             this.emit('search-profile-init');
             return;
@@ -46,14 +42,18 @@ class StartPage extends Field {
         this.transport.get(`profile/${profile.uuid}/shelves`)
             .then(response => {
                 if (response.status === 404) {
-                    throw new ProfileNotFoundError();
-                } else if (!response.ok) {
-                    throw new InternalServerError();
+                    throw new NotFoundError();
                 }
-
-                return response.json();
+                if (!response.ok) {
+                    throw new InternalServerError(response.status);
+                } else {
+                    return response.json();
+                }
             })
-            .then(result => this.onShelves(result))
+            .then(result => {
+                Storage.setEncoded('shelves', result);
+                super.onInit();
+            })
             .catch(error => {
                 if (error.code && error.code === 404) {
                     this.emit('search-profile-init');
@@ -61,11 +61,6 @@ class StartPage extends Field {
                     console.error(error);
                 }
             });
-    }
-
-    onShelves(result) {
-        Storage.setEncoded('shelves', result);
-        super.onData();
     }
 
     onRender() {
@@ -101,9 +96,9 @@ class StartPage extends Field {
     }
 
     addEvents() {
-        const startPageBtn = document.querySelector('#start-page-btn');
-        startPageBtn.addEventListener('click', (event) => {
-            this.startPageBtnEventListener(event);
+        const catalogsBtn = document.querySelector('#catalogs-btn');
+        catalogsBtn.addEventListener('click', (event) => {
+            this.catalogsBtnEventListener(event);
         });
 
         const switchProfileBtn = document.querySelector('#switch-profile-btn');
@@ -112,7 +107,7 @@ class StartPage extends Field {
         });
     }
 
-    startPageBtnEventListener(event) {
+    catalogsBtnEventListener(event) {
         event.preventDefault();
         this.emit(`${this}-next`);
     }
@@ -126,8 +121,6 @@ class StartPage extends Field {
     }
 
     onNext() {
-        Storage.remove('shelves');
-
         this.emit(`${this}-hide`);
         this.emit('catalogs-init');
     }

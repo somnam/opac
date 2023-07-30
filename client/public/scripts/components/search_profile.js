@@ -1,6 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import LoadingBtn from './widgets/loading_btn.js';
+import LoadingBtn from '../widgets/loading_btn.js';
+import { InternalServerError } from '../app/exception.js';
 
 
 class SearchProfile extends Field {
@@ -24,12 +27,6 @@ class SearchProfile extends Field {
        </fieldset>
     `;
 
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
-
     static toString() { return 'search-profile' }
 
     onRender() {
@@ -45,15 +42,33 @@ class SearchProfile extends Field {
         if (profileName.length === 0) {
             return;
         }
-
         Storage.set('searchProfile', profileName);
 
-        this.emit('confirm-profile-init');
+        this.transport.post('profile/search', {phrase: profileName})
+            .then(response => {
+                if (!response.ok) {
+                    throw new InternalServerError(response.status);
+                } else {
+                    return response.json();
+                }
+            })
+            .then(result => {
+                this.emit('search-profile-hide');
+
+                if (result.items.length !== 0) {
+                    Storage.setEncoded('profiles', result);
+                    this.emit('confirm-profile-init');
+                } else {
+                    this.emit('no-profile-init');
+                }
+            })
+            .catch(error => console.error(error));
+
     }
 
     onBack() {
         this.emit('search-profile-hide');
-        this.emit('start-page-init');
+        this.emit('start-init');
     }
 
     addEvents() {

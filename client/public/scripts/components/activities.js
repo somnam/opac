@@ -1,7 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from './widgets/radio_list.js';
-import LoadingBtn from './widgets/loading_btn.js';
+import RadioList from '../widgets/radio_list.js';
+import LoadingBtn from '../widgets/loading_btn.js';
 
 
 class Activities extends Field {
@@ -28,12 +30,6 @@ class Activities extends Field {
         {"name": "Search books", "value": "search-books"},
     ];
 
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
-
     static toString() { return 'activities' }
 
     onRender() {
@@ -55,10 +51,8 @@ class Activities extends Field {
 
         switch(activity ? activity.value : null) {
             case 'search-books':
-                const profile = Storage.getDecoded('profile');
-
                 this.emit('activities-hide');
-                this.emit('shelves-init', profile);
+                this.emit('shelves-init');
                 break;
             case 'search-latest-books':
                 this.emit('search-latest-books-init');

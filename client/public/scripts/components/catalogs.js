@@ -1,7 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import RadioList from './widgets/radio_list.js';
-import LoadingBtn from './widgets/loading_btn.js';
+import RadioList from '../widgets/radio_list.js';
+import LoadingBtn from '../widgets/loading_btn.js';
 
 
 class Catalogs extends Field {
@@ -27,12 +29,6 @@ class Catalogs extends Field {
         {"name": "Opac (Bielsko-Biała)", "value": "4949"},
         {"name": "Wojewódzka Biblioteka Publiczna (Kraków)", "value": "5004"},
     ];
-
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
 
     static toString() { return 'catalogs' }
 
@@ -60,7 +56,7 @@ class Catalogs extends Field {
         Storage.remove('catalogs', 'catalog');
 
         this.emit('catalogs-hide');
-        this.emit('start-page-init');
+        this.emit('start-init');
     }
 
     addEvents() {

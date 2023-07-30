@@ -1,13 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 
 
 class SearchCatalog extends Field {
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
-
     static toString() { return 'search-catalog' }
 
     onInit(message) {

@@ -1,4 +1,6 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
 
 
@@ -18,9 +20,8 @@ class SearchLatestBooks extends Field {
                 this.emit('in-development-init');
                 break;
             case "5004":
-                const profile = Storage.getDecoded('profile');
                 this.emit('activities-hide');
-                this.emit('include-latest-book-shelves-init', profile);
+                this.emit('include-latest-book-shelves-init');
                 break;
             default:
                 console.error("No catalog defined.");

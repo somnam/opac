@@ -1,3 +1,5 @@
+"use strict";
+
 export class NotImplementedError extends Error {
     constructor(message) {
         super(message || "");
@@ -14,10 +16,10 @@ export class InternalServerError extends Error {
     }
 }
 
-export class ProfileNotFoundError extends Error {
+export class NotFoundError extends Error {
     constructor(message) {
         super(message || "");
-        this.name = "ProfileNotFoundError";
+        this.name = "NotFoundError";
         this.code = 404;
     }
 }

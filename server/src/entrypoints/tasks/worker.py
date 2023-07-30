@@ -40,3 +40,7 @@ def run() -> None:
         Worker.run()
     except KeyboardInterrupt:
         logger.info("Shutting down worker.")
+
+
+if __name__ == "__main__":
+    run()

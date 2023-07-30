@@ -33,7 +33,7 @@ class SearchShelvesUseCase:
             async with self._repository.context():
                 await self._repository.shelf.create_many(shelves)
 
-        if params.shelf_uuids:
-            shelves = [shelf for shelf in shelves if shelf.uuid in params.shelf_uuids]
+        if params.phrase:
+            shelves = [shelf for shelf in shelves if params.phrase in shelf.name]
 
         return ShelfSearchResult(items=shelves, page=params.page)

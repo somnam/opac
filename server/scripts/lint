@@ -1,10 +1,4 @@
 #!/bin/bash
 
-
-run-lint () {
-    poetry run isort src/ tests/
-    poetry run black src/ tests/
-}
-
-
-run-lint
+poetry run isort src/ tests/
+poetry run black src/ tests/

@@ -1,7 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import CheckboxList from './widgets/checkbox_list.js';
-import Pager from './widgets/pager.js';
+import CheckboxList from '../widgets/checkbox_list.js';
+import Pager from '../widgets/pager.js';
 
 
 export default class IncludeLatestBooksShelves extends Field {
@@ -23,20 +25,12 @@ export default class IncludeLatestBooksShelves extends Field {
         `;
 
     constructor(transport) {
-        super();
-
-        this.transport = transport;
+        super(transport);
 
         this.on('include-latest-book-shelves-paginate', page => this.onPaginate(page));
     }
 
     static toString() { return 'include-latest-book-shelves' }
-
-    onInit(message) {
-        this.transport.recv('shelves', message)
-            .then(() => this.emit('include-latest-book-shelves-data'))
-            .catch(error => console.error(error));
-    }
 
     onRender() {
         this.checkboxList = new CheckboxList('shelves', 'include-latest-book-shelves');
@@ -52,15 +46,14 @@ export default class IncludeLatestBooksShelves extends Field {
 
     onNext() {
         const shelves = this.checkboxList.checked;
-        const profile = Storage.getDecoded('profile');
 
         Storage.setEncoded('include-latest-book-shelves', shelves);
 
-        this.emit('exclude-latest-book-shelves-init', profile);
+        this.emit('exclude-latest-book-shelves-init');
     }
 
     onBack() {
-        Storage.remove('include-latest-book-shelves', 'shelves');
+        Storage.remove('include-latest-book-shelves');
 
         this.emit('include-latest-book-shelves-hide');
         this.emit('activities-init');
@@ -96,11 +89,6 @@ export default class IncludeLatestBooksShelves extends Field {
     }
 
     onPaginate(page) {
-        const profile = Storage.getDecoded('profile');
-
-        this.emit(
-            'include-latest-book-shelves-init',
-            { name: profile.name, value: profile.value, page: page },
-        )
+        this.emit('include-latest-book-shelves-init', {page: page });
     }
 }

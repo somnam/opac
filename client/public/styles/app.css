@@ -34,11 +34,11 @@ fieldset {
     width: 540px;
 }
 
-#start-page-fields {
+#start-fields {
     width: 960px;
 }
 
-#start-page-fields #shelves-list-container button {
+#start-fields #shelves-list-container button {
     margin: 4px 12px 12px 12px;
 }
 

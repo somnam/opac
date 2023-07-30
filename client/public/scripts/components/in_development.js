@@ -1,4 +1,6 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 
 
 class InDevelopment extends Field {
@@ -17,12 +19,6 @@ class InDevelopment extends Field {
       </fieldset>
     `;
 
-    constructor(transport) {
-        super();
-
-        this.transport = transport;
-    }
-
     static toString() { return 'in-development' }
 
     onRender() {
@@ -31,7 +27,7 @@ class InDevelopment extends Field {
 
     onBack() {
         this.emit('in-development-hide');
-        this.emit(`start-page-init`);
+        this.emit(`start-init`);
     }
 
     addEvents() {

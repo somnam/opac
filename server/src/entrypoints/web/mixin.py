@@ -40,7 +40,7 @@ class JsonSchemaMixin:
 
     def decode_message(self, message: Union[str, bytes]) -> Dict:
         try:
-            decoded_message: Dict = json.loads(message)
+            decoded_message: Dict = json.loads(message) if len(message) else {}
         except json.JSONDecodeError as e:
             raise MessageDecodeError(str(e))
 
@@ -81,9 +81,9 @@ class ErrorHandlerMixin:
             reason = f"[{code}] {e.message}: {e.detail}"
 
             if code >= 500:
-                logger.critical(reason)
+                logger.critical(reason, exc_info=True)
             else:
-                logger.error(reason)
+                logger.error(reason, exc_info=True)
 
             self.set_status(code)
 
@@ -91,6 +91,6 @@ class ErrorHandlerMixin:
             code = 500
             reason = f"[{code}] Error: {e!s}"
 
-            logger.critical(reason)
+            logger.critical(reason, exc_info=True)
 
             self.set_status(code)

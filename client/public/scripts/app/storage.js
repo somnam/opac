@@ -1,3 +1,5 @@
+"use strict";
+
 export default class Storage {
     static get(item) {
         return localStorage.getItem(item);

@@ -1,4 +1,6 @@
-import StartPage from '../components/start_page.js';
+"use strict";
+
+import Start from '../components/start.js';
 import Activities from '../components/activities.js';
 import Catalogs from '../components/catalogs.js';
 import ConfirmProfile from '../components/confirm_profile.js';
@@ -14,11 +16,11 @@ import Shelves from '../components/shelves.js';
 
 
 class Components {
-    constructor(transport) {
+    constructor(transport, state) {
         this.components = [];
 
         [
-            StartPage,
+            Start,
             Activities,
             Catalogs,
             ConfirmProfile,
@@ -31,8 +33,12 @@ class Components {
             ExcludeLatestBooksShelves,
             SearchProfile,
             Shelves,
-        ].forEach((component) => {
-            this.components.push(new component(transport));
+        ].forEach((componentClass) => {
+            const component = new componentClass(transport);
+            component.on(`${component}-init`, () => {
+                state.current = `${component}`;
+            });
+            this.components.push(component);
         });
     }
 }

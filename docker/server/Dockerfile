@@ -22,7 +22,7 @@ ENV PATH="/home/opac/.local/bin:$PATH"
 
 # Copy requirements file
 COPY --chown=opac:opac ./server/pyproject.toml ./server/poetry.lock /home/opac/
-COPY --chown=opac:opac ./server/src/entrypoints /home/opac/src/entrypoints
+COPY --chown=opac:opac ./server/src/__init__.py /home/opac/src/__init__.py
 
 # Install pipx and poetry
 RUN pip install "pipx==$PIPX_VERSION"
@@ -37,4 +37,4 @@ COPY --chown=opac:opac ./server/ /home/opac/
 EXPOSE 8888
 
 # Run app
-CMD poetry run run_app
+CMD scripts/run-app

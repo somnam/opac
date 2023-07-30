@@ -1,7 +1,9 @@
-import Field from './widgets/field.js';
+"use strict";
+
+import Field from '../widgets/field.js';
 import Storage from '../app/storage.js';
-import CheckboxList from './widgets/checkbox_list.js';
-import Pager from './widgets/pager.js';
+import CheckboxList from '../widgets/checkbox_list.js';
+import Pager from '../widgets/pager.js';
 
 
 export default class ExcludeLatestBooksShelves extends Field {
@@ -23,9 +25,7 @@ export default class ExcludeLatestBooksShelves extends Field {
     `;
 
     constructor(transport) {
-        super();
-
-        this.transport = transport;
+        super(transport);
 
         this.on(`exclude-latest-book-shelves-init`, (message) => this.onInit(message));
 
@@ -44,17 +44,9 @@ export default class ExcludeLatestBooksShelves extends Field {
         );
 
         if (shelves && showCurrentPage) {
-            this.emit('exclude-latest-book-shelves-data');
-        } else {
-            this.transport.recv('shelves', message)
-                .then(() => this.emit('exclude-latest-book-shelves-data'))
-                .catch(error => console.error(error));
+            this.emit('include-latest-book-shelves-hide');
         }
-    }
-
-    onData() {
-        this.emit('include-latest-book-shelves-hide');
-        super.onData();
+        super.onInit();
     }
 
     onRender() {
